@@ -1,7 +1,7 @@
 ﻿# Visual Contract Refactor Report
 
 Дата: 2026-05-19  
-Статус: implemented before deployment smoke
+Статус: implemented, tested and deployed
 
 ## Что исправлено
 
@@ -25,4 +25,12 @@
 - `npm run typecheck`: passed.
 - `npm run test:run`: passed, 8 files / 24 tests.
 
-Deployment/build smoke фиксируется после server deploy.
+- `npm run build`: passed.
+- Server deploy: `kassa-web` rebuilt and restarted on `roman@192.168.7.64`.
+- `https://kassa.speechbattle.com`: `200 OK`.
+- SPA fallback `/catalog`: `200 OK`.
+- Deployed CSS bundle contains `product-grid` and `cart-layout` visual contract classes.
+- `index.html` has no `http://` links.
+- `kassa-web` container is running on `traefik-net`.
+
+Manual visual smoke on the target Android tablet is still recommended for camera + touch ergonomics.
