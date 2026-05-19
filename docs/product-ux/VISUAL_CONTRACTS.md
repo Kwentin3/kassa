@@ -21,8 +21,10 @@
 - `.scroll-y`: явная вертикальная scroll-зона.
 - `.cart-layout`: корзина + рабочая область.
 - `.catalog-layout`: категории + сетка товаров.
+- `.catalog-nav`: левая панель категорий с собственной scroll-зоной.
+- `.catalog-nav-button`: touch-first кнопки категорий с depth shadow и pressed-state.
 - `.search-layout`: экранная клавиатура + результаты.
-- `.product-grid`: адаптивная сетка карточек через `auto-fit`.
+- `.product-grid`: адаптивная сетка карточек через `flex-wrap`.
 - `.product-card`: стабильная карточка товара.
 - `.responsive-panel`: центрированные панели оплаты, ошибок, staff и receipt.
 - `.visual-contract-grid`: панели demo/branding без фиксированных колонок.
@@ -51,6 +53,15 @@ Element-level tokens:
 - `--product-image-height`: максимальная высота изображения внутри карточки.
 
 Rule of thumb: при 1-2 карточках на экране карточка остаётся компактной; пустое пространство остаётся вокруг сетки, а не превращается в растянутую карточку.
+
+## Catalog Navigation Contract
+
+- Левая панель каталога визуально отделяется от фона как самостоятельный floating rail.
+- Кнопки категорий должны выглядеть нажимаемыми: иметь тень, active-state и pressed-state.
+- Активная категория получает более сильную branded shadow, но не должна спорить с основным CTA карточки товара.
+- Disabled demo edge-case button остаётся видимой, но явно недоступной.
+- На touch-экранах основной feedback — нажатие; hover/lift используется только для pointer devices.
+- Тени и pressed-state не должны менять layout, ширину панели или scroll-поведение.
 
 ## Breakpoints
 
@@ -90,5 +101,6 @@ Secondary adaptation:
 - открыть catalog/search/cart/payment/receipt на `https://kassa.speechbattle.com`;
 - проверить, что карточки товаров оборачиваются в сетке и не уходят за viewport;
 - проверить, что карточки имеют depth shadow и нажатие на CTA визуально отзывается без изменения layout;
+- проверить, что левая панель каталога и кнопки категорий имеют depth shadow и pressed feedback;
 - проверить, что скролл вертикальный и находится внутри screen body;
 - проверить, что product images либо загрузились, либо показали fallback initials.

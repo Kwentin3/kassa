@@ -21,9 +21,10 @@
 - Тесты: 9 files / 26 tests.
 - Product cards use demo HTTPS image URLs from `src/services/productImages.ts` with fallback initials if external images fail.
 - Visual layout contract lives in `docs/product-ux/VISUAL_CONTRACTS.md`; avoid new fixed-width screen layouts without an explicit scroll/overflow contract.
-- Product card contract is element-level: single/few cards should stay compact, with capped thumbnails, no full-width stretching, depth shadow and pressed feedback on the add CTA.
-- Playwright external visual smoke is available: `npm run visual:cards`; it checks size, no unwanted body/content scroll, card shadow and pressed transform.
-- Latest deployed visual commit: `48d7657` (`Add product card depth interactions`).
+- Product card contract is element-level: single/few cards should stay compact, with capped thumbnails, no full-width stretching, stronger depth shadow and pressed feedback on the add CTA.
+- Catalog left panel uses floating category buttons with depth shadow, active-state and pressed feedback.
+- Playwright external visual smoke is available: `npm run visual:cards`; it checks size, no unwanted body/content scroll, card/nav shadows and pressed transforms.
+- Latest deployed visual change: `Add floating catalog nav interactions`; use current branch head after deploy.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

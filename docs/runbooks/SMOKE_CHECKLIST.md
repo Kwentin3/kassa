@@ -33,6 +33,7 @@ Manual Android tablet camera smoke is still required on the physical device.
 - [ ] One or two search results stay compact and do not stretch into oversized cards.
 - [ ] Product thumbnails have stable height and do not force unnecessary scroll for a single card.
 - [ ] Product cards have visible depth shadow and pressed feedback when tapping the add CTA.
+- [ ] Catalog left panel and category buttons have visible depth shadow and pressed feedback.
 - [ ] `npm run visual:cards` passes against deployed URL.
 - [ ] Catalog/search/cart use vertical scroll zones when content exceeds viewport.
 - [ ] Card mock success transitions to receipt.

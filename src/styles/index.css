@@ -143,6 +143,83 @@ select:focus-visible {
   gap: var(--screen-gap);
 }
 
+.catalog-nav {
+  box-shadow:
+    0 28px 70px rgba(15, 23, 42, 0.13),
+    0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.catalog-nav-button {
+  position: relative;
+  isolation: isolate;
+  min-height: 58px;
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 8px;
+  padding: 0 16px;
+  text-align: left;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.15;
+  box-shadow:
+    0 12px 22px rgba(15, 23, 42, 0.12),
+    0 3px 8px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.82) inset;
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease,
+    color 150ms ease;
+  will-change: transform;
+}
+
+.catalog-nav-button-muted {
+  background: rgba(255, 255, 255, 0.94);
+  color: #172033;
+}
+
+.catalog-nav-button-active {
+  border-color: color-mix(in srgb, var(--brand-primary) 84%, white);
+  background: var(--brand-primary);
+  color: white;
+  box-shadow:
+    0 16px 30px color-mix(in srgb, var(--brand-primary) 26%, transparent),
+    0 5px 12px rgba(15, 23, 42, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.30) inset;
+}
+
+.catalog-nav-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.catalog-nav-button:active {
+  transform: translateY(2px) scale(0.986);
+  box-shadow:
+    0 7px 14px rgba(15, 23, 42, 0.16),
+    0 2px 5px rgba(15, 23, 42, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.60) inset;
+}
+
+.catalog-nav-button:active::after {
+  opacity: 1;
+}
+
+.catalog-nav-button:disabled {
+  cursor: not-allowed;
+  transform: none;
+  box-shadow:
+    0 6px 14px rgba(15, 23, 42, 0.08),
+    0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
 .search-layout {
   display: grid;
   grid-template-columns: minmax(290px, var(--search-keyboard-width)) minmax(0, 1fr);
@@ -168,8 +245,8 @@ select:focus-visible {
   position: relative;
   isolation: isolate;
   box-shadow:
-    0 14px 28px rgba(15, 23, 42, 0.12),
-    0 3px 8px rgba(15, 23, 42, 0.07),
+    0 22px 42px rgba(15, 23, 42, 0.17),
+    0 8px 18px rgba(15, 23, 42, 0.11),
     0 1px 0 rgba(255, 255, 255, 0.72) inset;
   transition:
     transform 160ms ease,
@@ -199,8 +276,8 @@ select:focus-visible {
 .product-card:focus-within {
   border-color: color-mix(in srgb, var(--brand-primary) 42%, white);
   box-shadow:
-    0 20px 40px rgba(15, 23, 42, 0.14),
-    0 5px 12px rgba(15, 23, 42, 0.08),
+    0 26px 52px rgba(15, 23, 42, 0.18),
+    0 7px 16px rgba(15, 23, 42, 0.10),
     0 0 0 3px color-mix(in srgb, var(--brand-primary) 18%, transparent);
 }
 
@@ -208,8 +285,8 @@ select:focus-visible {
   transform: translateY(2px) scale(0.985);
   border-color: color-mix(in srgb, var(--brand-primary) 34%, white);
   box-shadow:
-    0 8px 16px rgba(15, 23, 42, 0.14),
-    0 2px 5px rgba(15, 23, 42, 0.10),
+    0 9px 18px rgba(15, 23, 42, 0.19),
+    0 2px 6px rgba(15, 23, 42, 0.14),
     0 1px 0 rgba(255, 255, 255, 0.64) inset;
 }
 
@@ -222,9 +299,33 @@ select:focus-visible {
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--brand-primary) 24%, white);
     box-shadow:
-      0 22px 42px rgba(15, 23, 42, 0.15),
-      0 7px 18px rgba(15, 23, 42, 0.09),
+      0 30px 58px rgba(15, 23, 42, 0.20),
+      0 10px 24px rgba(15, 23, 42, 0.13),
       0 1px 0 rgba(255, 255, 255, 0.76) inset;
+  }
+
+  .catalog-nav-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--brand-primary) 26%, white);
+    box-shadow:
+      0 18px 34px rgba(15, 23, 42, 0.16),
+      0 6px 15px rgba(15, 23, 42, 0.10),
+      0 1px 0 rgba(255, 255, 255, 0.84) inset;
+  }
+
+  .catalog-nav-button-active:hover:not(:disabled) {
+    box-shadow:
+      0 22px 42px color-mix(in srgb, var(--brand-primary) 30%, transparent),
+      0 7px 18px rgba(15, 23, 42, 0.13),
+      0 1px 0 rgba(255, 255, 255, 0.32) inset;
+  }
+
+  .catalog-nav-button:hover:not(:disabled):active {
+    transform: translateY(2px) scale(0.986);
+    box-shadow:
+      0 7px 14px rgba(15, 23, 42, 0.16),
+      0 2px 5px rgba(15, 23, 42, 0.12),
+      0 1px 0 rgba(255, 255, 255, 0.60) inset;
   }
 
   .product-card:hover .product-visual {
@@ -269,6 +370,8 @@ select:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .product-card,
   .product-card::after,
+  .catalog-nav-button,
+  .catalog-nav-button::after,
   .product-visual,
   .product-visual img {
     transition: none;
@@ -276,6 +379,8 @@ select:focus-visible {
 
   .product-card:hover,
   .product-card:has(.product-card-action:active),
+  .catalog-nav-button:hover,
+  .catalog-nav-button:active,
   .product-card:hover .product-visual,
   .product-card:hover .product-visual img {
     transform: none;

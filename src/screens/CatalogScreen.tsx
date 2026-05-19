@@ -21,22 +21,25 @@ export const CatalogScreen = () => {
       <Header compact />
       <section className="screen-body catalog-layout">
         <nav className="panel catalog-nav scroll-y flex flex-col gap-3 p-4">
-          <Button variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>
+          <Button className="catalog-nav-button catalog-nav-button-muted" variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>
             <ArrowLeft size={24} /> В корзину
           </Button>
           {categoryList.map((item) => (
             <button
-              className={`min-h-[58px] rounded-lg px-4 text-left text-[20px] font-black ${category === item ? 'bg-[var(--brand-primary)] text-white' : 'bg-slate-100 text-slate-800'}`}
+              aria-pressed={category === item}
+              className={`catalog-nav-button ${category === item ? 'catalog-nav-button-active' : 'catalog-nav-button-muted'}`}
               key={item}
               onClick={() => setCategory(item)}
+              type="button"
             >
               {item}
             </button>
           ))}
           <button
-            className="mt-auto min-h-[58px] rounded-lg bg-slate-200 px-4 text-left text-[18px] font-black disabled:opacity-45"
+            className="catalog-nav-button catalog-nav-button-muted mt-auto text-[18px] disabled:opacity-45"
             onClick={() => setCategory('Сценарии')}
             disabled={!demo.edgeCasesEnabled}
+            type="button"
           >
             {demo.edgeCasesEnabled ? 'Demo edge cases' : 'Edge cases выключены'}
           </button>

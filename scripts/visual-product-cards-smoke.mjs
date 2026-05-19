@@ -35,8 +35,17 @@ try {
     });
 
     const content = document.querySelector('section.catalog-layout > div.scroll-y');
+    const navButtons = [...document.querySelectorAll('.catalog-nav-button')].map((el) => {
+      const style = window.getComputedStyle(el);
+      return {
+        hasShadow: style.boxShadow !== 'none',
+        transitionProperty: style.transitionProperty
+      };
+    });
+
     return {
       cards,
+      navButtons,
       contentHasVerticalScroll: content ? content.scrollHeight > content.clientHeight : null,
       bodyHasVerticalScroll: document.documentElement.scrollHeight > document.documentElement.clientHeight
     };
@@ -56,9 +65,25 @@ try {
 
   if (result.contentHasVerticalScroll) throw new Error('Catalog product content should not scroll for two compact cards');
   if (result.bodyHasVerticalScroll) throw new Error('Body/document should not scroll in kiosk layout');
+  if (result.navButtons.length < 3) throw new Error(`Expected catalog nav buttons, got ${result.navButtons.length}`);
+  if (result.navButtons.some((button) => !button.hasShadow)) throw new Error('Catalog nav buttons should have floating shadows');
+  if (result.navButtons.some((button) => !button.transitionProperty.includes('transform'))) {
+    throw new Error('Catalog nav buttons should animate transform for press feedback');
+  }
 
   await mkdir(screenshotPath.split('/').slice(0, -1).join('/'), { recursive: true });
   await page.screenshot({ path: screenshotPath, fullPage: true });
+
+  const activeCategory = page.locator('.catalog-nav-button-active').first();
+  await activeCategory.hover();
+  await page.mouse.down();
+  await page.waitForTimeout(80);
+  result.navPressedTransform = await activeCategory.evaluate((el) => window.getComputedStyle(el).transform);
+  await page.mouse.up();
+
+  if (result.navPressedTransform === 'none') {
+    throw new Error('Catalog nav button should visually compress while pressed');
+  }
 
   const firstAction = page.locator('.product-card .product-card-action').first();
   await firstAction.hover();
