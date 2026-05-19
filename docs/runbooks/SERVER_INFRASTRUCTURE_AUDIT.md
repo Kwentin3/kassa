@@ -1,4 +1,4 @@
-# Server Infrastructure Audit - kassa.speechbattle.com
+﻿# Server Infrastructure Audit - kassa.speechbattle.com
 
 Дата: 2026-05-19  
 Статус: completed / safe for isolated `kassa-web` deployment  
@@ -26,11 +26,10 @@
   - `/var/run/docker.sock -> /var/run/docker.sock` read-only.
 - Existing compose project convention: `/opt/stacks/<service>` for app services.
 - No running `kassa` or `kassa-web` container found.
-- No existing `/home/roman/kassa-web` or `/opt/kassa-web` path found.
-- GitHub repo `https://github.com/Kwentin3/kassa` на момент проверки не имел remote heads.
-- SSH read-only команды не выполнились: подключение зависает на `Connection timed out during banner exchange`.
+- No existing `/home/roman/kassa-web`, `/opt/kassa-web` or `/opt/stacks/kassa-web` path was found before deployment.
+- GitHub repo `https://github.com/Kwentin3/kassa` на момент первой проверки не имел remote heads.
 
-## Непроверенные Факты Из-За SSH Blocker
+## Running Containers Observed
 
 Working containers observed:
 
@@ -42,6 +41,26 @@ Working containers observed:
 - `qdrant`;
 - `postgres-dev-postgres-1`;
 - `github-runner-mcp`.
+
+## Deployment Result
+
+Выполнен isolated deployment нового compose project:
+
+- deployment path: `/opt/stacks/kassa-web`;
+- container: `kassa-web`;
+- image tag: `kassa-web:demo`;
+- network: `traefik-net`;
+- Traefik router rule: `Host('kassa.speechbattle.com')`;
+- Traefik entrypoint: `websecure`;
+- Traefik certresolver: `letsencrypt`.
+
+После деплоя:
+
+- `https://kassa.speechbattle.com` возвращает `200 OK`;
+- TLS certificate выпущен Let's Encrypt для `kassa.speechbattle.com`;
+- `index.html` отдается с `Cache-Control: no-cache, no-store, must-revalidate`;
+- hashed assets из `/assets/*` отдаются с `Cache-Control: public, max-age=31536000, immutable`;
+- `manifest.webmanifest` отдается с `Cache-Control: public, max-age=300`.
 
 ## Deployment Variables
 

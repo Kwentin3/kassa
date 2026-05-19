@@ -1,4 +1,4 @@
-# Deployment Runbook - Self-Checkout Terminal
+﻿# Deployment Runbook - Self-Checkout Terminal
 
 Статус: ready for isolated deployment  
 Домен: `kassa.speechbattle.com`  
@@ -75,6 +75,14 @@ Do not restart or modify existing Traefik.
 - Verify `index.html` uses no-cache/short cache.
 - Verify `/assets/*` uses long immutable cache.
 - Verify `manifest.webmanifest` uses short/moderate cache.
+
+Observed on 2026-05-19:
+
+- `https://kassa.speechbattle.com` returned `200 OK`.
+- TLS certificate subject is `kassa.speechbattle.com`; issuer is Let's Encrypt.
+- `index.html` returned `Cache-Control: no-cache, no-store, must-revalidate`.
+- `/assets/*` returned `Cache-Control: public, max-age=31536000, immutable`.
+- `manifest.webmanifest` returned `Cache-Control: public, max-age=300`.
 
 ## Android Tablet Smoke
 
