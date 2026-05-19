@@ -1,0 +1,22 @@
+services:
+  kassa-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kassa-web:demo
+    container_name: kassa-web
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.kassa.rule=Host(`${HOST_DOMAIN:-kassa.speechbattle.com}`)
+      - traefik.http.routers.kassa.entrypoints=${TRAEFIK_ENTRYPOINT:-websecure}
+      - traefik.http.routers.kassa.tls=true
+      - traefik.http.routers.kassa.tls.certresolver=${TRAEFIK_CERT_RESOLVER:-<existing-certresolver>}
+      - traefik.http.services.kassa.loadbalancer.server.port=80
+
+networks:
+  traefik:
+    external: true
+    name: ${TRAEFIK_NETWORK:-<existing-traefik-network>}

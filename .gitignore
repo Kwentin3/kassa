@@ -1,0 +1,33 @@
+# Dependencies / builds
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+
+# Local environment files.
+# Keep example schemas tracked, ignore real values.
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Local deployment overrides
+docker-compose.override.yml
+.deploy/
+
+# Secret material and private keys
+.secrets/
+ops/secrets/*
+!ops/secrets/.gitkeep
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

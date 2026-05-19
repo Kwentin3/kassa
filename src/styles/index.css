@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --brand-primary: #0f766e;
+  --brand-accent: #f59e0b;
+  --brand-bg: #f5f3ee;
+  color: #17211f;
+  background: var(--brand-bg);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 1024px;
+  min-height: 720px;
+  overflow: hidden;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 4px solid color-mix(in srgb, var(--brand-accent) 80%, white);
+  outline-offset: 3px;
+}
+
+.touch-button {
+  min-height: 64px;
+  border-radius: 8px;
+}
+
+.panel {
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 60px rgba(17, 24, 39, 0.12);
+}
+
+.product-art {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--brand-primary) 22%, white), rgba(255,255,255,.72)),
+    repeating-linear-gradient(45deg, rgba(15,23,42,.08) 0 8px, transparent 8px 16px);
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

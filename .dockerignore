@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+.git
+.env
+.env.*
+!.env.example
+!.env.*.example
+docs/out
+.deploy
+ops/secrets
+*.pem
+*.key
+id_rsa*
+id_ed25519*

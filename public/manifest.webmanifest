@@ -1,0 +1,17 @@
+{
+  "name": "Self-Checkout Terminal Web UI Prototype",
+  "short_name": "Kassa Demo",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#f5f3ee",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
