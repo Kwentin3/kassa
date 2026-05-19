@@ -28,6 +28,7 @@ Manual Android tablet camera smoke is still required on the physical device.
 - [ ] Cart shows item, quantity, line sum and total.
 - [ ] Manual search finds `молоко`.
 - [ ] Catalog adds one product.
+- [ ] Desktop landscape keeps a tablet-like centered work area instead of stretching the terminal UI across the whole monitor.
 - [ ] Product cards show real demo images or safe initials fallback.
 - [ ] Product cards wrap inside the viewport; no horizontal page scroll is needed.
 - [ ] One or two search results stay compact and do not stretch into oversized cards.

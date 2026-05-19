@@ -35,6 +35,8 @@ try {
     });
 
     const content = document.querySelector('section.catalog-layout > div.scroll-y');
+    const screenBody = document.querySelector('.screen-body')?.getBoundingClientRect();
+    const appHeader = document.querySelector('.app-header')?.getBoundingClientRect();
     const navButtons = [...document.querySelectorAll('.catalog-nav-button')].map((el) => {
       const style = window.getComputedStyle(el);
       return {
@@ -46,6 +48,8 @@ try {
     return {
       cards,
       navButtons,
+      stageWidth: Math.round(screenBody?.width ?? 0),
+      headerWidth: Math.round(appHeader?.width ?? 0),
       contentHasVerticalScroll: content ? content.scrollHeight > content.clientHeight : null,
       bodyHasVerticalScroll: document.documentElement.scrollHeight > document.documentElement.clientHeight
     };
@@ -65,6 +69,8 @@ try {
 
   if (result.contentHasVerticalScroll) throw new Error('Catalog product content should not scroll for two compact cards');
   if (result.bodyHasVerticalScroll) throw new Error('Body/document should not scroll in kiosk layout');
+  if (result.stageWidth > 1380) throw new Error(`Desktop stage should stay tablet-like, got ${result.stageWidth}px`);
+  if (result.headerWidth > 1380) throw new Error(`Desktop header should stay tablet-like, got ${result.headerWidth}px`);
   if (result.navButtons.length < 3) throw new Error(`Expected catalog nav buttons, got ${result.navButtons.length}`);
   if (result.navButtons.some((button) => !button.hasShadow)) throw new Error('Catalog nav buttons should have floating shadows');
   if (result.navButtons.some((button) => !button.transitionProperty.includes('transform'))) {

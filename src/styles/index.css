@@ -80,6 +80,7 @@ select:focus-visible {
   --product-card-width: clamp(176px, 13vw, 236px);
   --product-card-max: 236px;
   --product-image-height: clamp(88px, 12dvh, 116px);
+  --tablet-stage-max: 1366px;
 }
 
 .app-screen {
@@ -91,12 +92,16 @@ select:focus-visible {
 
 .app-header {
   min-height: var(--app-header-height);
+  width: min(100%, var(--tablet-stage-max));
+  margin-inline: auto;
   padding: clamp(12px, 1.7vw, 20px) var(--screen-pad);
 }
 
 .screen-body {
   height: calc(100dvh - var(--app-header-height));
+  width: min(100%, var(--tablet-stage-max));
   min-height: 0;
+  margin-inline: auto;
   padding: 0 var(--screen-pad) var(--screen-pad);
 }
 
@@ -152,6 +157,7 @@ select:focus-visible {
 .catalog-nav-button {
   position: relative;
   isolation: isolate;
+  cursor: pointer;
   min-height: 58px;
   width: 100%;
   border: 1px solid rgba(15, 23, 42, 0.10);
@@ -218,6 +224,14 @@ select:focus-visible {
   box-shadow:
     0 6px 14px rgba(15, 23, 42, 0.08),
     0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+@media (min-width: 1400px) and (orientation: landscape) {
+  .app-screen {
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.20), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.20)),
+      var(--brand-bg);
+  }
 }
 
 .search-layout {

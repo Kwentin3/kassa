@@ -7,6 +7,7 @@
 
 - Приложение не задаёт `min-width` на `body`.
 - Корневой экран использует `100dvh` и `width: 100%`, а не жесткий `w-screen`.
+- На широком desktop viewport рабочая область ограничивается tablet-like stage width через `--tablet-stage-max`, чтобы интерфейс не расползался по всему монитору.
 - Каждый экран сам определяет scroll-зону через `.screen-body` и `.scroll-y`.
 - Горизонтальный скролл не является штатным поведением customer flow.
 - Если контента больше, чем помещается в viewport, скролл должен быть вертикальным внутри рабочей зоны экрана.
@@ -69,6 +70,7 @@ Rule of thumb: при 1-2 карточках на экране карточка 
 
 Secondary adaptation:
 
+- Desktop landscape: фон остаётся fullscreen, но `.app-header` и `.screen-body` центрируются и ограничиваются `--tablet-stage-max`, чтобы экран был максимально похож на tablet landscape.
 - `max-width: 900px` или portrait: двухколоночные layouts переходят в одну колонку.
 - Категории каталога на узких экранах становятся wrap-grid.
 - Cart panel переносится под рабочую область и получает вертикальный скролл.
@@ -100,6 +102,7 @@ Secondary adaptation:
 - `npm run visual:cards` for Playwright smoke against the deployed/demo URL;
 - открыть catalog/search/cart/payment/receipt на `https://kassa.speechbattle.com`;
 - проверить, что карточки товаров оборачиваются в сетке и не уходят за viewport;
+- проверить, что на desktop ширина рабочей области остаётся tablet-like, а не растягивается на весь монитор;
 - проверить, что карточки имеют depth shadow и нажатие на CTA визуально отзывается без изменения layout;
 - проверить, что левая панель каталога и кнопки категорий имеют depth shadow и pressed feedback;
 - проверить, что скролл вертикальный и находится внутри screen body;
