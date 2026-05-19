@@ -29,7 +29,9 @@ type TerminalStore = {
   undoRemove: () => void;
   startPayment: (method: PaymentMethod) => Promise<void>;
   resetSession: () => void;
+  resolveReceiptError: () => void;
   setBrand: (brandId: string) => void;
+  updateBrandConfig: (patch: Partial<BrandConfig>) => void;
   setScannerMode: (mode: ScannerMode) => void;
   setPaymentScenario: (scenarioId: string) => void;
   setReceiptScenario: (scenarioId: DemoControlState['receiptScenarioId']) => void;
@@ -109,9 +111,12 @@ export const useTerminalStore = create<TerminalStore>((set, get) => ({
   startPayment: async (method) => {
     const { cart, demo } = get();
     get().dispatch({ type: 'GO_TO_PAYMENT', cartIsEmpty: cart.length === 0 });
+    if (cart.length === 0 || get().state.name !== 'payment_method') return;
     const selected = getPaymentScenario(demo.paymentScenarioId, method);
     get().dispatch({ type: 'START_PAYMENT', method, scenarioId: selected.id });
+    if (get().state.name !== 'payment_pending') return;
     const outcome = await runPaymentScenario(selected);
+    if (get().state.name !== 'payment_pending') return;
     if (outcome === 'success') {
       const receipt = createMockReceipt(cart, demo.receiptScenarioId === 'receipt_failed_after_payment');
       set({ receipt });
@@ -122,10 +127,16 @@ export const useTerminalStore = create<TerminalStore>((set, get) => ({
     get().dispatch({ type: 'PAYMENT_FAILED', reason: scenarioMessage(outcome) });
   },
   resetSession: () => set({ cart: [], receipt: null, lastRemoved: null, scannerMessage: '', state: { name: 'idle' } }),
+  resolveReceiptError: () => set({ cart: [], receipt: null, lastRemoved: null, scannerMessage: 'Ошибка чека обработана сотрудником', state: { name: 'idle' } }),
   setBrand: (brandId) => {
     const brand = brands.find((item) => item.id === brandId) ?? brands[0];
     set((current) => ({ activeBrand: brand, demo: { ...current.demo, brandId } }));
   },
+  updateBrandConfig: (patch) =>
+    set((current) => ({
+      activeBrand: { ...current.activeBrand, ...patch, id: current.activeBrand.id },
+      demo: { ...current.demo, brandId: current.activeBrand.id }
+    })),
   setScannerMode: (mode) => set((current) => ({ demo: { ...current.demo, scannerMode: mode } })),
   setPaymentScenario: (scenarioId) => set((current) => ({ demo: { ...current.demo, paymentScenarioId: scenarioId } })),
   setReceiptScenario: (scenarioId) => set((current) => ({ demo: { ...current.demo, receiptScenarioId: scenarioId } })),

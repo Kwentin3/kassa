@@ -14,7 +14,13 @@ export const PaymentScreen = () => {
           <div className="panel w-[760px] p-10 text-center">
             <div className="mx-auto mb-6 h-20 w-20 animate-pulse rounded-lg bg-[var(--brand-primary)]" />
             <div className="text-[44px] font-black">{state.method === 'sbp' ? 'Ожидаем оплату по QR' : 'Ожидаем оплату картой'}</div>
+            {state.method === 'sbp' && (
+              <div className="mx-auto mt-6 flex h-52 w-52 items-center justify-center rounded-lg border-8 border-slate-900 bg-white">
+                <QrCode size={150} />
+              </div>
+            )}
             <p className="mt-4 text-[24px] font-semibold text-slate-600">Это mock-оплата. Карточные данные не вводятся и не сохраняются.</p>
+            {state.method === 'sbp' && <p className="mt-3 text-[20px] font-bold text-slate-500">QR демонстрационный и не ведёт к реальному платежу.</p>}
           </div>
         </section>
       </Screen>

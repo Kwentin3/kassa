@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canOpenBrandingDemo, canShowIdlePromo, transition } from '../state/machine';
+import { canOpenBrandingDemo, canShowIdlePromo, isReceiptIssueState, transition } from '../state/machine';
 import type { TerminalState } from '../types';
 
 describe('terminal state machine', () => {
@@ -32,6 +32,23 @@ describe('terminal state machine', () => {
     expect(receiptError).toEqual({ name: 'receipt_error', reason: 'fail' });
     expect(transition(receiptError, { type: 'REQUEST_HELP', source: 'Ошибка чека' })).toEqual({
       name: 'help_requested',
+      source: 'Ошибка чека'
+    });
+  });
+
+  it('ignores terminal payment outcomes outside payment pending', () => {
+    const active: TerminalState = { name: 'active_cart' };
+    expect(transition(active, { type: 'PAYMENT_SUCCESS', receiptId: 'MCK-1' })).toEqual(active);
+    expect(transition(active, { type: 'PAYMENT_FAILED', reason: 'fail' })).toEqual(active);
+    expect(transition(active, { type: 'RECEIPT_FAILED', reason: 'fail' })).toEqual(active);
+  });
+
+  it('keeps receipt error locked behind staff resolution', () => {
+    const help: TerminalState = { name: 'help_requested', source: 'Ошибка чека' };
+    expect(isReceiptIssueState(help)).toBe(true);
+    expect(transition(help, { type: 'START_PURCHASE' })).toEqual(help);
+    expect(transition(help, { type: 'ENTER_STAFF_MODE', source: 'PIN' })).toEqual({
+      name: 'staff_mode',
       source: 'Ошибка чека'
     });
   });

@@ -8,11 +8,11 @@ import { ProductCard } from '../components/ProductCard';
 import { Button, Screen } from '../components/ui';
 
 export const CatalogScreen = () => {
-  const { addProduct, dispatch, state } = useTerminalStore();
+  const { addProduct, dispatch, state, demo } = useTerminalStore();
   const [category, setCategory] = useState(state.name === 'catalog' ? state.categoryId ?? 'Популярные' : 'Популярные');
   const visibleProducts = useMemo(
-    () => (category === 'Популярные' ? popularProducts() : productsByCategory(category)),
-    [category]
+    () => (category === 'Популярные' ? popularProducts(demo.edgeCasesEnabled) : productsByCategory(category, demo.edgeCasesEnabled)),
+    [category, demo.edgeCasesEnabled]
   );
   const categoryList = ['Популярные', ...categories.filter((item) => item !== 'Сценарии')];
 
@@ -34,10 +34,11 @@ export const CatalogScreen = () => {
             </button>
           ))}
           <button
-            className="mt-auto min-h-[58px] rounded-lg bg-slate-200 px-4 text-left text-[18px] font-black"
+            className="mt-auto min-h-[58px] rounded-lg bg-slate-200 px-4 text-left text-[18px] font-black disabled:opacity-45"
             onClick={() => setCategory('Сценарии')}
+            disabled={!demo.edgeCasesEnabled}
           >
-            Demo edge cases
+            {demo.edgeCasesEnabled ? 'Demo edge cases' : 'Edge cases выключены'}
           </button>
         </nav>
         <div className="overflow-auto">
@@ -46,7 +47,7 @@ export const CatalogScreen = () => {
             <div className="text-[36px] font-black">{category}</div>
           </div>
           <div className="grid grid-cols-4 gap-4 pb-8">
-            {(category === 'Сценарии' ? products.filter((item) => item.category === 'Сценарии') : visibleProducts).map((product) => (
+            {(category === 'Сценарии' && demo.edgeCasesEnabled ? products.filter((item) => item.category === 'Сценарии') : visibleProducts).map((product) => (
               <ProductCard key={product.id} product={product} onAdd={addProduct} />
             ))}
           </div>

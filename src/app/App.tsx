@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { appConfig } from '../config/appConfig';
 import { applyBrandTheme } from '../services/branding';
 import { useTerminalStore } from '../state/store';
 import { BrandingDemoScreen } from '../screens/BrandingDemoScreen';
@@ -14,11 +15,31 @@ import { ReceiptScreen } from '../screens/ReceiptScreen';
 import { SessionTimeoutScreen } from '../screens/SessionTimeoutScreen';
 
 export default function App() {
-  const { state, activeBrand } = useTerminalStore();
+  const { state, activeBrand, dispatch } = useTerminalStore();
 
   useEffect(() => {
     applyBrandTheme(activeBrand);
   }, [activeBrand]);
+
+  useEffect(() => {
+    const timeoutStates = new Set(['active_cart', 'product_search', 'catalog']);
+    if (!timeoutStates.has(state.name)) return undefined;
+
+    let timer: number | undefined;
+    const restartTimer = () => {
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(() => dispatch({ type: 'SESSION_TIMEOUT' }), appConfig.sessionTimeoutSec * 1000);
+    };
+
+    restartTimer();
+    window.addEventListener('pointerdown', restartTimer, { passive: true });
+    window.addEventListener('keydown', restartTimer);
+    return () => {
+      if (timer) window.clearTimeout(timer);
+      window.removeEventListener('pointerdown', restartTimer);
+      window.removeEventListener('keydown', restartTimer);
+    };
+  }, [dispatch, state.name]);
 
   switch (state.name) {
     case 'idle':

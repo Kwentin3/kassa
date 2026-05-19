@@ -5,5 +5,6 @@ export const appConfig = {
   staffPin: '0000',
   feedbackMs: 1100,
   paymentPendingMinMs: 900,
-  sessionTimeoutSec: 90
+  sessionTimeoutSec: 90,
+  sessionTimeoutWarningSec: 15
 };

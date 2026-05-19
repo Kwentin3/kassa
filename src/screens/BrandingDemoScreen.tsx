@@ -3,7 +3,7 @@ import { brands } from '../data/brands';
 import { paymentScenarios } from '../data/paymentScenarios';
 import { useTerminalStore } from '../state/store';
 import { Header } from '../components/Header';
-import { Button, Screen } from '../components/ui';
+import { Button, Screen, TextInput } from '../components/ui';
 
 export const BrandingDemoScreen = () => {
   const {
@@ -11,6 +11,7 @@ export const BrandingDemoScreen = () => {
     activeBrand,
     demo,
     setBrand,
+    updateBrandConfig,
     setPaymentScenario,
     setReceiptScenario,
     setScannerMode,
@@ -57,6 +58,22 @@ export const BrandingDemoScreen = () => {
             </div>
           </section>
           <section className="panel p-5">
+            <div className="text-[26px] font-black">Быстрая правка</div>
+            <label className="mt-4 block text-[18px] font-bold text-slate-500">Название магазина</label>
+            <TextInput value={activeBrand.storeName} disabled={locked} onChange={(event) => updateBrandConfig({ storeName: event.target.value })} />
+            <label className="mt-4 block text-[18px] font-bold text-slate-500">Логотип-текст</label>
+            <TextInput value={activeBrand.logoText} disabled={locked} maxLength={4} onChange={(event) => updateBrandConfig({ logoText: event.target.value.slice(0, 4).toUpperCase() })} />
+            <label className="mt-4 block text-[18px] font-bold text-slate-500">Основной цвет</label>
+            <input
+              aria-label="Основной цвет интерфейса"
+              className="mt-2 h-16 w-full rounded-lg border border-slate-300 bg-white p-2"
+              disabled={locked}
+              type="color"
+              value={activeBrand.primaryColor}
+              onChange={(event) => updateBrandConfig({ primaryColor: event.target.value })}
+            />
+          </section>
+          <section className="panel p-5">
             <div className="text-[26px] font-black">Сценарии</div>
             <label className="mt-4 block text-[18px] font-bold text-slate-500">Оплата</label>
             <select className="mt-2 min-h-[58px] w-full rounded-lg border border-slate-300 px-3 text-[18px] font-bold" value={demo.paymentScenarioId} onChange={(event) => setPaymentScenario(event.target.value)} disabled={locked}>
@@ -73,6 +90,15 @@ export const BrandingDemoScreen = () => {
               <option value="mock_input">Mock input</option>
               <option value="keyboard">Keyboard scanner</option>
             </select>
+          </section>
+          <section className="panel p-5">
+            <div className="text-[26px] font-black">Тексты</div>
+            <label className="mt-4 block text-[18px] font-bold text-slate-500">Приветствие</label>
+            <TextInput value={activeBrand.welcomeText} disabled={locked} onChange={(event) => updateBrandConfig({ welcomeText: event.target.value })} />
+            <label className="mt-4 block text-[18px] font-bold text-slate-500">Подпись</label>
+            <TextInput value={activeBrand.tagline} disabled={locked} onChange={(event) => updateBrandConfig({ tagline: event.target.value })} />
+            <label className="mt-4 block text-[18px] font-bold text-slate-500">Номер терминала</label>
+            <TextInput value={activeBrand.terminalNumber} disabled={locked} onChange={(event) => updateBrandConfig({ terminalNumber: event.target.value })} />
           </section>
           <section className="panel p-5">
             <div className="text-[26px] font-black">Управление demo</div>

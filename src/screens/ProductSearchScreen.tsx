@@ -9,9 +9,9 @@ import { Button, Screen, TextInput } from '../components/ui';
 const keys = ['Й', 'Ц', 'У', 'К', 'Е', 'Н', 'Г', 'Ш', 'Щ', 'З', 'Х', 'Ф', 'Ы', 'В', 'А', 'П', 'Р', 'О', 'Л', 'Д', 'Ж', 'Я', 'Ч', 'С', 'М', 'И', 'Т', 'Ь', 'Б'];
 
 export const ProductSearchScreen = () => {
-  const { addProduct, dispatch, state } = useTerminalStore();
+  const { addProduct, dispatch, state, demo } = useTerminalStore();
   const [query, setQuery] = useState(state.name === 'product_search' ? state.query : '');
-  const results = useMemo(() => searchProducts(query), [query]);
+  const results = useMemo(() => searchProducts(query, undefined, demo.edgeCasesEnabled), [demo.edgeCasesEnabled, query]);
 
   return (
     <Screen>

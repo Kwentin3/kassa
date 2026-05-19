@@ -1,14 +1,17 @@
 import { ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
+import { products } from '../data/products';
 import { verifyStaffPin } from '../services/staff';
+import { isReceiptIssueState } from '../state/machine';
 import { useTerminalStore } from '../state/store';
 import { Header } from '../components/Header';
 import { Button, Screen, TextInput } from '../components/ui';
 
 export const HelpStaffScreen = () => {
-  const { state, dispatch, resetSession } = useTerminalStore();
+  const { state, cart, dispatch, removeItem, resetSession, resolveReceiptError } = useTerminalStore();
   const [pin, setPin] = useState('0000');
   const [error, setError] = useState('');
+  const receiptIssue = isReceiptIssueState(state);
 
   if (state.name === 'staff_mode') {
     return (
@@ -19,12 +22,29 @@ export const HelpStaffScreen = () => {
             <div className="text-[20px] font-bold text-slate-500">Mock staff mode</div>
             <div className="text-[44px] font-black">Служебные действия</div>
             <div className="mt-6 grid grid-cols-2 gap-4">
-              <Button onClick={() => dispatch({ type: 'START_PURCHASE' })}>Подтвердить и вернуться</Button>
-              <Button variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>Вернуться к покупке</Button>
+              {!receiptIssue && <Button onClick={() => dispatch({ type: 'START_PURCHASE' })}>Подтвердить и вернуться</Button>}
+              {!receiptIssue && <Button variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>Вернуться к покупке</Button>}
+              {receiptIssue && <Button onClick={resolveReceiptError}>Закрыть ошибку чека</Button>}
               <Button variant="secondary" onClick={resetSession}>Завершить сессию</Button>
               <Button variant="danger" onClick={resetSession}>Сбросить терминал</Button>
-              <Button variant="secondary" onClick={() => dispatch({ type: 'OPEN_BRANDING_DEMO' })}>Открыть DEMO панель</Button>
+              {!receiptIssue && <Button variant="secondary" onClick={() => dispatch({ type: 'OPEN_BRANDING_DEMO' })}>Открыть DEMO панель</Button>}
             </div>
+            {cart.length > 0 && !receiptIssue && (
+              <div className="mt-6 rounded-lg bg-slate-50 p-4">
+                <div className="text-[20px] font-black">Удалить позицию</div>
+                <div className="mt-3 space-y-2">
+                  {cart.map((item) => {
+                    const product = products.find((entry) => entry.id === item.productId);
+                    return (
+                      <div className="flex items-center justify-between rounded-lg bg-white px-4 py-3 text-[18px] font-bold" key={item.productId}>
+                        <span>{product?.name ?? item.productId} × {item.quantity}</span>
+                        <Button className="min-h-[54px] px-4 text-[17px]" variant="secondary" onClick={() => removeItem(item.productId)}>Удалить</Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             <p className="mt-6 text-[20px] font-semibold text-slate-500">Это не реальная авторизация и не кассовая смена.</p>
           </div>
         </section>
@@ -52,7 +72,7 @@ export const HelpStaffScreen = () => {
             <Button type="submit">Войти</Button>
           </form>
           {error && <div className="mt-3 text-[18px] font-bold text-red-700">{error}</div>}
-          <Button className="mt-5" variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>Вернуться к покупке</Button>
+          {!receiptIssue && <Button className="mt-5" variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>Вернуться к покупке</Button>}
         </div>
       </section>
     </Screen>

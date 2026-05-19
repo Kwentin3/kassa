@@ -25,19 +25,25 @@ const searchableText = (product: Product): string =>
       .join(' ')
   );
 
+export const isEdgeCaseProduct = (product: Product): boolean =>
+  product.category === 'Сценарии' || Boolean(product.requiresStaffApproval || product.isUnavailable || product.hasPriceError);
+
+export const filterEdgeCases = (source: Product[], includeEdgeCases: boolean): Product[] =>
+  includeEdgeCases ? source : source.filter((product) => !isEdgeCaseProduct(product));
+
 export const findProductByCode = (code: string): Product | undefined => {
   const value = code.trim();
   return products.find((product) => product.barcode === value || product.sku.toLocaleLowerCase() === value.toLocaleLowerCase());
 };
 
-export const searchProducts = (query: string, source: Product[] = products): Product[] => {
+export const searchProducts = (query: string, source: Product[] = products, includeEdgeCases = true): Product[] => {
   const normalized = normalizeText(query);
   if (normalized.length < 2) return [];
-  return source.filter((product) => searchableText(product).includes(normalized)).slice(0, 18);
+  return filterEdgeCases(source, includeEdgeCases).filter((product) => searchableText(product).includes(normalized)).slice(0, 18);
 };
 
-export const productsByCategory = (category: string): Product[] =>
-  products.filter((product) => product.category === category && !product.hasPriceError);
+export const productsByCategory = (category: string, includeEdgeCases = true): Product[] =>
+  filterEdgeCases(products, includeEdgeCases).filter((product) => product.category === category && !product.hasPriceError);
 
-export const popularProducts = (): Product[] =>
-  products.filter((product) => product.tags.includes('популярное')).slice(0, 10);
+export const popularProducts = (includeEdgeCases = true): Product[] =>
+  filterEdgeCases(products, includeEdgeCases).filter((product) => product.tags.includes('популярное')).slice(0, 10);

@@ -1,9 +1,16 @@
 import { Clock } from 'lucide-react';
+import { useEffect } from 'react';
+import { appConfig } from '../config/appConfig';
 import { useTerminalStore } from '../state/store';
 import { Button, Screen } from '../components/ui';
 
 export const SessionTimeoutScreen = () => {
   const { dispatch, resetSession } = useTerminalStore();
+  useEffect(() => {
+    const timer = window.setTimeout(resetSession, appConfig.sessionTimeoutWarningSec * 1000);
+    return () => window.clearTimeout(timer);
+  }, [resetSession]);
+
   return (
     <Screen className="flex items-center justify-center">
       <div className="panel w-[820px] p-10 text-center">

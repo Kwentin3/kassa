@@ -21,8 +21,8 @@ export const CartScreen = () => {
               <Button disabled={cart.length === 0} onClick={() => dispatch({ type: 'GO_TO_PAYMENT', cartIsEmpty: cart.length === 0 })}>
                 <CreditCard size={28} /> Оплатить
               </Button>
-              <Button variant="secondary" onClick={() => dispatch({ type: 'SESSION_TIMEOUT' })}>
-                Проверить timeout
+              <Button variant="secondary" onClick={() => dispatch({ type: 'REQUEST_HELP', source: 'Отмена покупки' })}>
+                Отменить покупку
               </Button>
             </div>
           </div>
