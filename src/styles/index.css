@@ -77,9 +77,9 @@ select:focus-visible {
   --cart-panel-width: clamp(330px, 32vw, 430px);
   --catalog-nav-width: clamp(230px, 24vw, 310px);
   --search-keyboard-width: clamp(310px, 34vw, 440px);
-  --product-card-min: 176px;
-  --product-card-max: 248px;
-  --product-image-height: clamp(96px, 15dvh, 132px);
+  --product-card-width: clamp(176px, 13vw, 236px);
+  --product-card-max: 236px;
+  --product-image-height: clamp(88px, 12dvh, 116px);
 }
 
 .app-screen {
@@ -150,19 +150,20 @@ select:focus-visible {
 }
 
 .product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--product-card-min)), var(--product-card-max)));
+  display: flex;
+  flex-wrap: wrap;
   gap: clamp(12px, 1.2vw, 18px);
   align-content: start;
   align-items: start;
-  justify-content: start;
+  justify-content: flex-start;
   padding-bottom: var(--screen-pad);
 }
 
 .product-card {
+  flex: 0 1 var(--product-card-width);
   min-width: 0;
-  width: 100%;
-  max-width: var(--product-card-max);
+  width: var(--product-card-width);
+  max-width: min(100%, var(--product-card-max));
   align-self: start;
 }
 
@@ -273,9 +274,8 @@ select:focus-visible {
   }
 
   .product-grid {
-    --product-card-min: 150px;
-    --product-card-max: none;
+    --product-card-width: min(100%, 180px);
+    --product-card-max: 180px;
     --product-image-height: clamp(86px, 18dvh, 118px);
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
   }
 }

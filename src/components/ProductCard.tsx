@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import { productImageUrl } from '../services/productImages';
 import type { Product } from '../types';
 import { Button, ProductVisual, StatusPill } from './ui';
@@ -6,7 +7,7 @@ import { Button, ProductVisual, StatusPill } from './ui';
 export const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (product: Product) => void }) => {
   const blocked = product.isUnavailable || product.hasPriceError;
   return (
-    <article className="panel product-card flex flex-col gap-3 p-3">
+    <article className="panel product-card flex flex-col gap-3 p-3" style={{ width: 'var(--product-card-width)', maxWidth: 'min(100%, var(--product-card-max))' } as CSSProperties}>
       <ProductVisual tone={product.imageTone} imageUrl={productImageUrl(product)} label={product.name} />
       <div className="product-card-copy">
         <h3 className="product-card-title text-[clamp(18px,1.8vw,21px)] font-black leading-tight">{product.name}</h3>

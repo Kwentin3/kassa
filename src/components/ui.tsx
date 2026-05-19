@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useEffect, useState, type ButtonHTMLAttributes, type CSSProperties, type InputHTMLAttributes, type ReactNode } from 'react';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -46,7 +46,7 @@ export const ProductVisual = ({ tone, label, imageUrl }: { tone: string; label: 
   }, [imageUrl]);
 
   return (
-    <div className={`product-art product-visual relative flex w-full items-center justify-center overflow-hidden rounded-lg border border-black/5 ${tone}`}>
+    <div className={`product-art product-visual relative flex w-full items-center justify-center overflow-hidden rounded-lg border border-black/5 ${tone}`} style={{ height: 'var(--product-image-height)' } as CSSProperties}>
       {imageUrl && !failed && (
         <img
           alt={label}

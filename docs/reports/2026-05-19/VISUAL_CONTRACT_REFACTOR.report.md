@@ -9,7 +9,7 @@
 - `Screen` больше не использует жесткий `w-screen/h-screen`; вместо этого применяет `.app-screen`.
 - Добавлены именованные layout-контракты в `src/styles/index.css`.
 - Cart, catalog, search, receipt, payment, help/staff, branding, idle и promo screens переведены на адаптивные containers.
-- Сетки товаров используют `.product-grid` с `auto-fill/minmax` и ограниченным max track, поэтому карточки переносятся и не растягиваются на всю строку.
+- Сетки товаров используют `.product-grid` с `flex-wrap` и card-width token, поэтому карточки переносятся и не растягиваются на всю строку.
 - Основные длинные зоны получили явный vertical scroll через `.scroll-y`.
 - Product image контейнер стабилизирован через ограниченную thumbnail-высоту; image load/fallback не меняет размеры карточки.
 - Кнопки и inputs получили более устойчивое поведение по ширине (`max-w-full`, `min-w-0`, wrap где нужно).
@@ -19,7 +19,7 @@
 После дополнительной проверки карточки товаров вынесены в отдельный элементный контракт:
 
 - одиночные карточки и результаты из 1-2 позиций больше не растягиваются на всю ширину контейнера;
-- `.product-grid` использует `auto-fill` и ограниченный max track;
+- `.product-grid` использует `flex-wrap` и ограниченный `--product-card-width`;
 - `.product-card` имеет max-width через `--product-card-max`;
 - `.product-visual` получил ограниченную высоту через `--product-image-height`;
 - название товара ограничено двумя строками, meta text обрезается ellipsis;
