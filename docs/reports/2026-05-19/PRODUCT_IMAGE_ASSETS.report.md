@@ -1,7 +1,7 @@
 ﻿# Product Image Assets Update
 
 Дата: 2026-05-19  
-Статус: implemented, tested, pending deployment smoke at commit time
+Статус: implemented, tested and deployed
 
 ## Что изменено
 
@@ -25,6 +25,11 @@
 - `npm run test:run`: passed, 8 files / 24 tests.
 - `npm run build`: passed.
 - Smoke одного image endpoint: `https://loremflickr.com/640/480/milk,dairy?lock=1637` вернул HTTPS redirect to cached image.
+- Server deploy: `kassa-web` rebuilt and restarted on `roman@192.168.7.64`.
+- `https://kassa.speechbattle.com`: `200 OK`.
+- Current JS bundle includes `https://loremflickr.com/640/480/` image source.
+- `index.html` has no `http://` links.
+- Product image source uses HTTPS URLs only; remaining `http://` strings in the bundled JS are static XML/SVG namespace or localhost fallback strings, not product image requests.
 
 ## Ограничения
 
