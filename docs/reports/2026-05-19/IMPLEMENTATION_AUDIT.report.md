@@ -2,7 +2,9 @@
 
 Дата: 2026-05-19  
 Сравнение: PRD Draft 0.2 / Blueprint Pack vs текущая реализация  
-Статус: Core Demo mostly complete; Extended Demo partially complete
+Статус: superseded by gap closure fixes
+
+Update: gaps listed in this audit were fixed after the audit. See `docs/reports/2026-05-19/GAP_CLOSURE_VERIFICATION.report.md` for the current status.
 
 ## Итог
 

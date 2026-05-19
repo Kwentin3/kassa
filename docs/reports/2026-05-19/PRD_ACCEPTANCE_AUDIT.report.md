@@ -1,7 +1,21 @@
 ﻿# PRD Acceptance Audit - Self-Checkout Terminal MVP
 
 Дата: 2026-05-19  
-Статус: Core Demo implemented and deployed
+Статус: Core Demo and Extended Demo gap fixes implemented and deployed
+
+## Gap Closure Update
+
+После дополнительного аудита и исправлений закрыты ранее найденные gaps:
+
+- payment outcomes теперь state-guarded и принимаются только из `payment_pending`;
+- ошибка чека больше не обходится buyer resume action;
+- staff mode умеет удалять позиции и явно закрывать receipt error;
+- `edgeCasesEnabled` в Demo Control Panel влияет на search/catalog;
+- idle timeout запускается автоматически и проходит через warning;
+- SBP pending показывает крупный mock QR;
+- Quick Branding поддерживает безопасную правку полей, а не только preset themes.
+
+Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build` passed. Тесты: 7 files / 22 tests.
 
 ## Core Acceptance
 
@@ -24,7 +38,7 @@
 - Receipt failed after payment: реализован, выход ведет через help/staff.
 - Help requested: реализовано.
 - Staff mock mode: реализован с demo PIN и действиями staff.
-- Remove item with staff: реализовано через staff action.
+- Remove item with staff: реализовано через staff action в mock staff mode.
 - Idle promotion screen: реализован с state guards и fallback при битом ассете.
 - Quick branding: реализован как sales-demo mechanism, не production admin.
 - Demo Control Panel: реализован и явно промаркирован `DEMO / Настройка прототипа`; во время `payment_pending` read-only/disabled.

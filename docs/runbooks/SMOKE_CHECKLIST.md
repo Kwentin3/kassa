@@ -1,4 +1,17 @@
-# Smoke Checklist - Self-Checkout Terminal MVP
+﻿# Smoke Checklist - Self-Checkout Terminal MVP
+
+Last automated/server smoke on 2026-05-19:
+
+- `https://kassa.speechbattle.com`: `200 OK`.
+- TLS: Let's Encrypt certificate for `kassa.speechbattle.com`.
+- SPA fallback `/demo/smoke`: `200 OK`.
+- `index.html`: no-cache.
+- `/assets/*`: long immutable cache.
+- `manifest.webmanifest`: short cache.
+- `index.html`: no `http://` links.
+- Container `kassa-web`: running on `traefik-net`.
+
+Manual Android tablet camera smoke is still required on the physical device.
 
 ## Domain / HTTPS
 
