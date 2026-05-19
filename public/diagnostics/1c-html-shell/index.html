@@ -1,0 +1,1804 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Диагностическая страница 1C HTML Shell</title>
+  <style>
+    html {
+      background: #f4f6f8;
+      color: #17212b;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    body {
+      margin: 0;
+      background: #f4f6f8;
+    }
+
+    a {
+      color: #0a5f8f;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero,
+    .section {
+      margin: 0 0 16px;
+      padding: 18px;
+      border: 1px solid #d7dde4;
+      border-radius: 6px;
+      background: #fff;
+    }
+
+    .hero {
+      border-left: 6px solid #1b7f5f;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0 0 10px;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: 28px;
+    }
+
+    h2 {
+      font-size: 20px;
+    }
+
+    h3 {
+      font-size: 17px;
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    .notice {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #f0cf7b;
+      border-radius: 6px;
+      background: #fff7df;
+    }
+
+    .danger {
+      border-color: #e19b9b;
+      background: #fff1f1;
+    }
+
+    .ok {
+      border-color: #a5d6c3;
+      background: #eefaf5;
+    }
+
+    .muted {
+      color: #5d6975;
+    }
+
+    .small {
+      font-size: 13px;
+    }
+
+    .grid {
+      display: block;
+    }
+
+    .row {
+      display: block;
+      margin: 10px 0;
+    }
+
+    .actions {
+      margin: 12px 0 0;
+    }
+
+    button,
+    select,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    .button-like {
+      min-height: 46px;
+      margin: 4px 6px 4px 0;
+      padding: 10px 14px;
+      border: 1px solid #266b90;
+      border-radius: 6px;
+      background: #0d6f9f;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      border-color: #7a8794;
+      background: #f6f8fa;
+      color: #17212b;
+    }
+
+    button:focus,
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: 3px solid #f0b429;
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 10px;
+      border: 1px solid #b7c0ca;
+      border-radius: 5px;
+      background: #fff;
+      color: #17212b;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    #json-report {
+      min-height: 320px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      white-space: pre;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 0;
+      background: #fff;
+    }
+
+    th,
+    td {
+      padding: 8px;
+      border: 1px solid #d7dde4;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef2f5;
+    }
+
+    .status {
+      display: inline-block;
+      min-width: 150px;
+      padding: 3px 7px;
+      border: 1px solid #9faab5;
+      border-radius: 99px;
+      background: #f7f9fb;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-supported {
+      border-color: #2f8f67;
+      background: #e9f8f0;
+      color: #176343;
+    }
+
+    .status-partially_supported,
+    .status-unknown {
+      border-color: #b68a15;
+      background: #fff7df;
+      color: #6f4f00;
+    }
+
+    .status-failed,
+    .status-timeout {
+      border-color: #b94a48;
+      background: #fff1f1;
+      color: #8b1d1a;
+    }
+
+    .status-not_tested,
+    .status-not_applicable,
+    .status-not_connected {
+      border-color: #7a8794;
+      background: #f2f4f6;
+      color: #4c5966;
+    }
+
+    .phase-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .phase-list li {
+      margin: 6px 0;
+      padding: 8px;
+      border: 1px solid #d7dde4;
+      border-radius: 5px;
+      background: #fbfcfd;
+    }
+
+    .scroll-box {
+      height: 130px;
+      overflow: auto;
+      border: 1px solid #b7c0ca;
+      border-radius: 5px;
+      background: #fff;
+    }
+
+    .scroll-box div {
+      min-height: 260px;
+      padding: 12px;
+      background: linear-gradient(#ffffff, #dcecf7);
+    }
+
+    .visual-grid {
+      margin-top: 10px;
+      border: 1px solid #d7dde4;
+      border-radius: 6px;
+      padding: 8px;
+      background: #fbfcfd;
+    }
+
+    .probe-card {
+      display: inline-block;
+      box-sizing: border-box;
+      width: 108px;
+      margin: 4px;
+      padding: 8px;
+      border: 1px solid #cbd3db;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(23, 33, 43, 0.10);
+      font-size: 13px;
+    }
+
+    .hidden-probe {
+      position: absolute;
+      left: -10000px;
+      top: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .two-col {
+      display: block;
+    }
+
+    @media (min-width: 860px) {
+      .two-col {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+        border-spacing: 12px 0;
+      }
+
+      .two-col > div {
+        display: table-cell;
+        vertical-align: top;
+      }
+    }
+
+    @media print {
+      button,
+      .actions {
+        display: none;
+      }
+
+      .page {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Диагностическая страница 1C HTML Shell</h1>
+      <p><strong>Назначение:</strong> открыть эту страницу в обычном браузере или внутри 1С через Поле HTML-документа и получить профиль среды запуска.</p>
+      <p>Профиль показывает, какие возможности HTML, CSS, JavaScript, ввода и прокрутки доступны в этой среде. Он помогает решить, можно ли дальше проектировать покупательскую HTML-оболочку для кассы самообслуживания.</p>
+      <div class="notice danger">
+        <p><strong>Это не касса и не проверка готовности кассы.</strong></p>
+        <p>Страница не проверяет РМК, чек, оплату, ККТ, фискализацию, печать и маркировку. Для этого нужны отдельные проверки 1С/RMK Adapter.</p>
+      </div>
+      <div id="static-js-warning" class="notice">
+        <p><strong>JavaScript ещё не запустился.</strong></p>
+        <p>Если это сообщение не исчезает, среда запуска не выполнила базовый JavaScript. Сделайте скриншот и передайте его команде проекта. JSON-отчёт в этом случае может быть недоступен.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="legend-title">
+      <h2 id="legend-title">Что проверяет инструмент</h2>
+      <ul>
+        <li>Отрисовку HTML и базовых CSS-возможностей.</li>
+        <li>Работу простого JavaScript и JSON.</li>
+        <li>Касания, нажатия, фокус поля ввода и прокрутку.</li>
+        <li>Возможность сформировать, скопировать и скачать JSON-отчёт.</li>
+        <li>Статус обмена HTML ↔ 1С. В этом срезе он ожидаемо будет "Не подключено".</li>
+      </ul>
+      <h3>Что не проверяется</h3>
+      <ul>
+        <li>Добавление товара в чек, удаление товара, текущий чек и РМК.</li>
+        <li>Оплата, эквайринг, ККТ, фискализация, печать, маркировка.</li>
+        <li>Кассовые права и внутренние процедуры конфигурации 1С.</li>
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="summary-title">
+      <h2 id="summary-title">Общий вывод</h2>
+      <p id="scope-message" class="notice">Среда запуска пока определяется.</p>
+      <div class="two-col">
+        <div>
+          <table aria-label="Общие сведения">
+            <tbody id="summary-table">
+              <tr><th>Статус запуска</th><td><span class="status status-unknown">Не удалось определить</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <label for="scope-select">Где открыта страница</label>
+          <select id="scope-select">
+            <option value="browser_only">Обычный браузер</option>
+            <option value="one_c_html_field_unconnected">Поле HTML-документа 1С, обмен не подключён</option>
+            <option value="unknown">Не удалось определить</option>
+          </select>
+          <label for="terminal-label">Метка терминала</label>
+          <input id="terminal-label" type="text" placeholder="Например: test-terminal-01">
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="boot-title">
+      <h2 id="boot-title">Безопасный пошаговый запуск</h2>
+      <ol id="phase-list" class="phase-list" aria-live="polite">
+        <li>Фаза 0. Статический HTML: <span class="status status-supported">Поддерживается</span></li>
+        <li>Ожидание запуска JavaScript.</li>
+      </ol>
+    </section>
+
+    <section class="section" aria-labelledby="manual-title">
+      <h2 id="manual-title">Ручные наблюдения</h2>
+      <p class="muted">Эти поля заполняет человек, который смотрит страницу на реальном терминале. Они попадают в JSON-отчёт.</p>
+      <div class="two-col">
+        <div>
+          <label for="visual-opened">Страница визуально открылась корректно</label>
+          <select id="visual-opened">
+            <option value="not_tested">Не проверялось</option>
+            <option value="yes">Да</option>
+            <option value="no">Нет</option>
+            <option value="partially">Частично</option>
+          </select>
+
+          <label for="manual-scroll">Прокрутка рукой работает</label>
+          <select id="manual-scroll">
+            <option value="not_tested">Не проверялось</option>
+            <option value="yes">Да</option>
+            <option value="no">Нет</option>
+            <option value="partially">Частично</option>
+          </select>
+
+          <label for="manual-touch">Нажатия пальцем работают</label>
+          <select id="manual-touch">
+            <option value="not_tested">Не проверялось</option>
+            <option value="yes">Да</option>
+            <option value="no">Нет</option>
+            <option value="partially">Частично</option>
+          </select>
+
+          <label for="input-focus-observation">Поле ввода получает фокус</label>
+          <select id="input-focus-observation">
+            <option value="not_tested">Не проверялось</option>
+            <option value="yes">Да</option>
+            <option value="no">Нет</option>
+            <option value="partially">Частично</option>
+          </select>
+        </div>
+        <div>
+          <label for="keyboard-observation">Экранная клавиатура появляется</label>
+          <select id="keyboard-observation">
+            <option value="not_tested">Не проверялось</option>
+            <option value="yes">Да</option>
+            <option value="no">Нет</option>
+            <option value="partially">Частично</option>
+          </select>
+
+          <label for="lag-observation">Есть заметные задержки</label>
+          <select id="lag-observation">
+            <option value="partially">Частично / не ясно</option>
+            <option value="yes">Да</option>
+            <option value="no">Нет</option>
+          </select>
+
+          <label for="screenshot-observation">Сделан скриншот</label>
+          <select id="screenshot-observation">
+            <option value="no">Нет</option>
+            <option value="yes">Да</option>
+          </select>
+
+          <label for="artifacts-observation">Белый экран, зависание, мерцание, артефакты</label>
+          <textarea id="artifacts-observation" placeholder="Опишите, если что-то выглядело неправильно"></textarea>
+        </div>
+      </div>
+      <label for="specialist-comment">Комментарий 1С-специалиста</label>
+      <textarea id="specialist-comment"></textarea>
+      <label for="observer-comment">Комментарий наблюдателя</label>
+      <textarea id="observer-comment"></textarea>
+    </section>
+
+    <section class="section" aria-labelledby="interaction-title">
+      <h2 id="interaction-title">Ввод, касания и прокрутка</h2>
+      <p>Выполните три ручных действия: нажмите кнопку, прокрутите блок, введите текст в поле.</p>
+      <button id="manual-button" type="button">Нажмите для проверки</button>
+      <label for="manual-input">Поле ввода для проверки фокуса и ввода</label>
+      <input id="manual-input" type="text" placeholder="Введите любой тестовый текст">
+      <label>Блок для проверки прокрутки</label>
+      <div id="manual-scroll-box" class="scroll-box" tabindex="0">
+        <div>Прокрутите этот блок рукой, мышью или колесом. Если прокрутка работает, статус обновится в отчёте.</div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="matrix-title">
+      <h2 id="matrix-title">Матрица проверок</h2>
+      <div id="matrix-root">
+        <p class="muted">Проверки ещё выполняются.</p>
+      </div>
+    </section>
+
+    <!-- TODO split-assets variant: keep Slice 1 single-file until resource.loading.css/js pass inside real 1C HTML field. -->
+    <section class="section" aria-labelledby="visual-title">
+      <h2 id="visual-title">Визуальная производительность</h2>
+      <p class="muted">Ниже отображается тестовая сетка. Она не является дизайном будущей кассы.</p>
+      <div id="visual-probe" class="visual-grid" aria-label="Тестовая сетка карточек"></div>
+    </section>
+
+    <section class="section" aria-labelledby="recommendations-title">
+      <h2 id="recommendations-title">Предупреждения и рекомендации</h2>
+      <div class="two-col">
+        <div>
+          <h3>Предупреждения</h3>
+          <ul id="warnings-list"></ul>
+        </div>
+        <div>
+          <h3>Рекомендации</h3>
+          <ul id="recommendations-list"></ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="json-title">
+      <h2 id="json-title">JSON-отчёт</h2>
+      <p>Скопируйте JSON и передайте команде проекта. Если кнопка копирования не работает, выделите текст вручную и скопируйте его.</p>
+      <!-- TODO backend collector vNext: optional server-side report saving must not replace local copy/download. -->
+      <!-- TODO saved report page vNext: add report viewer only after collector access/TTL/delete policy is defined. -->
+      <div id="copy-feedback" class="notice">Отчёт готовится.</div>
+      <div class="actions">
+        <button id="copy-json" type="button">Скопировать JSON</button>
+        <button id="download-json" type="button" class="secondary">Скачать JSON</button>
+      </div>
+      <label for="json-report">Содержимое отчёта</label>
+      <textarea id="json-report" readonly spellcheck="false"></textarea>
+    </section>
+
+    <!-- TODO real 1C HTML field smoke: run this exact URL inside Поле HTML-документа before using results for FrontShell decisions. -->
+    <section class="section" aria-labelledby="guide-title">
+      <h2 id="guide-title">Инструкция для 1С-специалиста</h2>
+      <ol>
+        <li>Откройте URL этой страницы в форме 1С через Поле HTML-документа.</li>
+        <li>Для повторной проверки передайте новый `runId`, например: `/diagnostics/1c-html-shell?runId=test-001&amp;terminalLabel=test-terminal&amp;v=manual-test`.</li>
+        <li>`runId` — это метка конкретного запуска диагностики.</li>
+        <li>`terminalLabel` — безопасная подпись терминала, например номер тестового рабочего места.</li>
+        <li>После выполнения проверок заполните ручные наблюдения.</li>
+        <li>Скопируйте JSON или скачайте файл и передайте команде проекта.</li>
+        <li>Если указано "Обмен HTML ↔ 1С не подключено", это нормально для Slice 1: минимальный 1С Diagnostic Loader ещё не подключался.</li>
+        <li>Не добавляйте в отчёт товары, чеки, суммы покупок, персональные данные, токены, пароли, данные карт, фискальные данные и внутренние ссылки на объекты 1С.</li>
+        <li>Этот тест не проверяет РМК, оплату, ККТ, фискализацию, печать и маркировку.</li>
+      </ol>
+    </section>
+
+    <div id="hidden-probe" class="hidden-probe" aria-hidden="true"></div>
+  </main>
+
+  <script>
+    (function () {
+      var DIAGNOSTIC_VERSION = "0.1";
+      var REPORT_SCHEMA_VERSION = "0.2";
+      var TEST_PACK_VERSION = "0.2";
+      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-01";
+      var BUILD_TIMESTAMP = "2026-05-19T00:00:00.000Z";
+      var STATUS_TEXT = {
+        supported: "Поддерживается",
+        partially_supported: "Работает частично",
+        failed: "Проверка завершилась ошибкой",
+        timeout: "Нет ответа за отведённое время",
+        unknown: "Не удалось определить",
+        not_tested: "Не проверялось",
+        not_applicable: "Не относится к этому режиму",
+        not_connected: "Не подключено"
+      };
+      var phaseNames = {
+        boot_static: "Фаза 0. Статический HTML",
+        boot_js: "Фаза 1. Безопасный запуск JavaScript",
+        environment: "Фаза 2. Профиль среды запуска",
+        css: "Фаза 3. HTML/CSS",
+        visual: "Фаза 4. SVG и визуальная производительность",
+        ux: "Фаза 5. Ввод, касания и прокрутка",
+        network: "Фаза 6. Отчёт и сеть",
+        bridge: "Обмен HTML ↔ 1С",
+        rmk: "РМК-адаптер"
+      };
+      var report = {};
+      var rawTestResults = [];
+      var phaseState = {};
+      var manualClickCount = 0;
+      var lastManualClickAt = 0;
+      var query = parseQuery();
+
+      function byId(id) {
+        return document.getElementById(id);
+      }
+
+      function nowIso() {
+        try {
+          return new Date().toISOString();
+        } catch (e) {
+          return String(new Date());
+        }
+      }
+
+      function makeRunId() {
+        var fromQuery = query.runId || query.runid;
+        if (fromQuery) {
+          return sanitizeShort(fromQuery, "run");
+        }
+        return "diag-" + String(new Date().getTime()) + "-" + String(Math.floor(Math.random() * 1000000));
+      }
+
+      function sanitizeShort(value, fallback) {
+        var text = String(value || "");
+        text = text.replace(/[^a-zA-Z0-9а-яА-ЯёЁ._:-]/g, "-");
+        if (!text) {
+          return fallback;
+        }
+        if (text.length > 80) {
+          return text.substring(0, 80);
+        }
+        return text;
+      }
+
+      function parseQuery() {
+        var result = {};
+        var search = "";
+        var parts;
+        var i;
+        var pair;
+        var key;
+        var value;
+        try {
+          search = String(window.location.search || "");
+          if (search.charAt(0) === "?") {
+            search = search.substring(1);
+          }
+          parts = search.split("&");
+          for (i = 0; i < parts.length; i += 1) {
+            if (!parts[i]) {
+              continue;
+            }
+            pair = parts[i].split("=");
+            key = decodeURIComponent(pair[0] || "");
+            value = decodeURIComponent(pair.slice(1).join("=") || "");
+            if (key) {
+              result[key] = value;
+            }
+          }
+        } catch (e) {
+          result = {};
+        }
+        return result;
+      }
+
+      function safePageUrl() {
+        var href = "";
+        var hashIndex;
+        var parts;
+        var base;
+        var search;
+        var queryParts;
+        var safeParts = [];
+        var i;
+        var key;
+        try {
+          href = String(window.location.href || "");
+          hashIndex = href.indexOf("#");
+          if (hashIndex >= 0) {
+            href = href.substring(0, hashIndex);
+          }
+          parts = href.split("?");
+          base = parts[0];
+          search = parts.slice(1).join("?");
+          if (!search) {
+            return base;
+          }
+          queryParts = search.split("&");
+          for (i = 0; i < queryParts.length; i += 1) {
+            key = String(queryParts[i].split("=")[0] || "").toLowerCase();
+            if (key.indexOf("token") >= 0 || key.indexOf("password") >= 0 || key.indexOf("secret") >= 0 || key.indexOf("cookie") >= 0 || key.indexOf("card") >= 0) {
+              continue;
+            }
+            safeParts.push(queryParts[i]);
+          }
+          if (safeParts.length) {
+            return base + "?" + safeParts.join("&");
+          }
+          return base;
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function initReport() {
+        var initialScope = query.verdictScope || query.scope || query.mode || "browser_only";
+        if (initialScope !== "browser_only" && initialScope !== "one_c_html_field_unconnected" && initialScope !== "one_c_html_field_with_loader" && initialScope !== "saved_report" && initialScope !== "unknown") {
+          if (String(query.oneC || query.onec || "") === "1") {
+            initialScope = "one_c_html_field_unconnected";
+          } else {
+            initialScope = "browser_only";
+          }
+        }
+        report = {
+          diagnosticVersion: DIAGNOSTIC_VERSION,
+          reportSchemaVersion: REPORT_SCHEMA_VERSION,
+          testPackVersion: TEST_PACK_VERSION,
+          diagnosticBuildId: DIAGNOSTIC_BUILD_ID,
+          buildTimestamp: BUILD_TIMESTAMP,
+          runId: makeRunId(),
+          timestamp: nowIso(),
+          pageUrl: safePageUrl(),
+          mode: initialScope,
+          verdictScope: initialScope,
+          boot: {},
+          phases: [],
+          environment: {},
+          css: {},
+          js: {},
+          ux: {},
+          performance: {},
+          network: {},
+          bridge: {
+            /* TODO Slice 2: replace not_connected only after a minimal 1C Diagnostic Loader calls diag.* test hooks. */
+            status: "not_connected"
+          },
+          rmkAdapter: {
+            /* TODO RMK Adapter spike: this page must not test receipt/payment/KKT/fiscalization. */
+            status: "not_tested"
+          },
+          warnings: [],
+          recommendations: [],
+          humanNotes: {},
+          manualObservations: {},
+          rawTestResults: []
+        };
+      }
+
+      function statusLabel(status) {
+        return STATUS_TEXT[status] || STATUS_TEXT.unknown;
+      }
+
+      function statusHtml(status) {
+        var safeStatus = status || "unknown";
+        return '<span class="status status-' + safeStatus + '">' + statusLabel(safeStatus) + '</span>';
+      }
+
+      function setText(id, text) {
+        var node = byId(id);
+        if (node) {
+          node.textContent = text;
+        }
+      }
+
+      function addResult(id, phase, label, status, value, error, durationMs) {
+        var result = {
+          id: id,
+          phase: phase,
+          label: label,
+          status: status || "unknown",
+          value: value,
+          error: error ? String(error) : null,
+          durationMs: typeof durationMs === "number" ? durationMs : null,
+          timestamp: nowIso()
+        };
+        rawTestResults.push(result);
+        report.rawTestResults = rawTestResults;
+        updatePhaseStatus(phase);
+        updateReportGroup(id, phase, status, value, error);
+        refreshAll();
+        return result;
+      }
+
+      function updateReportGroup(id, phase, status, value, error) {
+        var group = null;
+        var key = id;
+        if (phase === "boot_js" || phase === "boot_static") {
+          group = report.boot;
+        } else if (phase === "environment") {
+          group = report.environment;
+        } else if (phase === "css") {
+          group = report.css;
+        } else if (phase === "visual") {
+          if (id.indexOf("svg.") === 0 || id.indexOf("animation.") === 0 || id.indexOf("resource.") === 0) {
+            group = report.css;
+          } else {
+            group = report.performance;
+          }
+        } else if (phase === "ux") {
+          group = report.ux;
+        } else if (phase === "network") {
+          group = report.network;
+        } else if (phase === "bridge") {
+          group = report.bridge;
+        } else if (phase === "rmk") {
+          group = report.rmkAdapter;
+        }
+        if (!group) {
+          return;
+        }
+        if (id === "bridge.status" || id === "rmk.status") {
+          group.status = status || "unknown";
+          group.detail = {
+            value: value,
+            error: error ? String(error) : null
+          };
+          return;
+        }
+        key = id.replace(/^[^.]+\./, "").replace(/\./g, "_");
+        group[key] = {
+          status: status || "unknown",
+          value: value,
+          error: error ? String(error) : null
+        };
+      }
+
+      function updatePhaseStatus(phase) {
+        var i;
+        var result;
+        var hasSupported = false;
+        var hasProblem = false;
+        var hasUnknown = false;
+        var count = 0;
+        for (i = 0; i < rawTestResults.length; i += 1) {
+          result = rawTestResults[i];
+          if (result.phase !== phase) {
+            continue;
+          }
+          count += 1;
+          if (result.status === "supported") {
+            hasSupported = true;
+          }
+          if (result.status === "failed" || result.status === "timeout") {
+            hasProblem = true;
+          }
+          if (result.status === "unknown" || result.status === "partially_supported" || result.status === "not_connected" || result.status === "not_tested") {
+            hasUnknown = true;
+          }
+        }
+        if (!count) {
+          phaseState[phase] = "not_tested";
+        } else if (hasProblem && hasSupported) {
+          phaseState[phase] = "partially_supported";
+        } else if (hasProblem) {
+          phaseState[phase] = "failed";
+        } else if (hasUnknown && hasSupported) {
+          phaseState[phase] = "partially_supported";
+        } else if (hasSupported) {
+          phaseState[phase] = "supported";
+        } else {
+          phaseState[phase] = "unknown";
+        }
+        syncPhases();
+      }
+
+      function syncPhases() {
+        var phases = [];
+        var names = ["boot_static", "boot_js", "environment", "css", "visual", "ux", "network", "bridge", "rmk"];
+        var i;
+        var phase;
+        for (i = 0; i < names.length; i += 1) {
+          phase = names[i];
+          phases.push({
+            id: phase,
+            label: phaseNames[phase] || phase,
+            status: phaseState[phase] || "not_tested"
+          });
+        }
+        report.phases = phases;
+      }
+
+      function refreshAll() {
+        updateManualObservations();
+        updateWarningsAndRecommendations();
+        renderScopeMessage();
+        renderSummary();
+        renderPhases();
+        renderMatrix();
+        renderLists();
+        renderJson();
+      }
+
+      function renderScopeMessage() {
+        var message;
+        if (report.verdictScope === "browser_only") {
+          message = "Этот отчёт получен в обычном браузере. Он не доказывает, что страница так же работает внутри 1С.";
+        } else if (report.verdictScope === "one_c_html_field_unconnected") {
+          message = "Этот отчёт получен внутри Поля HTML-документа 1С, но обмен HTML ↔ 1С ещё не подключён.";
+        } else if (report.verdictScope === "one_c_html_field_with_loader") {
+          message = "Этот отчёт получен внутри 1С с подключённым диагностическим обменом HTML ↔ 1С.";
+        } else if (report.verdictScope === "saved_report") {
+          message = "Открыт ранее сохранённый отчёт.";
+        } else {
+          message = "Среду запуска определить нельзя. Используйте этот отчёт как предварительную диагностику.";
+        }
+        setText("scope-message", message);
+      }
+
+      function renderSummary() {
+        var node = byId("summary-table");
+        var verdict = deriveVerdict();
+        if (!node) {
+          return;
+        }
+        node.innerHTML = ""
+          + "<tr><th>Общий вывод</th><td>" + escapeHtml(verdict.text) + "</td></tr>"
+          + "<tr><th>Область достоверности</th><td><code>" + escapeHtml(report.verdictScope) + "</code></td></tr>"
+          + "<tr><th>Идентификатор запуска</th><td><code>" + escapeHtml(report.runId) + "</code></td></tr>"
+          + "<tr><th>Сборка диагностики</th><td><code>" + escapeHtml(report.diagnosticBuildId) + "</code></td></tr>"
+          + "<tr><th>Статус обмена HTML ↔ 1С</th><td>" + statusHtml(report.bridge.status) + "</td></tr>"
+          + "<tr><th>Статус РМК-адаптера</th><td>" + statusHtml(report.rmkAdapter.status) + "</td></tr>";
+      }
+
+      function deriveVerdict() {
+        var boot = phaseState.boot_js;
+        var css = phaseState.css;
+        var network = phaseState.network;
+        if (boot === "failed" || boot === "timeout") {
+          return {
+            code: "not_ready_for_frontshell",
+            text: "Критичный запуск JavaScript не прошёл. Среда не готова даже для следующей проверки покупательской HTML-оболочки."
+          };
+        }
+        if (report.verdictScope === "browser_only") {
+          return {
+            code: "browser_diagnostic_only",
+            text: "Проверка выполнена в обычном браузере. Для выводов о 1С нужно открыть страницу внутри Поля HTML-документа 1С."
+          };
+        }
+        if (css === "failed") {
+          return {
+            code: "frontshell_possible_only_after_css_fallbacks",
+            text: "HTML/JavaScript работают, но визуальные возможности требуют fallback."
+          };
+        }
+        if (network === "failed") {
+          return {
+            code: "local_report_only",
+            text: "Диагностика работает, но отчёт нужно получать локально через копирование или скачивание JSON."
+          };
+        }
+        return {
+          code: "diagnostic_slice1_completed",
+          text: "Первичная диагностика выполнена. Это не означает готовность кассы."
+        };
+      }
+
+      function renderPhases() {
+        var node = byId("phase-list");
+        var html = "";
+        var i;
+        if (!node) {
+          return;
+        }
+        for (i = 0; i < report.phases.length; i += 1) {
+          html += "<li><strong>" + escapeHtml(report.phases[i].label) + ":</strong> " + statusHtml(report.phases[i].status) + "</li>";
+        }
+        node.innerHTML = html;
+      }
+
+      function renderMatrix() {
+        var node = byId("matrix-root");
+        var i;
+        var result;
+        var html;
+        if (!node) {
+          return;
+        }
+        html = '<table><thead><tr><th>Проверка</th><th>Статус</th><th>Значение</th><th>Ошибка</th></tr></thead><tbody>';
+        for (i = 0; i < rawTestResults.length; i += 1) {
+          result = rawTestResults[i];
+          html += "<tr><td><code>" + escapeHtml(result.id) + "</code><br>" + escapeHtml(result.label) + "</td><td>" + statusHtml(result.status) + "</td><td>" + escapeHtml(shortValue(result.value)) + "</td><td>" + escapeHtml(result.error || "") + "</td></tr>";
+        }
+        html += "</tbody></table>";
+        node.innerHTML = html;
+      }
+
+      function shortValue(value) {
+        var text;
+        if (value === null || typeof value === "undefined") {
+          return "";
+        }
+        if (typeof value === "string") {
+          text = value;
+        } else {
+          try {
+            text = JSON.stringify(value);
+          } catch (e) {
+            text = String(value);
+          }
+        }
+        if (text.length > 120) {
+          return text.substring(0, 120) + "...";
+        }
+        return text;
+      }
+
+      function renderLists() {
+        fillList("warnings-list", report.warnings);
+        fillList("recommendations-list", report.recommendations);
+      }
+
+      function fillList(id, items) {
+        var node = byId(id);
+        var i;
+        var li;
+        if (!node) {
+          return;
+        }
+        node.innerHTML = "";
+        if (!items || !items.length) {
+          li = document.createElement("li");
+          li.textContent = "Нет дополнительных сообщений.";
+          node.appendChild(li);
+          return;
+        }
+        for (i = 0; i < items.length; i += 1) {
+          li = document.createElement("li");
+          li.textContent = items[i];
+          node.appendChild(li);
+        }
+      }
+
+      function renderJson() {
+        var node = byId("json-report");
+        if (!node) {
+          return;
+        }
+        try {
+          node.value = JSON.stringify(report, null, 2);
+        } catch (e) {
+          node.value = '{"error":"Не удалось сформировать JSON"}';
+        }
+      }
+
+      function updateWarningsAndRecommendations() {
+        var warnings = [];
+        var recommendations = [];
+        var grid = getStatus("css.grid.measure");
+        var svgAnimation = getStatus("svg.animation.basic");
+        var fetchStatus = getStatus("network.fetch.exists");
+        var xhrStatus = getStatus("network.xhr.exists");
+        var clipboard = getStatus("network.clipboard.exists");
+        var resourceCss = getStatus("resource.loading.css");
+        var resourceJs = getStatus("resource.loading.js");
+        warnings.push("Эта страница не проверяет готовность кассы, РМК, оплату, ККТ, чек, фискализацию и маркировку.");
+        if (report.verdictScope === "browser_only") {
+          recommendations.push("Перед выводами о 1С нужно открыть эту страницу внутри Поля HTML-документа 1С.");
+        }
+        if (report.bridge.status === "not_connected") {
+          recommendations.push("Для проверки обмена HTML ↔ 1С нужен минимальный 1С Diagnostic Loader.");
+        }
+        if (report.rmkAdapter.status === "not_tested") {
+          recommendations.push("Не делать вывод о готовности кассы. РМК, чек, оплата, ККТ и фискализация не проверялись.");
+        }
+        if (grid === "failed" || grid === "timeout" || grid === "unknown") {
+          recommendations.push("Не использовать CSS Grid в базовой HTML-оболочке. Использовать более простой layout.");
+        }
+        if (svgAnimation === "failed" || svgAnimation === "timeout") {
+          recommendations.push("Не использовать SVG-анимацию.");
+        }
+        if (fetchStatus !== "supported" && xhrStatus === "supported") {
+          recommendations.push("Для отправки отчёта позже использовать XHR fallback. В первом срезе достаточно ручного копирования JSON.");
+        }
+        if (clipboard !== "supported") {
+          recommendations.push("Если кнопка копирования не работает, выделите JSON вручную и скопируйте его.");
+        }
+        if (resourceCss === "failed" || resourceCss === "timeout") {
+          recommendations.push("Оставить первый диагностический запуск single-file. Загрузку внешнего CSS исследовать отдельно.");
+        }
+        if (resourceJs === "failed" || resourceJs === "timeout") {
+          recommendations.push("Не зависеть от внешних JS-файлов внутри 1С, пока загрузка ресурсов не подтверждена.");
+        }
+        report.warnings = uniqueList(warnings);
+        report.recommendations = uniqueList(recommendations);
+      }
+
+      function uniqueList(items) {
+        var result = [];
+        var seen = {};
+        var i;
+        for (i = 0; i < items.length; i += 1) {
+          if (!seen[items[i]]) {
+            result.push(items[i]);
+            seen[items[i]] = true;
+          }
+        }
+        return result;
+      }
+
+      function getStatus(id) {
+        var i;
+        for (i = rawTestResults.length - 1; i >= 0; i -= 1) {
+          if (rawTestResults[i].id === id) {
+            return rawTestResults[i].status;
+          }
+        }
+        return "unknown";
+      }
+
+      function escapeHtml(value) {
+        return String(value === null || typeof value === "undefined" ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function updateManualObservations() {
+        report.humanNotes = {
+          terminalLabel: byId("terminal-label") ? byId("terminal-label").value : ""
+        };
+        report.manualObservations = {
+          visualOpenedCorrectly: getValue("visual-opened"),
+          blankScreenOrArtifacts: getValue("artifacts-observation"),
+          manualScroll: getValue("manual-scroll"),
+          manualTouch: getValue("manual-touch"),
+          inputFocus: getValue("input-focus-observation"),
+          virtualKeyboard: getValue("keyboard-observation"),
+          visibleLag: getValue("lag-observation"),
+          screenshotTaken: getValue("screenshot-observation"),
+          specialistComment: getValue("specialist-comment"),
+          observerComment: getValue("observer-comment")
+        };
+      }
+
+      function getValue(id) {
+        var node = byId(id);
+        return node ? node.value : "";
+      }
+
+      function setValue(id, value) {
+        var node = byId(id);
+        if (node) {
+          node.value = value;
+        }
+      }
+
+      function runTest(id, phase, label, timeoutMs, fn) {
+        var done = false;
+        var startedAt = new Date().getTime();
+        var timer = setTimeout(function () {
+          if (done) {
+            return;
+          }
+          done = true;
+          addResult(id, phase, label, "timeout", null, "timeout", new Date().getTime() - startedAt);
+        }, timeoutMs || 2000);
+        function finish(status, value, error) {
+          if (done) {
+            return;
+          }
+          done = true;
+          clearTimeout(timer);
+          addResult(id, phase, label, status, value, error, new Date().getTime() - startedAt);
+        }
+        try {
+          fn(finish);
+        } catch (e) {
+          finish("failed", null, e && e.message ? e.message : e);
+        }
+      }
+
+      function runPhase0() {
+        phaseState.boot_static = "supported";
+        addResult("boot.static_html.visible", "boot_static", "Статический HTML виден", "supported", true, null, 0);
+      }
+
+      function runPhase1() {
+        var warning = byId("static-js-warning");
+        if (warning) {
+          warning.className = "notice ok";
+          warning.textContent = "JavaScript запустился. Диагностика выполняется пошагово.";
+        }
+        window.DiagnosticHarness = {
+          receiveFrom1C: function (message) {
+            report.bridge.status = "partially_supported";
+            addResult("bridge.receiveFrom1C", "bridge", "Получено сообщение от 1С", "supported", message || true, null, 0);
+            return true;
+          },
+          receiveBridgeAck: function (message) {
+            report.bridge.status = "partially_supported";
+            addResult("bridge.receiveBridgeAck", "bridge", "Получено подтверждение от 1С", "supported", message || true, null, 0);
+            return true;
+          },
+          receiveStateFrom1C: function (state) {
+            report.bridge.status = "partially_supported";
+            report.environment.oneCMetadata = state || {};
+            addResult("bridge.receiveStateFrom1C", "bridge", "Получены сведения из 1С", "supported", state || true, null, 0);
+            return true;
+          },
+          getCurrentReport: function () {
+            updateManualObservations();
+            return report;
+          },
+          renderReport: function (incomingReport) {
+            if (incomingReport) {
+              report = incomingReport;
+              refreshAll();
+            }
+          }
+        };
+        runTest("boot.classic_script", "boot_js", "Классический script выполнен", 1000, function (finish) {
+          finish("supported", true, null);
+        });
+        runTest("boot.harness_object", "boot_js", "window.DiagnosticHarness создан", 1000, function (finish) {
+          finish(window.DiagnosticHarness ? "supported" : "failed", !!window.DiagnosticHarness, null);
+        });
+        runTest("boot.try_catch", "boot_js", "try/catch работает", 1000, function (finish) {
+          var ok = false;
+          try {
+            throw new Error("test");
+          } catch (e) {
+            ok = true;
+          }
+          finish(ok ? "supported" : "failed", ok, null);
+        });
+        runTest("boot.dom_write", "boot_js", "Базовая запись в DOM работает", 1000, function (finish) {
+          var node = byId("copy-feedback");
+          if (node) {
+            node.textContent = "JavaScript запущен, JSON-отчёт формируется.";
+            finish("supported", true, null);
+          } else {
+            finish("failed", false, "DOM-узел не найден");
+          }
+        });
+        runTest("boot.date", "boot_js", "Date работает", 1000, function (finish) {
+          var date = new Date();
+          finish(date && String(date.getFullYear()).length === 4 ? "supported" : "failed", String(date), null);
+        });
+        runTest("boot.basic_objects", "boot_js", "Простые строки, массивы и объекты работают", 1000, function (finish) {
+          var arr = ["a", "b"];
+          var obj = { a: 1 };
+          finish(arr.length === 2 && obj.a === 1 ? "supported" : "failed", true, null);
+        });
+      }
+
+      function runPhase2() {
+        var dpr = 1;
+        var tz = "unknown";
+        try {
+          dpr = window.devicePixelRatio || 1;
+        } catch (e1) {
+          dpr = 1;
+        }
+        try {
+          if (window.Intl && Intl.DateTimeFormat) {
+            tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "unknown";
+          }
+        } catch (e2) {
+          tz = "unknown";
+        }
+        report.environment = {
+          userAgent: navigator.userAgent || "",
+          language: navigator.language || "",
+          pageUrl: report.pageUrl,
+          viewport: {
+            width: window.innerWidth || document.documentElement.clientWidth || 0,
+            height: window.innerHeight || document.documentElement.clientHeight || 0
+          },
+          screen: {
+            width: window.screen ? window.screen.width : 0,
+            height: window.screen ? window.screen.height : 0
+          },
+          devicePixelRatio: dpr,
+          timezone: tz,
+          touch: {
+            ontouchstart: "ontouchstart" in window,
+            maxTouchPoints: navigator.maxTouchPoints || 0,
+            pointerEvent: !!window.PointerEvent
+          },
+          runId: report.runId,
+          terminalLabel: report.humanNotes.terminalLabel || "",
+          verdictScope: report.verdictScope,
+          diagnosticBuildId: DIAGNOSTIC_BUILD_ID,
+          reportSchemaVersion: REPORT_SCHEMA_VERSION,
+          testPackVersion: TEST_PACK_VERSION
+        };
+        addResult("environment.userAgent", "environment", "User agent браузера", report.environment.userAgent ? "supported" : "unknown", report.environment.userAgent, null, 0);
+        addResult("environment.viewport", "environment", "Размер области просмотра", report.environment.viewport.width > 0 ? "supported" : "unknown", report.environment.viewport, null, 0);
+        addResult("environment.screen", "environment", "Размер экрана", report.environment.screen.width > 0 ? "supported" : "unknown", report.environment.screen, null, 0);
+        addResult("environment.timezone", "environment", "Часовой пояс", tz !== "unknown" ? "supported" : "unknown", tz, null, 0);
+        addResult("environment.touch_pointer", "environment", "Признаки касаний и pointer events", "supported", report.environment.touch, null, 0);
+      }
+
+      function runPhase3() {
+        testCssFlex();
+        testCssGrid();
+        testCssVariables();
+        testComputedStyle("css.transitions", "Переходы CSS", "transition", "opacity 0.1s linear");
+        testComputedStyle("css.transforms", "Преобразования CSS", "transform", "translateX(2px)");
+        testComputedStyle("css.box_shadow", "box-shadow", "boxShadow", "0 1px 3px #000");
+        testComputedStyle("css.border_radius", "border-radius", "borderRadius", "8px");
+        testMediaQueries();
+        testOverflowScroll();
+        testFixedSticky();
+        testResourceCss();
+      }
+
+      function probeRoot() {
+        return byId("hidden-probe") || document.body;
+      }
+
+      function testCssFlex() {
+        runTest("css.flex.measure", "css", "Flex-разметка", 2000, function (finish) {
+          var root = probeRoot();
+          var box = document.createElement("div");
+          var a = document.createElement("div");
+          var b = document.createElement("div");
+          box.style.display = "flex";
+          box.style.width = "120px";
+          a.style.width = "40px";
+          b.style.width = "40px";
+          a.style.height = "10px";
+          b.style.height = "10px";
+          box.appendChild(a);
+          box.appendChild(b);
+          root.appendChild(box);
+          finish(b.offsetLeft > a.offsetLeft ? "supported" : "failed", { first: a.offsetLeft, second: b.offsetLeft }, null);
+          root.removeChild(box);
+        });
+      }
+
+      function testCssGrid() {
+        runTest("css.grid.measure", "css", "CSS Grid", 2000, function (finish) {
+          var root = probeRoot();
+          var box = document.createElement("div");
+          var a = document.createElement("div");
+          var b = document.createElement("div");
+          box.style.display = "grid";
+          box.style.gridTemplateColumns = "40px 40px";
+          box.style.width = "120px";
+          a.style.height = "10px";
+          b.style.height = "10px";
+          box.appendChild(a);
+          box.appendChild(b);
+          root.appendChild(box);
+          finish(b.offsetLeft > a.offsetLeft ? "supported" : "failed", { first: a.offsetLeft, second: b.offsetLeft }, null);
+          root.removeChild(box);
+        });
+      }
+
+      function testCssVariables() {
+        runTest("css.variables", "css", "CSS variables", 2000, function (finish) {
+          var root = probeRoot();
+          var box = document.createElement("div");
+          var color;
+          box.style.cssText = "--diag-color: rgb(1, 2, 3); color: var(--diag-color);";
+          root.appendChild(box);
+          color = getStyleValue(box, "color");
+          finish(color && color.indexOf("1") >= 0 ? "supported" : "failed", color, null);
+          root.removeChild(box);
+        });
+      }
+
+      function testComputedStyle(id, label, prop, value) {
+        runTest(id, "css", label, 2000, function (finish) {
+          var root = probeRoot();
+          var box = document.createElement("div");
+          var computed;
+          box.style[prop] = value;
+          root.appendChild(box);
+          computed = getStyleValue(box, prop);
+          finish(computed && computed !== "none" && computed !== "0px" ? "supported" : "unknown", computed, null);
+          root.removeChild(box);
+        });
+      }
+
+      function getStyleValue(node, prop) {
+        try {
+          if (window.getComputedStyle) {
+            return window.getComputedStyle(node, null)[prop] || window.getComputedStyle(node, null).getPropertyValue(prop);
+          }
+          if (node.currentStyle) {
+            return node.currentStyle[prop];
+          }
+        } catch (e) {
+          return "";
+        }
+        return "";
+      }
+
+      function testMediaQueries() {
+        runTest("css.media_queries", "css", "Media queries", 2000, function (finish) {
+          if (!window.matchMedia) {
+            finish("unknown", false, null);
+            return;
+          }
+          finish(window.matchMedia("(min-width: 1px)").matches ? "supported" : "failed", true, null);
+        });
+      }
+
+      function testOverflowScroll() {
+        runTest("css.overflow_scroll", "css", "Overflow scroll", 2000, function (finish) {
+          var root = probeRoot();
+          var box = document.createElement("div");
+          var inner = document.createElement("div");
+          box.style.width = "80px";
+          box.style.height = "40px";
+          box.style.overflow = "auto";
+          inner.style.height = "120px";
+          box.appendChild(inner);
+          root.appendChild(box);
+          box.scrollTop = 30;
+          finish(box.scrollTop > 0 ? "supported" : "failed", box.scrollTop, null);
+          root.removeChild(box);
+        });
+      }
+
+      function testFixedSticky() {
+        runTest("css.fixed_sticky", "css", "Position fixed/sticky", 2000, function (finish) {
+          var root = probeRoot();
+          var fixed = document.createElement("div");
+          var sticky = document.createElement("div");
+          var fixedValue;
+          var stickyValue;
+          fixed.style.position = "fixed";
+          sticky.style.position = "sticky";
+          root.appendChild(fixed);
+          root.appendChild(sticky);
+          fixedValue = getStyleValue(fixed, "position");
+          stickyValue = getStyleValue(sticky, "position");
+          finish(fixedValue === "fixed" ? (stickyValue === "sticky" ? "supported" : "partially_supported") : "failed", { fixed: fixedValue, sticky: stickyValue }, null);
+          root.removeChild(fixed);
+          root.removeChild(sticky);
+        });
+      }
+
+      function testResourceCss() {
+        runTest("resource.loading.css", "css", "Загрузка внешнего CSS как отдельный тест", 3000, function (finish) {
+          var link = document.createElement("link");
+          var completed = false;
+          var styleId = "diag-resource-css-probe";
+          var probe = document.createElement("div");
+          probe.id = styleId;
+          probe.className = "diag-resource-css-test";
+          probe.style.position = "absolute";
+          probe.style.left = "-10000px";
+          document.body.appendChild(probe);
+          link.rel = "stylesheet";
+          link.href = "data:text/css,.diag-resource-css-test%7Bwidth%3A37px%7D";
+          link.onload = function () {
+            var width;
+            if (completed) {
+              return;
+            }
+            completed = true;
+            width = probe.offsetWidth;
+            removeNode(link);
+            removeNode(probe);
+            finish(width === 37 ? "supported" : "partially_supported", width, null);
+          };
+          link.onerror = function () {
+            if (completed) {
+              return;
+            }
+            completed = true;
+            removeNode(link);
+            removeNode(probe);
+            finish("failed", false, "Ошибка загрузки внешнего CSS");
+          };
+          document.getElementsByTagName("head")[0].appendChild(link);
+          setTimeout(function () {
+            if (!completed) {
+              var width = probe.offsetWidth;
+              completed = true;
+              removeNode(link);
+              removeNode(probe);
+              finish(width === 37 ? "supported" : "timeout", width, width === 37 ? null : "Нет ответа при загрузке внешнего CSS");
+            }
+          }, 800);
+        });
+      }
+
+      function removeNode(node) {
+        if (node && node.parentNode) {
+          node.parentNode.removeChild(node);
+        }
+      }
+
+      function runPhase4() {
+        testInlineSvg();
+        testSvgAnimation();
+        testCssAnimation();
+        renderCards(50);
+        setTimeout(function () {
+          if (getStatus("performance.cards_50") === "supported" || getStatus("performance.cards_50") === "partially_supported") {
+            renderCards(100);
+          } else {
+          addResult("performance.cards_100", "visual", "Отрисовка 100 карточек", "not_tested", null, "Проверка 50 карточек не прошла", 0);
+          }
+        }, 50);
+        testResourceJs();
+      }
+
+      function testInlineSvg() {
+        runTest("svg.inline_render", "visual", "Inline SVG render", 2000, function (finish) {
+          var root = probeRoot();
+          var wrap = document.createElement("div");
+          wrap.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#1b7f5f"></circle></svg>';
+          root.appendChild(wrap);
+          finish(wrap.getElementsByTagName("svg").length ? "supported" : "failed", true, null);
+          root.removeChild(wrap);
+        });
+      }
+
+      function testSvgAnimation() {
+        runTest("svg.animation.basic", "visual", "SVG animation", 2000, function (finish) {
+          var root = probeRoot();
+          var wrap = document.createElement("div");
+          wrap.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="#1b7f5f"><animate attributeName="r" values="6;8;6" dur="1s" repeatCount="1"></animate></circle></svg>';
+          root.appendChild(wrap);
+          finish(wrap.getElementsByTagName("animate").length ? "supported" : "failed", true, null);
+          root.removeChild(wrap);
+        });
+      }
+
+      function testCssAnimation() {
+        runTest("animation.css_basic", "visual", "CSS animation на простом элементе", 2000, function (finish) {
+          var style = document.createElement("style");
+          var root = probeRoot();
+          var box = document.createElement("div");
+          var name;
+          style.type = "text/css";
+          style.appendChild(document.createTextNode("@keyframes diagFade{from{opacity:0.5}to{opacity:1}}.diag-animation-probe{animation:diagFade 0.1s linear 1}"));
+          document.getElementsByTagName("head")[0].appendChild(style);
+          box.className = "diag-animation-probe";
+          root.appendChild(box);
+          name = getStyleValue(box, "animationName") || getStyleValue(box, "animation-name");
+          finish(name && name !== "none" ? "supported" : "unknown", name, null);
+          removeNode(box);
+          removeNode(style);
+        });
+      }
+
+      function renderCards(count) {
+        runTest(count === 50 ? "performance.cards_50" : "performance.cards_100", "visual", "Отрисовка " + count + " карточек", 4000, function (finish) {
+          var root = byId("visual-probe");
+          var start = getTime();
+          var i;
+          var html = "";
+          var elapsed;
+          if (!root) {
+            finish("failed", null, "Область визуальной проверки не найдена");
+            return;
+          }
+          for (i = 0; i < count; i += 1) {
+            html += '<div class="probe-card">Карточка ' + (i + 1) + '<br><span class="muted">тест</span></div>';
+          }
+          root.innerHTML = html;
+          elapsed = getTime() - start;
+          report.performance[count === 50 ? "cards50Ms" : "cards100Ms"] = elapsed;
+          finish(elapsed < (count === 50 ? 800 : 1400) ? "supported" : "partially_supported", { count: count, ms: elapsed }, null);
+        });
+      }
+
+      function getTime() {
+        try {
+          if (window.performance && performance.now) {
+            return performance.now();
+          }
+        } catch (e) {
+        }
+        return new Date().getTime();
+      }
+
+      function testResourceJs() {
+        runTest("resource.loading.js", "visual", "Загрузка внешнего JS как отдельный тест", 3000, function (finish) {
+          var script = document.createElement("script");
+          var completed = false;
+          window.__diagResourceJsLoaded = false;
+          script.src = "data:text/javascript,window.__diagResourceJsLoaded%3Dtrue%3B";
+          script.onload = function () {
+            if (completed) {
+              return;
+            }
+            completed = true;
+            removeNode(script);
+            finish(window.__diagResourceJsLoaded ? "supported" : "partially_supported", !!window.__diagResourceJsLoaded, null);
+          };
+          script.onerror = function () {
+            if (completed) {
+              return;
+            }
+            completed = true;
+            removeNode(script);
+            finish("failed", false, "Ошибка загрузки внешнего JavaScript");
+          };
+          document.getElementsByTagName("head")[0].appendChild(script);
+          setTimeout(function () {
+            if (!completed) {
+              completed = true;
+              removeNode(script);
+              finish(window.__diagResourceJsLoaded ? "supported" : "timeout", !!window.__diagResourceJsLoaded, window.__diagResourceJsLoaded ? null : "Нет ответа при загрузке внешнего JavaScript");
+            }
+          }, 800);
+        });
+      }
+
+      function runPhase5() {
+        addResult("ux.click.manual", "ux", "Ручное нажатие кнопки", "unknown", "Ожидается действие пользователя", null, 0);
+        addResult("ux.double_click.manual", "ux", "Повторное нажатие / double click", "unknown", "Ожидается действие пользователя", null, 0);
+        addResult("ux.pointer_events", "ux", "Pointer events", window.PointerEvent ? "unknown" : "not_applicable", !!window.PointerEvent, null, 0);
+        addResult("ux.touch_events", "ux", "Touch events", "ontouchstart" in window ? "unknown" : "not_applicable", "ontouchstart" in window, null, 0);
+        addResult("ux.focus_input", "ux", "Фокус на input", "unknown", "Ожидается действие пользователя", null, 0);
+        addResult("ux.input_change", "ux", "Изменение input", "unknown", "Ожидается действие пользователя", null, 0);
+        addResult("ux.scroll_container", "ux", "Прокрутка контейнера", "unknown", "Ожидается действие пользователя", null, 0);
+        addResult("ux.large_button", "ux", "Крупная кнопка", "supported", getButtonSize(), null, 0);
+      }
+
+      function getButtonSize() {
+        var btn = byId("manual-button");
+        if (!btn) {
+          return null;
+        }
+        return {
+          width: btn.offsetWidth,
+          height: btn.offsetHeight
+        };
+      }
+
+      function updateExistingResult(id, status, value, error) {
+        var i;
+        for (i = rawTestResults.length - 1; i >= 0; i -= 1) {
+          if (rawTestResults[i].id === id) {
+            rawTestResults[i].status = status;
+            rawTestResults[i].value = value;
+            rawTestResults[i].error = error || null;
+            rawTestResults[i].timestamp = nowIso();
+            updatePhaseStatus(rawTestResults[i].phase);
+            updateReportGroup(id, rawTestResults[i].phase, status, value, error);
+            refreshAll();
+            return;
+          }
+        }
+      }
+
+      function runPhase6() {
+        addResult("network.fetch.exists", "network", "Наличие fetch", typeof window.fetch === "function" ? "supported" : "failed", typeof window.fetch === "function", null, 0);
+        addResult("network.xhr.exists", "network", "Наличие XMLHttpRequest", typeof window.XMLHttpRequest === "function" ? "supported" : "failed", typeof window.XMLHttpRequest === "function", null, 0);
+        addResult("network.blob.exists", "network", "Поддержка Blob/download", typeof window.Blob === "function" && window.URL ? "supported" : "failed", typeof window.Blob === "function", null, 0);
+        addResult("network.anchor_download", "network", "Поддержка скачивания через ссылку", "download" in document.createElement("a") ? "supported" : "unknown", "download" in document.createElement("a"), null, 0);
+        addResult("network.clipboard.exists", "network", "Clipboard API", navigator.clipboard && navigator.clipboard.writeText ? "supported" : "failed", !!(navigator.clipboard && navigator.clipboard.writeText), null, 0);
+        addResult("network.manual_copy", "network", "Ручное копирование JSON", byId("json-report") ? "supported" : "failed", !!byId("json-report"), null, 0);
+        addResult("bridge.status", "bridge", "Обмен HTML ↔ 1С", "not_connected", "Slice 1 без 1С Diagnostic Loader", null, 0);
+        addResult("rmk.status", "rmk", "РМК-адаптер", "not_tested", "Slice 1 не проверяет РМК", null, 0);
+      }
+
+      function wireManualControls() {
+        var btn = byId("manual-button");
+        var input = byId("manual-input");
+        var scroll = byId("manual-scroll-box");
+        var scope = byId("scope-select");
+        var terminal = byId("terminal-label");
+        var ids = ["visual-opened", "manual-scroll", "manual-touch", "input-focus-observation", "keyboard-observation", "lag-observation", "screenshot-observation", "artifacts-observation", "specialist-comment", "observer-comment"];
+        var i;
+        if (btn) {
+          btn.onclick = function () {
+            var current = new Date().getTime();
+            manualClickCount += 1;
+            updateExistingResult("ux.click.manual", "supported", { count: manualClickCount }, null);
+            if (lastManualClickAt && current - lastManualClickAt < 600) {
+              updateExistingResult("ux.double_click.manual", "supported", { deltaMs: current - lastManualClickAt }, null);
+            }
+            lastManualClickAt = current;
+            setValue("manual-touch", "yes");
+            refreshAll();
+          };
+          btn.onpointerdown = function () {
+            updateExistingResult("ux.pointer_events", "supported", true, null);
+          };
+          btn.ontouchstart = function () {
+            updateExistingResult("ux.touch_events", "supported", true, null);
+          };
+        }
+        if (input) {
+          input.onfocus = function () {
+            updateExistingResult("ux.focus_input", "supported", true, null);
+            setValue("input-focus-observation", "yes");
+            refreshAll();
+          };
+          input.oninput = function () {
+            updateExistingResult("ux.input_change", "supported", input.value ? "text entered" : "empty", null);
+          };
+          input.onchange = input.oninput;
+        }
+        if (scroll) {
+          scroll.onscroll = function () {
+            updateExistingResult("ux.scroll_container", "supported", scroll.scrollTop, null);
+            setValue("manual-scroll", "yes");
+            refreshAll();
+          };
+        }
+        if (scope) {
+          scope.onchange = function () {
+            report.verdictScope = scope.value;
+            report.mode = scope.value;
+            report.environment.verdictScope = scope.value;
+            refreshAll();
+          };
+        }
+        if (terminal) {
+          terminal.oninput = function () {
+            report.humanNotes.terminalLabel = terminal.value;
+            report.environment.terminalLabel = terminal.value;
+            refreshAll();
+          };
+        }
+        for (i = 0; i < ids.length; i += 1) {
+          wireObservation(ids[i]);
+        }
+        var copy = byId("copy-json");
+        if (copy) {
+          copy.onclick = copyJson;
+        }
+        var download = byId("download-json");
+        if (download) {
+          download.onclick = downloadJson;
+        }
+      }
+
+      function wireObservation(id) {
+        var node = byId(id);
+        if (!node) {
+          return;
+        }
+        node.onchange = refreshAll;
+        node.oninput = refreshAll;
+      }
+
+      function copyJson() {
+        var node = byId("json-report");
+        var text = node ? node.value : "";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          try {
+            navigator.clipboard.writeText(text).then(function () {
+              setText("copy-feedback", "JSON скопирован в буфер обмена.");
+            }, function () {
+              fallbackSelectJson();
+            });
+          } catch (e) {
+            fallbackSelectJson();
+          }
+        } else {
+          fallbackSelectJson();
+        }
+      }
+
+      function fallbackSelectJson() {
+        var node = byId("json-report");
+        if (node) {
+          node.focus();
+          node.select();
+        }
+        setText("copy-feedback", "Автоматическое копирование недоступно. JSON выделен: скопируйте его вручную.");
+      }
+
+      function downloadJson() {
+        var node = byId("json-report");
+        var text = node ? node.value : "";
+        var blob;
+        var url;
+        var a;
+        if (typeof window.Blob !== "function" || !window.URL || !URL.createObjectURL) {
+          setText("copy-feedback", "Скачивание недоступно в этой среде. Скопируйте JSON вручную.");
+          fallbackSelectJson();
+          return;
+        }
+        try {
+          blob = new Blob([text], { type: "application/json;charset=utf-8" });
+          url = URL.createObjectURL(blob);
+          a = document.createElement("a");
+          a.href = url;
+          a.download = report.runId + ".json";
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+            removeNode(a);
+          }, 1000);
+          setText("copy-feedback", "JSON подготовлен для скачивания.");
+        } catch (e) {
+          setText("copy-feedback", "Не удалось скачать JSON. Скопируйте его вручную.");
+        }
+      }
+
+      function boot() {
+        var scope = byId("scope-select");
+        var terminal = byId("terminal-label");
+        initReport();
+        if (query.terminalLabel || query.terminallabel) {
+          setValue("terminal-label", sanitizeShort(query.terminalLabel || query.terminallabel, ""));
+        }
+        if (terminal && terminal.value) {
+          report.humanNotes.terminalLabel = terminal.value;
+        }
+        if (scope) {
+          scope.value = report.verdictScope;
+        }
+        wireManualControls();
+        syncPhases();
+        refreshAll();
+        runPhase0();
+        runPhase1();
+        setTimeout(runPhase2, 30);
+        setTimeout(runPhase3, 80);
+        setTimeout(runPhase4, 150);
+        setTimeout(runPhase5, 250);
+        setTimeout(runPhase6, 320);
+      }
+
+      try {
+        boot();
+      } catch (fatalError) {
+        var warningNode = byId("static-js-warning");
+        if (warningNode) {
+          warningNode.className = "notice danger";
+          warningNode.textContent = "JavaScript начал запуск, но диагностика завершилась ошибкой: " + String(fatalError && fatalError.message ? fatalError.message : fatalError);
+        }
+      }
+    }());
+  </script>
+</body>
+</html>
