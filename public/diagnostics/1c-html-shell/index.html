@@ -522,7 +522,9 @@
       <p class="notice">
         Подробное техническое задание для Slice 2:
         <a href="https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md" target="_blank" rel="noopener">1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md</a>.
-        Откройте его в обычном браузере, если Поле HTML-документа 1С не должно уходить со страницы диагностики.
+        Исходники для самостоятельной сборки внешней обработки:
+        <a href="https://github.com/Kwentin3/kassa/tree/mvp/self-checkout-web-ui/tools/1c-diagnostic-loader" target="_blank" rel="noopener">tools/1c-diagnostic-loader/</a>.
+        Откройте эти материалы в обычном браузере, если Поле HTML-документа 1С не должно уходить со страницы диагностики.
       </p>
       <ol>
         <li>Откройте URL этой страницы в форме 1С через Поле HTML-документа.</li>
@@ -532,6 +534,8 @@
         <li>После выполнения проверок заполните ручные наблюдения.</li>
         <li>Скопируйте JSON или скачайте файл и передайте команде проекта.</li>
         <li>Если указано "Обмен HTML ↔ 1С не подключено", это нормально для Slice 1: минимальный 1С Diagnostic Loader ещё не подключался.</li>
+        <li>Для Slice 2 можно использовать <a href="https://github.com/Kwentin3/kassa/tree/mvp/self-checkout-web-ui/tools/1c-diagnostic-loader" target="_blank" rel="noopener">исходники внешней обработки</a>: там есть README, структура формы, модули BSL и примеры JSON.</li>
+        <li>Готовый файл <code>.epf</code> пока не собран. 1С-специалист собирает внешнюю обработку в своей тестовой базе и проверяет обмен на целевой версии платформы.</li>
         <li>Не добавляйте в отчёт товары, чеки, суммы покупок, персональные данные, токены, пароли, данные карт, фискальные данные и внутренние ссылки на объекты 1С.</li>
         <li>Этот тест не проверяет РМК, оплату, ККТ, фискализацию, печать и маркировку.</li>
       </ol>
@@ -545,8 +549,8 @@
       var DIAGNOSTIC_VERSION = "0.1";
       var REPORT_SCHEMA_VERSION = "0.2";
       var TEST_PACK_VERSION = "0.2";
-      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-03";
-      var BUILD_TIMESTAMP = "2026-05-19T19:06:06.000Z";
+      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-04";
+      var BUILD_TIMESTAMP = "2026-05-19T19:28:39.000Z";
       var STATUS_TEXT = {
         supported: "Поддерживается",
         partially_supported: "Работает частично",
