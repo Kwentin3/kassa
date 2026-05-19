@@ -32,6 +32,7 @@ Manual Android tablet camera smoke is still required on the physical device.
 - [ ] Product cards wrap inside the viewport; no horizontal page scroll is needed.
 - [ ] One or two search results stay compact and do not stretch into oversized cards.
 - [ ] Product thumbnails have stable height and do not force unnecessary scroll for a single card.
+- [ ] `npm run visual:cards` passes against deployed URL.
 - [ ] Catalog/search/cart use vertical scroll zones when content exceeds viewport.
 - [ ] Card mock success transitions to receipt.
 - [ ] Mock receipt shows id, items, total and QR placeholder.

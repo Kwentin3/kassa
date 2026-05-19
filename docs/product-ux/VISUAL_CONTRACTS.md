@@ -82,6 +82,7 @@ Secondary adaptation:
 - `npm run typecheck`
 - `npm run test:run`
 - `npm run build`
+- `npm run visual:cards` for Playwright smoke against the deployed/demo URL;
 - открыть catalog/search/cart/payment/receipt на `https://kassa.speechbattle.com`;
 - проверить, что карточки товаров оборачиваются в сетке и не уходят за viewport;
 - проверить, что скролл вертикальный и находится внутри screen body;

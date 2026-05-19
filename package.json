@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "visual:cards": "node scripts/visual-product-cards-smoke.mjs"
   },
   "dependencies": {
     "html5-qrcode": "^2.3.8",
@@ -19,6 +20,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/vite": "^4.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",

@@ -45,5 +45,8 @@
 - Deployed CSS bundle contains `--product-card-max`, `--product-image-height` and product title line clamp.
 - `index.html` has no `http://` links.
 - `kassa-web` container is running on `traefik-net`.
+- Playwright external smoke `npm run visual:cards`: passed against `https://kassa.speechbattle.com`.
+- Playwright measured `Пакеты` cards at `236px x 317px`, thumbnail height `98px`.
+- Playwright confirmed product content scroll: `false`, body scroll: `false`.
 
 Manual visual smoke on the target Android tablet is still recommended for camera + touch ergonomics.
