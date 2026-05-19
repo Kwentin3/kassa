@@ -350,6 +350,7 @@
         <li>Работу простого JavaScript и JSON.</li>
         <li>Касания, нажатия, фокус поля ввода и прокрутку.</li>
         <li>Возможность сформировать, скопировать и скачать JSON-отчёт.</li>
+        <li>Пробную загрузку CSS/JavaScript из встроенного <code>data:</code>-ресурса. Это не доказывает загрузку отдельных файлов по URL.</li>
         <li>Статус обмена HTML ↔ 1С. В этом срезе он ожидаемо будет "Не подключено".</li>
       </ul>
       <h3>Что не проверяется</h3>
@@ -480,7 +481,7 @@
       </div>
     </section>
 
-    <!-- TODO split-assets variant: keep Slice 1 single-file until resource.loading.css/js pass inside real 1C HTML field. -->
+    <!-- TODO split-assets variant: add same-origin external CSS/JS probes before treating resource.loading.css/js as proof for split files. -->
     <section class="section" aria-labelledby="visual-title">
       <h2 id="visual-title">Визуальная производительность</h2>
       <p class="muted">Ниже отображается тестовая сетка. Она не является дизайном будущей кассы.</p>
@@ -539,8 +540,8 @@
       var DIAGNOSTIC_VERSION = "0.1";
       var REPORT_SCHEMA_VERSION = "0.2";
       var TEST_PACK_VERSION = "0.2";
-      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-01";
-      var BUILD_TIMESTAMP = "2026-05-19T00:00:00.000Z";
+      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-02";
+      var BUILD_TIMESTAMP = "2026-05-19T18:43:36.000Z";
       var STATUS_TEXT = {
         supported: "Поддерживается",
         partially_supported: "Работает частично",
@@ -799,6 +800,9 @@
         var hasSupported = false;
         var hasProblem = false;
         var hasUnknown = false;
+        var hasPartial = false;
+        var hasNotConnected = false;
+        var hasNotTested = false;
         var count = 0;
         for (i = 0; i < rawTestResults.length; i += 1) {
           result = rawTestResults[i];
@@ -812,7 +816,16 @@
           if (result.status === "failed" || result.status === "timeout") {
             hasProblem = true;
           }
-          if (result.status === "unknown" || result.status === "partially_supported" || result.status === "not_connected" || result.status === "not_tested") {
+          if (result.status === "partially_supported") {
+            hasPartial = true;
+          }
+          if (result.status === "not_connected") {
+            hasNotConnected = true;
+          }
+          if (result.status === "not_tested") {
+            hasNotTested = true;
+          }
+          if (result.status === "unknown") {
             hasUnknown = true;
           }
         }
@@ -822,10 +835,16 @@
           phaseState[phase] = "partially_supported";
         } else if (hasProblem) {
           phaseState[phase] = "failed";
-        } else if (hasUnknown && hasSupported) {
+        } else if ((hasUnknown || hasPartial || hasNotConnected || hasNotTested) && hasSupported) {
           phaseState[phase] = "partially_supported";
         } else if (hasSupported) {
           phaseState[phase] = "supported";
+        } else if (hasPartial) {
+          phaseState[phase] = "partially_supported";
+        } else if (hasNotConnected && !hasUnknown && !hasNotTested) {
+          phaseState[phase] = "not_connected";
+        } else if (hasNotTested && !hasUnknown && !hasNotConnected) {
+          phaseState[phase] = "not_tested";
         } else {
           phaseState[phase] = "unknown";
         }
@@ -1023,6 +1042,7 @@
         var resourceCss = getStatus("resource.loading.css");
         var resourceJs = getStatus("resource.loading.js");
         warnings.push("Эта страница не проверяет готовность кассы, РМК, оплату, ККТ, чек, фискализацию и маркировку.");
+        warnings.push("Проверки resource.loading.css/js используют встроенный data:-ресурс. Они не доказывают загрузку отдельных CSS/JS файлов по URL, работу путей, TLS, кэша или политики WebView.");
         if (report.verdictScope === "browser_only") {
           recommendations.push("Перед выводами о 1С нужно открыть эту страницу внутри Поля HTML-документа 1С.");
         }
@@ -1045,10 +1065,10 @@
           recommendations.push("Если кнопка копирования не работает, выделите JSON вручную и скопируйте его.");
         }
         if (resourceCss === "failed" || resourceCss === "timeout") {
-          recommendations.push("Оставить первый диагностический запуск single-file. Загрузку внешнего CSS исследовать отдельно.");
+          recommendations.push("Встроенный CSS data:-ресурс не загрузился. Оставить диагностический запуск single-file и исследовать загрузку ресурсов отдельно.");
         }
         if (resourceJs === "failed" || resourceJs === "timeout") {
-          recommendations.push("Не зависеть от внешних JS-файлов внутри 1С, пока загрузка ресурсов не подтверждена.");
+          recommendations.push("Встроенный JavaScript data:-ресурс не загрузился. Не зависеть от отдельных JS-файлов внутри 1С, пока загрузка ресурсов не подтверждена.");
         }
         report.warnings = uniqueList(warnings);
         report.recommendations = uniqueList(recommendations);
@@ -1407,7 +1427,7 @@
       }
 
       function testResourceCss() {
-        runTest("resource.loading.css", "css", "Загрузка внешнего CSS как отдельный тест", 3000, function (finish) {
+        runTest("resource.loading.css", "css", "Загрузка CSS из встроенного data:-ресурса", 3000, function (finish) {
           var link = document.createElement("link");
           var completed = false;
           var styleId = "diag-resource-css-probe";
@@ -1437,7 +1457,7 @@
             completed = true;
             removeNode(link);
             removeNode(probe);
-            finish("failed", false, "Ошибка загрузки внешнего CSS");
+            finish("failed", false, "Ошибка загрузки CSS data:-ресурса");
           };
           document.getElementsByTagName("head")[0].appendChild(link);
           setTimeout(function () {
@@ -1446,7 +1466,7 @@
               completed = true;
               removeNode(link);
               removeNode(probe);
-              finish(width === 37 ? "supported" : "timeout", width, width === 37 ? null : "Нет ответа при загрузке внешнего CSS");
+              finish(width === 37 ? "supported" : "timeout", width, width === 37 ? null : "Нет ответа при загрузке CSS data:-ресурса");
             }
           }, 800);
         });
@@ -1545,7 +1565,7 @@
       }
 
       function testResourceJs() {
-        runTest("resource.loading.js", "visual", "Загрузка внешнего JS как отдельный тест", 3000, function (finish) {
+        runTest("resource.loading.js", "visual", "Загрузка JavaScript из встроенного data:-ресурса", 3000, function (finish) {
           var script = document.createElement("script");
           var completed = false;
           window.__diagResourceJsLoaded = false;
@@ -1564,14 +1584,14 @@
             }
             completed = true;
             removeNode(script);
-            finish("failed", false, "Ошибка загрузки внешнего JavaScript");
+            finish("failed", false, "Ошибка загрузки JavaScript data:-ресурса");
           };
           document.getElementsByTagName("head")[0].appendChild(script);
           setTimeout(function () {
             if (!completed) {
               completed = true;
               removeNode(script);
-              finish(window.__diagResourceJsLoaded ? "supported" : "timeout", !!window.__diagResourceJsLoaded, window.__diagResourceJsLoaded ? null : "Нет ответа при загрузке внешнего JavaScript");
+              finish(window.__diagResourceJsLoaded ? "supported" : "timeout", !!window.__diagResourceJsLoaded, window.__diagResourceJsLoaded ? null : "Нет ответа при загрузке JavaScript data:-ресурса");
             }
           }, 800);
         });

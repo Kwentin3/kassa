@@ -58,7 +58,9 @@ public/diagnostics/1c-html-shell/diagnostic.css
 public/diagnostics/1c-html-shell/diagnostic.legacy.js
 ```
 
-Split-assets variant разрешен только после того, как single-file diagnostics показывает, что ресурсные тесты `resource.loading.css` и `resource.loading.js` проходят в целевой среде.
+В фактическом Slice 1 ресурсные тесты `resource.loading.css` и `resource.loading.js` проверяют загрузку встроенных `data:`-ресурсов. Это честный тест динамического подключения ресурса внутри HTML-render, но не доказательство загрузки отдельных CSS/JS-файлов по URL, работы путей, TLS, кэша или политики WebView для внешних ресурсов.
+
+Split-assets variant разрешен только после отдельного same-origin resource smoke: отдельный CSS-файл и отдельный JS-файл должны загрузиться по URL в целевой 1С-среде. Успешные `data:`-resource tests сами по себе для этого недостаточны.
 
 ## 2.1. Human Text Language
 
@@ -229,7 +231,8 @@ Tests:
 - media query result;
 - overflow/scroll container behavior;
 - fixed/sticky support if measurable.
-- external CSS loading as separate optional test `resource.loading.css`.
+- Slice 1: CSS loading from embedded `data:` resource as `resource.loading.css`.
+- vNext / split-assets gate: same-origin external CSS file loading as a separate resource smoke.
 
 Success: each capability gets a status.
 Fail: failed capability recorded; do not fail phase globally unless DOM style testing is impossible.
@@ -249,7 +252,8 @@ Tests:
 - static image data URI or local asset if included;
 - visual card grid render of 50, then optionally 100, cards;
 - paint/layout duration via `performance.now` if available.
-- external JS loading as separate optional test `resource.loading.js`.
+- Slice 1: JavaScript loading from embedded `data:` resource as `resource.loading.js`.
+- vNext / split-assets gate: same-origin external JS file loading as a separate resource smoke.
 
 Success: static render and measured duration recorded.
 Fail: SVG animation failure does not affect HTML baseline.
@@ -750,8 +754,9 @@ Examples:
 | touch/click unstable | Не переходить к production UI без отдельного touch spike на терминале. |
 | visual grid slow | Делать экраны плотных списков легче; избегать тяжелых теней, картинок и анимаций. |
 | RMK adapter `not_tested` | Не делать вывод о готовности кассы. |
-| `resource.loading.css` failed | Оставить первый 1С diagnostic и baseline shell single-file; загрузку внешних ресурсов исследовать отдельно. |
-| `resource.loading.js` failed | Не зависеть от внешних JS bundles внутри 1С, пока загрузка ресурсов не исправлена. |
+| `resource.loading.css` failed | Встроенный CSS `data:`-ресурс не загрузился; оставить первый 1С diagnostic single-file и исследовать загрузку ресурсов отдельно. |
+| `resource.loading.js` failed | Встроенный JavaScript `data:`-ресурс не загрузился; не зависеть от отдельных JS-файлов внутри 1С, пока загрузка ресурсов не подтверждена. |
+| `resource.loading.css/js` supported | Не считать это доказательством загрузки реальных отдельных файлов; перед split-assets нужен same-origin resource smoke. |
 | `verdictScope = browser_only` | Считать результат только браузерной диагностикой; перед решениями по FrontShell запустить страницу внутри 1С. |
 
 Verdict derivation should be conservative. A successful browser run should not imply 1С readiness.
@@ -812,7 +817,7 @@ Create static runtime:
 - route or static path `/diagnostics/1c-html-shell`;
 - single-file legacy-safe `index.html` with inline CSS and inline classic JS;
 - no external CSS/JS as a startup dependency;
-- optional tests `resource.loading.css` and `resource.loading.js`;
+- optional tests `resource.loading.css` and `resource.loading.js` for embedded `data:` resources;
 - no React/Vite requirement inside diagnostic runtime.
 
 Implemented Slice 1 artifact:
@@ -930,6 +935,7 @@ Next stage input:
 - диагностический `diag.*` отделен от production bridge;
 - добавлены русские labels статусов и требования к русскому интерфейсу;
 - добавлены recommended implementation slices.
+- после аудита выполнения уточнено: `resource.loading.css/js` в Slice 1 проверяют встроенные `data:`-ресурсы; реальная загрузка отдельных CSS/JS-файлов требует отдельного same-origin smoke.
 
 Почему изменено:
 
@@ -938,6 +944,7 @@ Next stage input:
 - чтобы браузерные результаты не смешивались с результатами внутри 1С;
 - чтобы старые и новые отчеты можно было сравнивать;
 - чтобы серверное сохранение не стало блокером первой проверки.
+- чтобы успешный `data:`-resource test не трактовался как доказательство готовности split-assets варианта.
 
 Optional / vNext:
 
