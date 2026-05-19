@@ -1,0 +1,10 @@
+{
+  "diagnosticVersion": "0.1",
+  "requestId": "diag-req-001",
+  "ok": true,
+  "source": "1c-diagnostic-loader",
+  "payload": {
+    "echo": true
+  },
+  "timestamp": "2026-05-19T00:00:00.000Z"
+}

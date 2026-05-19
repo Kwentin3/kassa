@@ -1,0 +1,7 @@
+{
+  "diagnosticVersion": "0.1",
+  "requestId": "diag-req-001",
+  "command": "diag.ping",
+  "payload": {},
+  "timestamp": "2026-05-19T00:00:00.000Z"
+}
