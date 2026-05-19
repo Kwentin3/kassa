@@ -39,6 +39,10 @@
 - Текст карточки должен оставаться внутри карточки; длинные названия не должны расширять колонку.
 - Название товара ограничено двумя строками; бренд/фасовка обрезаются ellipsis.
 - CTA внутри карточки остаётся touch-first, но не должен делать карточку выше необходимого.
+- Карточка товара должна иметь мягкую тень, чтобы отделяться от фона и соседних карточек.
+- Нажатие на CTA внутри карточки даёт feedback на самой карточке: лёгкое проседание, усиление border и краткий overlay.
+- Hover/lift используется только для pointer devices; на touch-экранах основной эффект — pressed-state.
+- При `prefers-reduced-motion: reduce` карточка не должна анимировать scale/translate.
 
 Element-level tokens:
 
@@ -85,5 +89,6 @@ Secondary adaptation:
 - `npm run visual:cards` for Playwright smoke against the deployed/demo URL;
 - открыть catalog/search/cart/payment/receipt на `https://kassa.speechbattle.com`;
 - проверить, что карточки товаров оборачиваются в сетке и не уходят за viewport;
+- проверить, что карточки имеют depth shadow и нажатие на CTA визуально отзывается без изменения layout;
 - проверить, что скролл вертикальный и находится внутри screen body;
 - проверить, что product images либо загрузились, либо показали fallback initials.

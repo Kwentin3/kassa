@@ -18,7 +18,7 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (prod
         {product.requiresStaffApproval && <StatusPill>Сотрудник</StatusPill>}
         {blocked && <StatusPill>Demo error</StatusPill>}
       </div>
-      <Button className="mt-auto w-full px-3 text-[18px]" variant={blocked ? 'secondary' : 'primary'} onClick={() => onAdd(product)}>
+      <Button className="product-card-action mt-auto w-full px-3 text-[18px]" variant={blocked ? 'secondary' : 'primary'} onClick={() => onAdd(product)}>
         <Plus size={24} /> Добавить
       </Button>
     </article>
