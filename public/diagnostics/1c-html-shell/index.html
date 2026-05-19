@@ -519,6 +519,11 @@
     <!-- TODO real 1C HTML field smoke: run this exact URL inside Поле HTML-документа before using results for FrontShell decisions. -->
     <section class="section" aria-labelledby="guide-title">
       <h2 id="guide-title">Инструкция для 1С-специалиста</h2>
+      <p class="notice">
+        Подробное техническое задание для Slice 2:
+        <a href="https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md" target="_blank" rel="noopener">1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md</a>.
+        Откройте его в обычном браузере, если Поле HTML-документа 1С не должно уходить со страницы диагностики.
+      </p>
       <ol>
         <li>Откройте URL этой страницы в форме 1С через Поле HTML-документа.</li>
         <li>Для повторной проверки передайте новый `runId`, например: `/diagnostics/1c-html-shell?runId=test-001&amp;terminalLabel=test-terminal&amp;v=manual-test`.</li>
@@ -540,8 +545,8 @@
       var DIAGNOSTIC_VERSION = "0.1";
       var REPORT_SCHEMA_VERSION = "0.2";
       var TEST_PACK_VERSION = "0.2";
-      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-02";
-      var BUILD_TIMESTAMP = "2026-05-19T18:43:36.000Z";
+      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-slice1-2026-05-19-03";
+      var BUILD_TIMESTAMP = "2026-05-19T19:06:06.000Z";
       var STATUS_TEXT = {
         supported: "Поддерживается",
         partially_supported: "Работает частично",
