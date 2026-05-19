@@ -9,9 +9,9 @@
 - `Screen` больше не использует жесткий `w-screen/h-screen`; вместо этого применяет `.app-screen`.
 - Добавлены именованные layout-контракты в `src/styles/index.css`.
 - Cart, catalog, search, receipt, payment, help/staff, branding, idle и promo screens переведены на адаптивные containers.
-- Сетки товаров используют `.product-grid` с `auto-fit/minmax`, поэтому карточки переносятся, а не уходят за экран.
+- Сетки товаров используют `.product-grid` с `auto-fill/minmax` и ограниченным max track, поэтому карточки переносятся и не растягиваются на всю строку.
 - Основные длинные зоны получили явный vertical scroll через `.scroll-y`.
-- Product image контейнер сохранён с aspect ratio `4 / 3`; image load/fallback не меняет размеры карточки.
+- Product image контейнер стабилизирован через ограниченную thumbnail-высоту; image load/fallback не меняет размеры карточки.
 - Кнопки и inputs получили более устойчивое поведение по ширине (`max-w-full`, `min-w-0`, wrap где нужно).
 
 ## Update: Element-level Product Card Contract
@@ -24,6 +24,7 @@
 - `.product-visual` получил ограниченную высоту через `--product-image-height`;
 - название товара ограничено двумя строками, meta text обрезается ellipsis;
 - thumbnail/fallback больше не раздувает карточку по высоте.
+- Добавлен regression test `src/tests/visual-contract.test.ts`, который фиксирует card max-width, image height token, `auto-fill`, line clamp и ellipsis.
 
 ## Контракт
 
@@ -34,13 +35,14 @@
 ## Проверки
 
 - `npm run typecheck`: passed.
-- `npm run test:run`: passed, 8 files / 24 tests.
+- `npm run test:run`: passed, 9 files / 26 tests.
 
 - `npm run build`: passed.
 - Server deploy: `kassa-web` rebuilt and restarted on `roman@192.168.7.64`.
 - `https://kassa.speechbattle.com`: `200 OK`.
 - SPA fallback `/catalog`: `200 OK`.
 - Deployed CSS bundle contains `product-grid` and `cart-layout` visual contract classes.
+- Deployed CSS bundle contains `--product-card-max`, `--product-image-height` and product title line clamp.
 - `index.html` has no `http://` links.
 - `kassa-web` container is running on `traefik-net`.
 
