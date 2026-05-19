@@ -46,7 +46,7 @@ export const ProductVisual = ({ tone, label, imageUrl }: { tone: string; label: 
   }, [imageUrl]);
 
   return (
-    <div className={`product-art product-visual relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg border border-black/5 ${tone}`}>
+    <div className={`product-art product-visual relative flex w-full items-center justify-center overflow-hidden rounded-lg border border-black/5 ${tone}`}>
       {imageUrl && !failed && (
         <img
           alt={label}

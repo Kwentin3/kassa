@@ -14,6 +14,17 @@
 - Product image контейнер сохранён с aspect ratio `4 / 3`; image load/fallback не меняет размеры карточки.
 - Кнопки и inputs получили более устойчивое поведение по ширине (`max-w-full`, `min-w-0`, wrap где нужно).
 
+## Update: Element-level Product Card Contract
+
+После дополнительной проверки карточки товаров вынесены в отдельный элементный контракт:
+
+- одиночные карточки и результаты из 1-2 позиций больше не растягиваются на всю ширину контейнера;
+- `.product-grid` использует `auto-fill` и ограниченный max track;
+- `.product-card` имеет max-width через `--product-card-max`;
+- `.product-visual` получил ограниченную высоту через `--product-image-height`;
+- название товара ограничено двумя строками, meta text обрезается ellipsis;
+- thumbnail/fallback больше не раздувает карточку по высоте.
+
 ## Контракт
 
 Основной документ: `docs/product-ux/VISUAL_CONTRACTS.md`.

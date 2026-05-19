@@ -77,6 +77,9 @@ select:focus-visible {
   --cart-panel-width: clamp(330px, 32vw, 430px);
   --catalog-nav-width: clamp(230px, 24vw, 310px);
   --search-keyboard-width: clamp(310px, 34vw, 440px);
+  --product-card-min: 176px;
+  --product-card-max: 248px;
+  --product-image-height: clamp(96px, 15dvh, 132px);
 }
 
 .app-screen {
@@ -148,22 +151,45 @@ select:focus-visible {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--product-card-min)), var(--product-card-max)));
   gap: clamp(12px, 1.2vw, 18px);
+  align-content: start;
+  align-items: start;
+  justify-content: start;
   padding-bottom: var(--screen-pad);
 }
 
 .product-card {
   min-width: 0;
-  min-height: clamp(246px, 31vh, 310px);
+  width: 100%;
+  max-width: var(--product-card-max);
+  align-self: start;
 }
 
 .product-visual {
+  height: var(--product-image-height);
   min-height: 0;
 }
 
 .product-visual img {
   display: block;
+}
+
+.product-card-copy {
+  min-height: 54px;
+}
+
+.product-card-title {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.product-card-meta {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .scanner-camera-grid {
@@ -247,6 +273,9 @@ select:focus-visible {
   }
 
   .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+    --product-card-min: 150px;
+    --product-card-max: none;
+    --product-image-height: clamp(86px, 18dvh, 118px);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr));
   }
 }
