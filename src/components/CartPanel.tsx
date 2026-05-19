@@ -6,7 +6,7 @@ import { Button } from './ui';
 export const CartPanel = () => {
   const { cart, lastRemoved, changeQty, removeItem, undoRemove, selectCartTotal, selectCartCount } = useTerminalStore();
   return (
-    <aside className="flex h-full min-w-[390px] max-w-[430px] flex-col border-l border-slate-200 bg-white p-5">
+    <aside className="cart-panel flex h-full flex-col border-l border-slate-200 bg-white p-5">
       <div>
         <div className="text-[18px] font-bold text-slate-500">Корзина</div>
         <div className="text-[34px] font-black">{selectCartCount()} шт.</div>

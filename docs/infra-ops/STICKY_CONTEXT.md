@@ -20,6 +20,7 @@
 - Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build` прошли.
 - Тесты: 8 files / 24 tests.
 - Product cards use demo HTTPS image URLs from `src/services/productImages.ts` with fallback initials if external images fail.
+- Visual layout contract lives in `docs/product-ux/VISUAL_CONTRACTS.md`; avoid new fixed-width screen layouts without an explicit scroll/overflow contract.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура
@@ -52,6 +53,7 @@
 - Smoke checklist: `docs/runbooks/SMOKE_CHECKLIST.md`.
 - Latest gap closure report: `docs/reports/2026-05-19/GAP_CLOSURE_VERIFICATION.report.md`.
 - Product image update: `docs/reports/2026-05-19/PRODUCT_IMAGE_ASSETS.report.md`.
+- Visual contract: `docs/product-ux/VISUAL_CONTRACTS.md`.
 
 ## Safe Deploy Pattern
 

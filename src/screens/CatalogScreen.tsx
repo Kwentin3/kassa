@@ -19,8 +19,8 @@ export const CatalogScreen = () => {
   return (
     <Screen>
       <Header compact />
-      <section className="grid h-[calc(100vh-104px)] grid-cols-[310px_1fr] gap-6 px-8 pb-8">
-        <nav className="panel flex flex-col gap-3 p-4">
+      <section className="screen-body catalog-layout">
+        <nav className="panel catalog-nav scroll-y flex flex-col gap-3 p-4">
           <Button variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>
             <ArrowLeft size={24} /> В корзину
           </Button>
@@ -41,12 +41,12 @@ export const CatalogScreen = () => {
             {demo.edgeCasesEnabled ? 'Demo edge cases' : 'Edge cases выключены'}
           </button>
         </nav>
-        <div className="overflow-auto">
+        <div className="scroll-y min-w-0">
           <div className="mb-4">
             <div className="text-[18px] font-bold text-slate-500">Каталог товаров</div>
             <div className="text-[36px] font-black">{category}</div>
           </div>
-          <div className="grid grid-cols-4 gap-4 pb-8">
+          <div className="product-grid">
             {(category === 'Сценарии' && demo.edgeCasesEnabled ? products.filter((item) => item.category === 'Сценарии') : visibleProducts).map((product) => (
               <ProductCard key={product.id} product={product} onAdd={addProduct} />
             ))}

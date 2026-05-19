@@ -21,8 +21,6 @@ body,
 }
 
 body {
-  min-width: 1024px;
-  min-height: 720px;
   overflow: hidden;
 }
 
@@ -63,4 +61,192 @@ select:focus-visible {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/*
+ * Visual contract for kiosk/tablet screens:
+ * - the app never relies on body-level min-width;
+ * - each screen owns exactly one vertical scroll area when content can exceed the viewport;
+ * - grids use minmax(0, 1fr) / auto-fit so cards shrink or wrap instead of overflowing.
+ */
+:root {
+  --app-header-height: 104px;
+  --screen-pad: clamp(12px, 2.2vw, 32px);
+  --screen-gap: clamp(12px, 1.8vw, 28px);
+  --panel-pad: clamp(16px, 2vw, 40px);
+  --cart-panel-width: clamp(330px, 32vw, 430px);
+  --catalog-nav-width: clamp(230px, 24vw, 310px);
+  --search-keyboard-width: clamp(310px, 34vw, 440px);
+}
+
+.app-screen {
+  height: 100dvh;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.app-header {
+  min-height: var(--app-header-height);
+  padding: clamp(12px, 1.7vw, 20px) var(--screen-pad);
+}
+
+.screen-body {
+  height: calc(100dvh - var(--app-header-height));
+  min-height: 0;
+  padding: 0 var(--screen-pad) var(--screen-pad);
+}
+
+.scroll-y {
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.responsive-panel {
+  width: min(100%, var(--panel-max, 900px));
+  max-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: var(--panel-pad);
+}
+
+.center-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(330px, var(--cart-panel-width));
+  overflow: hidden;
+}
+
+.cart-workspace {
+  min-width: 0;
+  padding: 0 var(--screen-pad) var(--screen-pad);
+}
+
+.cart-panel {
+  min-width: 0;
+  width: 100%;
+  max-width: var(--cart-panel-width);
+}
+
+.catalog-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, var(--catalog-nav-width)) minmax(0, 1fr);
+  gap: var(--screen-gap);
+}
+
+.search-layout {
+  display: grid;
+  grid-template-columns: minmax(290px, var(--search-keyboard-width)) minmax(0, 1fr);
+  gap: var(--screen-gap);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: clamp(12px, 1.2vw, 18px);
+  padding-bottom: var(--screen-pad);
+}
+
+.product-card {
+  min-width: 0;
+  min-height: clamp(246px, 31vh, 310px);
+}
+
+.product-visual {
+  min-height: 0;
+}
+
+.product-visual img {
+  display: block;
+}
+
+.scanner-camera-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+}
+
+.visual-contract-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+.idle-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr);
+  gap: var(--screen-gap);
+}
+
+.receipt-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+  gap: var(--screen-gap);
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  :root {
+    --app-header-height: auto;
+  }
+
+  body {
+    overflow: auto;
+  }
+
+  .app-screen {
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  .app-header {
+    min-height: auto;
+  }
+
+  .screen-body {
+    height: calc(100dvh - 88px);
+  }
+
+  .cart-layout,
+  .catalog-layout,
+  .search-layout,
+  .idle-layout,
+  .receipt-layout,
+  .scanner-camera-grid {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .cart-workspace {
+    overflow: visible;
+  }
+
+  .cart-panel {
+    max-width: none;
+    min-height: 340px;
+    border-left: 0;
+    border-top: 1px solid rgba(15, 23, 42, 0.12);
+  }
+
+  .catalog-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .idle-visual {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 640px) {
+  .screen-body {
+    padding-inline: 10px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  }
 }

@@ -7,17 +7,17 @@ export const Header = ({ compact = false }: { compact?: boolean }) => {
   const { activeBrand, state, dispatch } = useTerminalStore();
   const canOpenDemo = state.name !== 'payment_pending';
   return (
-    <header className="flex items-center justify-between gap-4 px-8 py-5">
-      <div className="flex items-center gap-4">
-        <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-[var(--brand-primary)] text-[24px] font-black text-white">
+    <header className="app-header flex items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-4">
+        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-[var(--brand-primary)] text-[24px] font-black text-white">
           {activeBrand.logoText}
         </div>
-        <div>
+        <div className="min-w-0">
           <div className="text-[24px] font-black leading-tight">{activeBrand.storeName}</div>
           {!compact && <div className="text-[17px] font-semibold text-slate-600">Терминал {activeBrand.terminalNumber} · {appConfig.appVersion}</div>}
         </div>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
         {appConfig.enableQuickBranding && (
           <Button
             variant="secondary"

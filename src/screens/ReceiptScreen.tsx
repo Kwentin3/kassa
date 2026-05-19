@@ -1,4 +1,5 @@
 import { CheckCircle2, QrCode, RotateCcw } from 'lucide-react';
+import type { CSSProperties } from 'react';
 import { products } from '../data/products';
 import { useTerminalStore } from '../state/store';
 import { Header } from '../components/Header';
@@ -11,8 +12,8 @@ export const ReceiptScreen = () => {
     return (
       <Screen>
         <Header compact />
-        <section className="flex h-[calc(100vh-104px)] items-center justify-center px-8 pb-8">
-          <div className="panel w-[860px] p-10">
+        <section className="screen-body center-layout">
+          <div className="panel responsive-panel" style={{ '--panel-max': '860px' } as CSSProperties}>
             <div className="text-[42px] font-black text-red-700">Чек не сформирован</div>
             <p className="mt-4 text-[26px] font-semibold text-slate-700">{state.reason}</p>
             <p className="mt-2 text-[20px] font-semibold text-slate-500">Оплата в mock-сценарии уже прошла. Нужен сотрудник.</p>
@@ -26,8 +27,8 @@ export const ReceiptScreen = () => {
   return (
     <Screen>
       <Header compact />
-      <section className="grid h-[calc(100vh-104px)] grid-cols-[1fr_420px] gap-8 px-8 pb-8">
-        <div className="panel p-8">
+      <section className="screen-body receipt-layout">
+        <div className="panel scroll-y p-8">
           <div className="flex items-center gap-4">
             <CheckCircle2 size={56} className="text-emerald-600" />
             <div>
@@ -51,7 +52,7 @@ export const ReceiptScreen = () => {
             <span className="text-[52px] font-black">{receipt?.total ?? 0} ₽</span>
           </div>
         </div>
-        <aside className="panel flex flex-col items-center justify-center gap-6 p-8 text-center">
+        <aside className="panel scroll-y flex flex-col items-center justify-center gap-6 p-8 text-center">
           <div className="flex h-52 w-52 items-center justify-center rounded-lg border-8 border-slate-900 bg-white">
             <QrCode size={150} />
           </div>

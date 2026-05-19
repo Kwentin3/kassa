@@ -1,5 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { products } from '../data/products';
 import { verifyStaffPin } from '../services/staff';
 import { isReceiptIssueState } from '../state/machine';
@@ -17,11 +17,11 @@ export const HelpStaffScreen = () => {
     return (
       <Screen>
         <Header compact />
-        <section className="flex h-[calc(100vh-104px)] items-center justify-center px-8 pb-8">
-          <div className="panel w-[900px] p-10">
+        <section className="screen-body center-layout">
+          <div className="panel responsive-panel" style={{ '--panel-max': '900px' } as CSSProperties}>
             <div className="text-[20px] font-bold text-slate-500">Mock staff mode</div>
             <div className="text-[44px] font-black">Служебные действия</div>
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
               {!receiptIssue && <Button onClick={() => dispatch({ type: 'START_PURCHASE' })}>Подтвердить и вернуться</Button>}
               {!receiptIssue && <Button variant="secondary" onClick={() => dispatch({ type: 'START_PURCHASE' })}>Вернуться к покупке</Button>}
               {receiptIssue && <Button onClick={resolveReceiptError}>Закрыть ошибку чека</Button>}
@@ -55,13 +55,13 @@ export const HelpStaffScreen = () => {
   return (
     <Screen>
       <Header compact />
-      <section className="flex h-[calc(100vh-104px)] items-center justify-center px-8 pb-8">
-        <div className="panel w-[820px] p-10 text-center">
+      <section className="screen-body center-layout">
+        <div className="panel responsive-panel text-center" style={{ '--panel-max': '820px' } as CSSProperties}>
           <ShieldCheck size={72} className="mx-auto text-[var(--brand-primary)]" />
           <div className="mt-4 text-[44px] font-black">Сотрудник уже идёт</div>
           <p className="mt-3 text-[24px] font-semibold text-slate-600">Причина: {state.name === 'help_requested' ? state.source : 'Помощь покупателю'}</p>
           <form
-            className="mx-auto mt-8 flex max-w-[520px] gap-3"
+            className="mx-auto mt-8 flex max-w-[520px] flex-wrap gap-3"
             onSubmit={(event) => {
               event.preventDefault();
               if (verifyStaffPin(pin)) dispatch({ type: 'ENTER_STAFF_MODE', source: 'PIN' });

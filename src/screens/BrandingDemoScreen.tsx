@@ -25,8 +25,8 @@ export const BrandingDemoScreen = () => {
   return (
     <Screen>
       <Header compact />
-      <section className="h-[calc(100vh-104px)] overflow-auto px-8 pb-8">
-        <div className="mb-5 flex items-center justify-between">
+      <section className="screen-body scroll-y">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-[18px] font-black text-white">
               <MonitorCog size={22} /> DEMO / Настройка прототипа
@@ -37,7 +37,7 @@ export const BrandingDemoScreen = () => {
             <ArrowLeft size={24} /> В покупку
           </Button>
         </div>
-        <div className="grid grid-cols-3 gap-5">
+        <div className="visual-contract-grid gap-5">
           <section className="panel p-5">
             <div className="text-[26px] font-black">Бренд</div>
             <div className="mt-4 space-y-3">

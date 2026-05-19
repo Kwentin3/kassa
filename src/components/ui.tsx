@@ -16,7 +16,7 @@ export const Button = ({
   };
   return (
     <button
-      className={`touch-button inline-flex items-center justify-center gap-3 px-6 text-[20px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
+      className={`touch-button inline-flex max-w-full items-center justify-center gap-3 px-6 text-center text-[20px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-45 ${variants[variant]} ${className}`}
       {...props}
     >
       {children}
@@ -27,7 +27,7 @@ export const Button = ({
 export const TextInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(({ className = '', ...props }, ref) => (
   <input
     ref={ref}
-    className={`min-h-[64px] rounded-lg border border-slate-300 bg-white px-5 text-[24px] font-semibold text-slate-900 shadow-sm placeholder:text-slate-400 ${className}`}
+    className={`min-h-[64px] w-full min-w-0 rounded-lg border border-slate-300 bg-white px-5 text-[24px] font-semibold text-slate-900 shadow-sm placeholder:text-slate-400 ${className}`}
     {...props}
   />
 ));
@@ -35,7 +35,7 @@ export const TextInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLIn
 TextInput.displayName = 'TextInput';
 
 export const Screen = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
-  <main className={`h-screen w-screen overflow-hidden bg-[var(--brand-bg)] text-slate-900 ${className}`}>{children}</main>
+  <main className={`app-screen bg-[var(--brand-bg)] text-slate-900 ${className}`}>{children}</main>
 );
 
 export const ProductVisual = ({ tone, label, imageUrl }: { tone: string; label: string; imageUrl?: string }) => {
@@ -46,7 +46,7 @@ export const ProductVisual = ({ tone, label, imageUrl }: { tone: string; label: 
   }, [imageUrl]);
 
   return (
-    <div className={`product-art relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg border border-black/5 ${tone}`}>
+    <div className={`product-art product-visual relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg border border-black/5 ${tone}`}>
       {imageUrl && !failed && (
         <img
           alt={label}

@@ -18,14 +18,14 @@ export const IdleScreen = () => {
   return (
     <Screen>
       <Header />
-      <section className="grid h-[calc(100vh-112px)] grid-cols-[1.05fr_0.95fr] gap-8 px-8 pb-8">
-        <div className="flex flex-col justify-center">
+      <section className="screen-body idle-layout">
+        <div className="scroll-y flex min-w-0 flex-col justify-center">
           <div className="mb-6 inline-flex w-fit rounded-lg bg-white px-4 py-2 text-[18px] font-bold text-slate-600 shadow-sm">
             Терминал {activeBrand.terminalNumber}
           </div>
-          <h1 className="max-w-[760px] text-[64px] font-black leading-[1.02] text-slate-950">{activeBrand.welcomeText}</h1>
-          <p className="mt-5 max-w-[620px] text-[28px] font-semibold leading-tight text-slate-700">{activeBrand.tagline}</p>
-          <div className="mt-9 flex gap-4">
+          <h1 className="max-w-[760px] text-[clamp(42px,6vw,64px)] font-black leading-[1.02] text-slate-950">{activeBrand.welcomeText}</h1>
+          <p className="mt-5 max-w-[620px] text-[clamp(22px,2.7vw,28px)] font-semibold leading-tight text-slate-700">{activeBrand.tagline}</p>
+          <div className="mt-9 flex flex-wrap gap-4">
             <Button className="min-h-[86px] px-9 text-[26px]" onClick={startPurchase}>
               <ShoppingBasket size={32} /> Начать покупку
             </Button>
@@ -34,8 +34,8 @@ export const IdleScreen = () => {
             </Button>
           </div>
         </div>
-        <div className="flex items-center">
-          <div className="relative h-[78%] w-full overflow-hidden rounded-lg border border-white/80 bg-white shadow-2xl">
+        <div className="flex min-w-0 items-center">
+          <div className="idle-visual relative h-[78%] min-h-[360px] w-full overflow-hidden rounded-lg border border-white/80 bg-white shadow-2xl">
             <div className="absolute inset-0 bg-[linear-gradient(135deg,#e4f2ef,#fff7e8)]" />
             <div className="absolute left-8 top-8 rounded-lg bg-[var(--brand-primary)] px-5 py-3 text-[22px] font-black text-white">
               {promoSlides[0].badge}

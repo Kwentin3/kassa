@@ -36,7 +36,7 @@ export const ScannerPanel = () => {
           <div className="text-[18px] font-bold text-slate-500">Добавление товара</div>
           <div className="text-[28px] font-black">Сканируйте или введите код</div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap justify-end gap-2">
           <Button variant={demo.scannerMode === 'camera' ? 'primary' : 'secondary'} className="min-h-[54px] px-4 text-[17px]" onClick={() => setScannerMode('camera')}>
             <Camera size={20} /> Камера
           </Button>
@@ -50,7 +50,7 @@ export const ScannerPanel = () => {
       </div>
 
       {demo.scannerMode === 'camera' && (
-        <div className="mt-4 grid grid-cols-[1fr_320px] gap-4">
+        <div className="scanner-camera-grid mt-4 gap-4">
           <div id="camera-reader" className="flex min-h-[230px] items-center justify-center rounded-lg border border-slate-200 bg-slate-900 text-white">
             <div className="text-center text-[20px] font-bold">
               Камера demo scanner
@@ -72,20 +72,20 @@ export const ScannerPanel = () => {
 
       {(demo.scannerMode === 'mock_input' || demo.scannerMode === 'keyboard') && (
         <form
-          className="mt-4 flex gap-3"
+          className="mt-4 flex flex-wrap gap-3"
           onSubmit={(event) => {
             event.preventDefault();
             submit();
           }}
         >
-          <TextInput ref={inputRef} value={code} onChange={(event) => setCode(event.target.value)} aria-label="Код товара" className="flex-1" />
+          <TextInput ref={inputRef} value={code} onChange={(event) => setCode(event.target.value)} aria-label="Код товара" className="min-w-[220px] flex-1" />
           <Button type="submit">
             <ScanLine size={24} /> Добавить
           </Button>
         </form>
       )}
 
-      <div className="mt-4 flex gap-3">
+      <div className="mt-4 flex flex-wrap gap-3">
         <Button variant="secondary" onClick={() => dispatch({ type: 'OPEN_SEARCH' })}>
           <Search size={24} /> Найти товар вручную
         </Button>

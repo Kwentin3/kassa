@@ -16,8 +16,8 @@ export const ProductSearchScreen = () => {
   return (
     <Screen>
       <Header compact />
-      <section className="grid h-[calc(100vh-104px)] grid-cols-[440px_1fr] gap-6 px-8 pb-8">
-        <div className="panel flex flex-col p-5">
+      <section className="screen-body search-layout">
+        <div className="panel scroll-y flex flex-col p-5">
           <Button variant="secondary" className="mb-4 w-full" onClick={() => dispatch({ type: 'START_PURCHASE' })}>
             <ArrowLeft size={24} /> В корзину
           </Button>
@@ -39,7 +39,7 @@ export const ProductSearchScreen = () => {
             </button>
           </div>
         </div>
-        <div className="overflow-auto">
+        <div className="scroll-y min-w-0">
           <div className="mb-4 flex items-end justify-between">
             <div>
               <div className="text-[18px] font-bold text-slate-500">Ручной поиск</div>
@@ -52,7 +52,7 @@ export const ProductSearchScreen = () => {
               Товар не найден. Измените запрос, откройте каталог или позовите сотрудника.
             </div>
           )}
-          <div className="grid grid-cols-3 gap-4 pb-8">
+          <div className="product-grid">
             {results.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={addProduct} />
             ))}

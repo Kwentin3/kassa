@@ -10,8 +10,8 @@ export const CartScreen = () => {
   return (
     <Screen>
       <Header compact />
-      <div className="grid h-[calc(100vh-104px)] grid-cols-[1fr_410px] overflow-hidden">
-        <section className="space-y-5 overflow-auto px-8 pb-8">
+      <div className="screen-body cart-layout">
+        <section className="cart-workspace scroll-y space-y-5">
           <ScannerPanel />
           {scannerMessage && <div className="rounded-lg bg-emerald-50 px-5 py-4 text-[22px] font-black text-emerald-800">{scannerMessage}</div>}
           <div className="panel p-6">
