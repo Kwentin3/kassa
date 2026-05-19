@@ -1,4 +1,5 @@
 import { Plus } from 'lucide-react';
+import { productImageUrl } from '../services/productImages';
 import type { Product } from '../types';
 import { Button, ProductVisual, StatusPill } from './ui';
 
@@ -6,7 +7,7 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd: (prod
   const blocked = product.isUnavailable || product.hasPriceError;
   return (
     <article className="panel flex min-h-[260px] flex-col gap-3 p-4">
-      <ProductVisual tone={product.imageTone} label={product.name} />
+      <ProductVisual tone={product.imageTone} imageUrl={productImageUrl(product)} label={product.name} />
       <div className="min-h-[74px]">
         <h3 className="text-[21px] font-black leading-tight">{product.name}</h3>
         <p className="mt-1 text-[16px] font-semibold text-slate-600">{product.brand} · {product.packageSize}</p>

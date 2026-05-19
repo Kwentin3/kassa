@@ -18,7 +18,8 @@
 - Core Demo реализован: idle -> add product -> cart -> payment success -> receipt -> reset.
 - Extended Demo gap fixes реализованы: staff actions, receipt-error resolution, edge-case toggle, idle timeout, SBP mock QR, Quick Branding field edits.
 - Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build` прошли.
-- Тесты: 7 files / 22 tests.
+- Тесты: 8 files / 24 tests.
+- Product cards use demo HTTPS image URLs from `src/services/productImages.ts` with fallback initials if external images fail.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура
@@ -50,6 +51,7 @@
 - Server audit: `docs/runbooks/SERVER_INFRASTRUCTURE_AUDIT.md`.
 - Smoke checklist: `docs/runbooks/SMOKE_CHECKLIST.md`.
 - Latest gap closure report: `docs/reports/2026-05-19/GAP_CLOSURE_VERIFICATION.report.md`.
+- Product image update: `docs/reports/2026-05-19/PRODUCT_IMAGE_ASSETS.report.md`.
 
 ## Safe Deploy Pattern
 

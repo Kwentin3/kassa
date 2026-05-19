@@ -28,6 +28,7 @@ Manual Android tablet camera smoke is still required on the physical device.
 - [ ] Cart shows item, quantity, line sum and total.
 - [ ] Manual search finds `молоко`.
 - [ ] Catalog adds one product.
+- [ ] Product cards show real demo images or safe initials fallback.
 - [ ] Card mock success transitions to receipt.
 - [ ] Mock receipt shows id, items, total and QR placeholder.
 - [ ] Done resets to idle.
