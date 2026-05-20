@@ -60,6 +60,8 @@ https://kassa.speechbattle.com/diagnostics/1c-html-shell
 
 Ограничение resource-тестов: `resource.loading.css` и `resource.loading.js` в Slice 1 не загружают реальные отдельные файлы по URL. Они проверяют только встроенные `data:`-ресурсы. Это не доказывает работу путей, TLS, кэша или политики WebView для отдельных CSS/JS-файлов.
 
+Короткий контракт по уже полученному профилю V8WebKit: [`runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md`](runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md). Он нужен проектной команде и будущим агентам, чтобы не закладывать в HTML-оболочку непроверенные возможности.
+
 Без 1С Diagnostic Loader нормальное состояние отчета:
 
 ```text

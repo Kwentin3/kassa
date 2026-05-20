@@ -57,6 +57,17 @@ HTML только отображает состояние, принимает д
 - какие рекомендации применить к будущей FrontShell;
 - какой JSON-контекст передать команде проекта.
 
+Короткий рабочий контракт по подтвержденному профилю V8WebKit вынесен отдельно: [`runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md`](runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md). При проектировании HTML-оболочки будущие агенты должны сначала сверяться с этим contract и не расширять baseline без нового диагностического отчета.
+
+Фактический runtime `public/diagnostics/1c-html-shell/index.html` теперь также содержит демонстрационный showcase-режим:
+
+```text
+/diagnostics/1c-html-shell?mode=diagnostic
+/diagnostics/1c-html-shell?mode=showcase
+```
+
+`mode=diagnostic` остается режимом диагностики по умолчанию. `mode=showcase` показывает mock-only витрину кассы самообслуживания и не меняет границы диагностики: РМК, чек, реальная оплата, ККТ, фискализация и маркировка по-прежнему не проверяются.
+
 ## 5. Не-цели
 
 Диагностическая страница не проверяет и не обещает готовность production-кассы.

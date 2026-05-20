@@ -15,6 +15,15 @@ Primary URL:
 GET /diagnostics/1c-html-shell
 ```
 
+Implemented runtime modes in the same single-file artifact:
+
+```text
+GET /diagnostics/1c-html-shell?mode=diagnostic
+GET /diagnostics/1c-html-shell?mode=showcase
+```
+
+`mode=diagnostic` is the default and runs the diagnostic harness. `mode=showcase` opens the demo-only self-checkout showcase from the same artifact; it must preserve `runId`, `terminalLabel`, `build` and `v` where present and must not add a second mandatory JS/CSS bundle.
+
 Optional saved report:
 
 ```text
@@ -61,6 +70,8 @@ public/diagnostics/1c-html-shell/diagnostic.legacy.js
 В фактическом Slice 1 ресурсные тесты `resource.loading.css` и `resource.loading.js` проверяют загрузку встроенных `data:`-ресурсов. Это честный тест динамического подключения ресурса внутри HTML-render, но не доказательство загрузки отдельных CSS/JS-файлов по URL, работы путей, TLS, кэша или политики WebView для внешних ресурсов.
 
 Split-assets variant разрешен только после отдельного same-origin resource smoke: отдельный CSS-файл и отдельный JS-файл должны загрузиться по URL в целевой 1С-среде. Успешные `data:`-resource tests сами по себе для этого недостаточны.
+
+При проектировании следующего HTML Shell использовать короткий runtime contract по фактическому V8WebKit-профилю: [`runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md`](runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md). Этот contract определяет baseline, осторожные возможности, запреты и зоны Slice 2 / RMK spike.
 
 ## 2.1. Human Text Language
 
