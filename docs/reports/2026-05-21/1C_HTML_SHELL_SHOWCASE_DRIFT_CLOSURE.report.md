@@ -1,7 +1,7 @@
 # 1C HTML Shell Showcase Drift Closure
 
 Дата: 2026-05-21
-Статус: local verification passed, deployment pending
+Статус: deployed and smoke-verified
 Область: refactor after PRD/Blueprint audit
 
 ## Закрытые drift-пункты
@@ -36,6 +36,20 @@
   - portrait profile, collapsed cart bar, cart bottom sheet;
   - portrait keyboard and back-to-diagnostic accessible;
   - no console/page errors that break runtime.
+
+## Деплой и публичная проверка
+
+- Refactor commit deployed: `3bed573`.
+- Target: `roman@192.168.7.64`, `/opt/stacks/kassa-web`.
+- Container: `kassa-web`, rebuilt and running.
+- `https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=diagnostic&runId=drift-deploy&terminalLabel=server`: HTTP 200.
+- `https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase&runId=drift-deploy&terminalLabel=server`: HTTP 200.
+- Public Playwright drift smoke:
+  - `100-product mode`: 100 product cards rendered;
+  - payment modal contains `back-diagnostic`;
+  - payment error modal contains `back-diagnostic`;
+  - portrait has no global horizontal scroll;
+  - modal back returns to diagnostic mode with `runId` preserved.
 
 ## Remaining manual validation
 
