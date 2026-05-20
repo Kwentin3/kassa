@@ -3018,14 +3018,23 @@
       }
 
       function renderSimpleModal(title, text, actionsHtml) {
+        var modalActions = ensureModalBackAction(actionsHtml);
         return ''
           + '<div class="showcase-modal-layer" role="dialog" aria-modal="true">'
           + '<div class="showcase-modal">'
           + '<p class="showcase-demo-banner">' + escapeHtml(SHOWCASE_DEMO_BANNER) + '</p>'
           + '<h2>' + escapeHtml(title) + '</h2>'
           + '<p>' + escapeHtml(text) + '</p>'
-          + '<div class="showcase-action-bar">' + actionsHtml + '</div>'
+          + '<div class="showcase-action-bar">' + modalActions + '</div>'
           + '</div></div>';
+      }
+
+      function ensureModalBackAction(actionsHtml) {
+        var html = actionsHtml || "";
+        if (html.indexOf('data-action="back-diagnostic"') >= 0) {
+          return html;
+        }
+        return html + '<button type="button" class="showcase-button secondary" data-action="back-diagnostic">Назад к диагностике</button>';
       }
 
       function wireShowcaseRuntime() {
@@ -3356,7 +3365,7 @@
           if (showcaseState.productMode !== "100" && product.generated) {
             continue;
           }
-          if (showcaseState.screen !== "search" && product.categoryId !== showcaseState.categoryId) {
+          if (showcaseState.productMode !== "100" && showcaseState.screen !== "search" && product.categoryId !== showcaseState.categoryId) {
             continue;
           }
           if (search && String(product.title).toLowerCase().indexOf(search) < 0 && String(product.shortTitle).toLowerCase().indexOf(search) < 0) {
