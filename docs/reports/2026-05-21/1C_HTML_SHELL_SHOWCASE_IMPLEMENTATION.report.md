@@ -1,7 +1,7 @@
 # 1C HTML Shell Self-Checkout Showcase Implementation
 
 Дата: 2026-05-21
-Статус: local implementation verified, deployment pending
+Статус: implemented, deployed and smoke-verified
 Область: demo-only showcase runtime inside `public/diagnostics/1c-html-shell/index.html`
 
 ## Что реализовано
@@ -31,6 +31,8 @@
 
 - `npm run build`: passed.
 - `npm run test:run`: passed, 9 files / 26 tests.
+- `npm run typecheck`: passed.
+- `npm run visual:cards`: passed.
 - Inline diagnostic/showcase script syntax: `node --check`: passed.
 - Playwright smoke against Vite preview:
   - diagnostic -> showcase -> diagnostic;
@@ -43,6 +45,15 @@
   - portrait profile, collapsed cart bar, cart bottom sheet;
   - portrait keyboard and back-to-diagnostic accessible;
   - no console/page errors that break runtime.
+
+## Деплой и публичный smoke
+
+- Commit deployed: `36fb1d6`.
+- Target: `roman@192.168.7.64`, `/opt/stacks/kassa-web`.
+- Container: `kassa-web`, rebuilt from archived Git commit and running.
+- `https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=diagnostic&runId=deploy-smoke&terminalLabel=server`: HTTP 200.
+- `https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase&runId=deploy-smoke&terminalLabel=server`: HTTP 200.
+- Public Playwright smoke: diagnostic -> showcase -> mock flow -> portrait contract -> back to diagnostic passed.
 
 ## Sticky TODO
 
