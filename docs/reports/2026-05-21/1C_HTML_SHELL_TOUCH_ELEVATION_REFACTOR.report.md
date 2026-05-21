@@ -1,7 +1,7 @@
 # 1C HTML Shell Touch Elevation Refactor Report
 
 Дата: 2026-05-21
-Статус: готово к деплою
+Статус: реализовано, задеплоено и проверено на публичном URL
 
 ## Что изменено
 
@@ -26,6 +26,8 @@
 - `npm run visual:cards`: passed.
 - Local Playwright smoke, landscape: product card lift/press, category press, card click add, no horizontal scroll: passed.
 - Local Playwright smoke, portrait: product card press, no horizontal scroll, cart sheet, keyboard key press: passed.
+- Public URL `https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase`: HTTP 200.
+- Public Playwright smoke: diagnostic → showcase → diagnostic navigation, landscape lift/press, portrait lift/press, cart sheet, keyboard, no global horizontal scroll: passed.
 
 ## Осталось проверить вручную
 
