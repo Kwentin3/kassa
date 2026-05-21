@@ -554,6 +554,30 @@ Critical zones: `header/service controls`, `cartPanel/actionBar`, `helpArea`, ba
 - Edit mode не закрывает критичные действия.
 - Modal можно закрыть и вернуться к безопасному state.
 
+### 10.11. Touchable Elevation Contract
+
+Showcase работает на сенсорном экране, поэтому все активные элементы должны иметь одинаковый визуальный отклик на нажатие.
+
+Состояния:
+
+- `default`: элемент приподнят над холстом через мягкую тень;
+- `pressed`: элемент визуально опускается через `translateY(1-3px)` и легкий `scale`, тень становится короче;
+- `active`: выбранная категория, тема или способ mock-оплаты имеет отдельный selected style и не теряет pressed-state;
+- `disabled`: элемент приглушен, плоский, без lift/press ощущения;
+- `busy`: действие принято, повторное нажатие визуально ограничено;
+- `focus`: видимый фокус для клавиатурной проверки и accessibility.
+
+Применяется к `ProductCard`, `showcase-button`, категориям, элементам корзины, mock-оплате, помощи, экранной клавиатуре, переключателю тем, edit fallback controls и back-to-diagnostic control.
+
+Implementation rules:
+
+- baseline uses CSS `box-shadow`, `transform`, `transition` and `:active`;
+- optional JS class is allowed only as enhancement, not as required runtime foundation;
+- do not require `hover`, touch events or pointer events;
+- press transition target: 100-160ms;
+- pressed-state must not change element size, grid columns, scroll zones or critical action availability;
+- effect confirms the physical tap only; state machine still owns success/error/busy feedback.
+
 ## 11. Visual Contract Test Matrix
 
 | Test | Setup | Expected layout behavior | Pass/fail rule |
@@ -580,6 +604,8 @@ Critical zones: `header/service controls`, `cartPanel/actionBar`, `helpArea`, ba
 | Error modal | Mock error | Buyer-safe message | Pass if no JSON/stack visible. |
 | Success screen | Mock success | Receipt summary visible | Pass if new purchase/back visible. |
 | Back to diagnostic | Any state | Return to diagnostic mode | Pass if `runId`/`terminalLabel` preserved. |
+| Touchable elevation | ProductCard, category, pay, qty, keyboard key, back button | Default state is lifted; pressed state visually lowers surface | Pass if transform/shadow change without layout shift. |
+| Disabled/busy touch state | Empty cart pay or payment processing | Element is visually muted and not lifted like enabled controls | Pass if disabled/busy cannot be confused with tappable control. |
 | Portrait small viewport | `portrait_compact` test size | 1-2 columns, no global horizontal scroll | Pass if cards >= min width and back/action visible. |
 | Portrait standard viewport | `portrait_standard` test size | 2-3 columns if width allows | Pass if productGrid scroll is internal. |
 | Portrait 20 products | Portrait + 20 products | ProductGrid is primary vertical zone | Pass if cart/action controls remain reachable. |
@@ -619,6 +645,10 @@ Tokens:
 - `mutedText`;
 - `border`;
 - `shadow`;
+- `liftShadow`;
+- `pressedShadow`;
+- `pressTransform`;
+- `pressTransitionMs`;
 - `radius`;
 - `buttonStyle`;
 - `fontScale`;
@@ -662,7 +692,7 @@ CSS variables допустимы, но должны иметь fallback/static d
 | `ThemeSwitcher` | Demo theme switch | theme list | active theme | no layout jump | select/buttons | external UI lib |
 | `PromoBanner` | Idle/promo | text/image placeholder | visible/hidden | bounded area | text placeholder | CDN images |
 | `CategoryGrid` | Категории | categories | selected | internal fit | compact list | hover-only |
-| `ProductCard` | Товар | product | normal/disabled/staff | card contract | placeholder image | real product calls |
+| `ProductCard` | Товар | product | normal/pressed/disabled/staff | card + touch elevation contract | placeholder image | real product calls |
 | `ProductGrid` | Сетка товаров | products/layout tokens | scroll | grid contract | single column | global scroll |
 | `CartPanel` | Корзина | cartItems, totals | empty/filled | cart contract | empty state | real receipt |
 | `ActionBar` | Основные действия | available actions | enabled/disabled | visible actions | compact buttons | hidden critical CTA |
@@ -673,7 +703,7 @@ CSS variables допустимы, но должны иметь fallback/static d
 | `EditModeOverlay` | Demo layout controls | layout config | active/inactive | edit contract | buttons only | production admin |
 | `LayoutZone` | Allowed zones | zone config | empty/filled | zone bounds | static bounds | arbitrary absolute |
 | `OnScreenKeyboard` | Search keyboard | buffer/layout | open/closed | keyboardArea | numeric only | OS keyboard |
-| `NumericKeyboard` | Numeric input | buffer | open/closed | click buttons | native input fallback | touch dependency |
+| `NumericKeyboard` | Numeric input | buffer | open/closed/pressed | click buttons + touch elevation | native input fallback | touch dependency |
 | `Toast` | Short feedback | message | visible/hidden | non-blocking | inline notice | blocking alert only |
 | `Modal` | Generic overlay | content/actions | open/closed | no trap | close/back action | unreachable close |
 
@@ -741,9 +771,10 @@ Allowed:
 
 - fade-in;
 - slide/fade;
-- pressed state;
-- transform on press;
-- transitions 150-250ms;
+- pressed state for every active element;
+- lift/press effect through shadow + transform;
+- transform on press: `translateY(1-3px)` and light `scale`;
+- transitions 100-160ms for press feedback, 150-250ms for screen changes;
 - simple SVG icons;
 - soft shadows;
 - rounded cards;
@@ -755,6 +786,8 @@ Forbidden:
 - WebGL/canvas;
 - heavy blur/backdrop/filter;
 - hover-only UX;
+- touch/pointer-only UX;
+- pressed feedback that changes layout size or scroll behavior;
 - blocking animations;
 - complex SVG animation as required feedback.
 
@@ -824,11 +857,11 @@ Do not require:
 
 | Slice | Scope | Excluded |
 |---|---|---|
-| A | mode router; diagnostic/showcase navigation; idle screen; baseline shell; theme switcher; demo banner; baseline orientation detection; landscape/portrait shell foundation | catalog, cart, payment |
-| B | `landscape_standard` productGrid + right cartPanel; `portrait_standard` productGrid + collapsed cart bar + bottom sheet; ProductCard stable zones; CartPanel stable total/actions; visual contract baseline; add/remove/qty | real products, РМК |
+| A | mode router; diagnostic/showcase navigation; idle screen; baseline shell; theme switcher; demo banner; baseline orientation detection; landscape/portrait shell foundation; touch elevation tokens | catalog, cart, payment |
+| B | `landscape_standard` productGrid + right cartPanel; `portrait_standard` productGrid + collapsed cart bar + bottom sheet; ProductCard stable zones; CartPanel stable total/actions; visual contract baseline; add/remove/qty; ProductCard/category/button pressed-state | real products, РМК |
 | C | mock payment visibly demo-only; no real payment logos; bounded payment flow; buyer-safe success/error/staff states; modal behavior in both orientations | acquiring, ККТ, fiscalization |
 | D | edit mode with allowed zones; fallback controls; no arbitrary positioning; theme/card density controls; edit mode in landscape and portrait | production admin, backend persistence, free-form design tool |
-| E | own on-screen keyboard; search/numeric input through click + JS buffer; portrait keyboardArea behavior; landscape lower zone/overlay behavior | OS keyboard dependency, touch/pointer-only input, scanner integration |
+| E | own on-screen keyboard; search/numeric input through click + JS buffer; portrait keyboardArea behavior; landscape lower zone/overlay behavior; keyboard key pressed-state | OS keyboard dependency, touch/pointer-only input, scanner integration |
 | F | visual contract test matrix; V8WebKit smoke checklist; portrait/landscape smoke; documentation update | production bridge, RMK Adapter |
 
 Do not include:
@@ -880,6 +913,9 @@ Do not include:
 - Проверить, что mock payment visibly demo-only и не использует real payment logos.
 - Проверить, что help/staff action visible in both orientations.
 - Проверить, что keyboard closes and does not block critical actions.
+- Проверить lift/press feedback у ProductCard, категорий, кнопок корзины, оплаты, help, keyboard и back-to-diagnostic.
+- Проверить, что disabled/busy controls не выглядят нажимаемыми.
+- Проверить, что pressed-state не меняет размеры карточек, сетку, scroll-зоны или доступность критичных кнопок.
 - Проверить, что нет копирования external brand/look из visual references.
 - Проверить отсутствие global horizontal scroll.
 - Проверить, что back-to-diagnostic always accessible.
@@ -932,6 +968,9 @@ Blueprint считается готовым, если:
 - Theme switch ломает contrast.
 - Keyboard перекрывает critical actions.
 - Mock payment выглядит как real payment.
+- Pressed-state реализован только для части элементов, и покупатель не понимает, что нажал.
+- Lift/press эффект вызывает layout shift, меняет высоту карточек или создает scroll.
+- Disabled/busy элементы выглядят как нажимаемые.
 - Агент использует React/Vite/CDN/fetch/sticky как обязательную зависимость.
 - Runtime Capability Contract игнорируется.
 - Нет проверки в V8WebKit.
@@ -947,7 +986,7 @@ Blueprint считается готовым, если:
 ## 25. Open Questions
 
 - Какие реальные терминалы будут использоваться?
-- Есть ли touch на целевом терминале?
+- Какие touch-сценарии и размеры целевого терминала нужно проверить вручную?
 - Какие конкретные portrait-размеры нужно проверить?
 - Какая минимальная ширина portrait viewport допустима?
 - Нужно ли поддерживать portrait на реальном терминале или только для демонстрации в окне?
@@ -978,6 +1017,13 @@ Portrait support обязателен. Открытые вопросы каса�
 - Implementation slices обновлены с учетом ориентаций.
 - Open questions обновлены.
 - Visual reference board встроен как secondary source: приняты композиционные решения для landscape, portrait, ProductCard, CartPanel, mock payment, help, keyboard и edit mode без расширения scope.
+
+## 26.1. Touch Elevation Refactor Summary
+
+- Добавлен Touchable Elevation Contract для всех активных элементов showcase.
+- Theme tokens расширены `liftShadow`, `pressedShadow`, `pressTransform`, `pressTransitionMs`.
+- Effects Blueprint уточнен: pressed-state является baseline, hover/touch/pointer не являются обязательной основой.
+- Visual Contract Test Matrix и V8WebKit smoke checklist расширены проверками lift/press, disabled/busy и отсутствия layout shift.
 
 ## 27. Final Boundary
 

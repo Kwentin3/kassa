@@ -35,6 +35,9 @@ Manual Android tablet camera smoke is still required on the physical device.
 - [ ] Product thumbnails have stable height and do not force unnecessary scroll for a single card.
 - [ ] Product cards have visible depth shadow and pressed feedback when tapping the add CTA.
 - [ ] Catalog left panel and category buttons have visible depth shadow and pressed feedback.
+- [ ] All active showcase surfaces have lift/press feedback: product cards, category buttons, cart controls, payment buttons, help, keyboard keys and back-to-diagnostic.
+- [ ] Disabled/busy controls look muted and do not look tappable.
+- [ ] Pressed feedback does not create layout shift, horizontal scroll, or hidden critical actions.
 - [ ] `npm run visual:cards` passes against deployed URL.
 - [ ] Catalog/search/cart use vertical scroll zones when content exceeds viewport.
 - [ ] Card mock success transitions to receipt.

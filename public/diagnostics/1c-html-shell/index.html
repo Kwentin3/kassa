@@ -356,6 +356,9 @@
       --shell-card-min: 168px;
       --shell-card-max: 218px;
       --shell-card-height: 248px;
+      --shell-touch-shadow: 0 10px 22px rgba(23, 33, 43, 0.16), 0 2px 6px rgba(23, 33, 43, 0.10);
+      --shell-touch-pressed-shadow: 0 3px 8px rgba(23, 33, 43, 0.18), 0 1px 3px rgba(23, 33, 43, 0.14);
+      --shell-touch-press-transform: translateY(2px) scale(0.988);
       box-sizing: border-box;
       height: 100vh;
       min-height: 540px;
@@ -486,6 +489,9 @@
     .showcase-button,
     .showcase-link-button {
       box-sizing: border-box;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       min-height: 46px;
       border: 1px solid #126c8f;
       border-color: var(--shell-primary, #126c8f);
@@ -497,12 +503,15 @@
       text-decoration: none;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: var(--shell-touch-shadow, 0 10px 22px rgba(23, 33, 43, 0.16));
+      transform: translateY(0);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
     }
 
     .showcase-button:active,
     .showcase-link-button:active {
-      transform: translateY(1px);
+      box-shadow: var(--shell-touch-pressed-shadow, 0 3px 8px rgba(23, 33, 43, 0.18));
+      transform: var(--shell-touch-press-transform, translateY(2px) scale(0.988));
     }
 
     .showcase-button.secondary {
@@ -520,9 +529,12 @@
       color: #ffffff;
     }
 
-    .showcase-button:disabled {
+    .showcase-button:disabled,
+    .showcase-button.is-disabled {
       opacity: 0.55;
       cursor: not-allowed;
+      box-shadow: 0 1px 3px rgba(23, 33, 43, 0.08);
+      transform: none;
     }
 
     .showcase-content {
@@ -593,12 +605,22 @@
       background: var(--shell-surface, #ffffff);
       color: var(--shell-text, #17212b);
       font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shell-touch-shadow, 0 10px 22px rgba(23, 33, 43, 0.16));
+      transform: translateY(0);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .showcase-category-button:active {
+      box-shadow: var(--shell-touch-pressed-shadow, 0 3px 8px rgba(23, 33, 43, 0.18));
+      transform: var(--shell-touch-press-transform, translateY(2px) scale(0.988));
     }
 
     .showcase-category-button.active {
       border-color: var(--shell-primary, #126c8f);
       background: var(--shell-primary, #126c8f);
       color: #ffffff;
+      box-shadow: 0 12px 24px rgba(18, 108, 143, 0.22), 0 3px 8px rgba(23, 33, 43, 0.10);
     }
 
     .showcase-search-row {
@@ -652,7 +674,28 @@
       border-radius: var(--shell-radius, 8px);
       background: var(--shell-card, #ffffff);
       color: var(--shell-text, #17212b);
-      box-shadow: var(--shell-shadow, 0 6px 16px rgba(23, 33, 43, 0.14));
+      cursor: pointer;
+      box-shadow: var(--shell-touch-shadow, 0 10px 22px rgba(23, 33, 43, 0.16));
+      transform: translateY(0);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+    }
+
+    .showcase-product-card:active {
+      border-color: var(--shell-primary, #126c8f);
+      box-shadow: var(--shell-touch-pressed-shadow, 0 3px 8px rgba(23, 33, 43, 0.18));
+      transform: var(--shell-touch-press-transform, translateY(2px) scale(0.988));
+    }
+
+    .showcase-product-card[aria-disabled="true"] {
+      cursor: not-allowed;
+      opacity: 0.72;
+      box-shadow: 0 1px 3px rgba(23, 33, 43, 0.08);
+      transform: none;
+    }
+
+    .showcase-product-card:focus {
+      outline: 3px solid var(--shell-accent, #e06f2f);
+      outline-offset: 3px;
     }
 
     .showcase-product-image {
@@ -822,6 +865,10 @@
       border-radius: 6px;
     }
 
+    .showcase-select {
+      cursor: pointer;
+    }
+
     .showcase-modal-layer {
       position: fixed;
       left: 0;
@@ -871,6 +918,22 @@
       border-radius: 6px;
       background: #fff7df;
       color: #4d3d13;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .showcase-button,
+      .showcase-link-button,
+      .showcase-category-button,
+      .showcase-product-card {
+        transition: none;
+      }
+
+      .showcase-button:active,
+      .showcase-link-button:active,
+      .showcase-category-button:active,
+      .showcase-product-card:active {
+        transform: none;
+      }
     }
 
     .showcase-status-text {
@@ -2843,9 +2906,16 @@
       function renderProductCard(product) {
         var actionText = "В корзину";
         var disabled = "";
+        var cardDisabled = "";
+        var cardAction = ' data-action="add-product" data-id="' + escapeHtml(product.id) + '" tabindex="0" role="button"';
         var badges = product.badges || [];
-        var html = '<article class="showcase-product-card" aria-label="' + escapeHtml(product.title) + '">';
-        html += '<div class="showcase-product-image">' + escapeHtml(product.noImage ? "Нет фото" : (product.imageText || product.shortTitle || "?")) + '</div>';
+        if (showcaseState.paymentStatus === "processing") {
+          disabled = " disabled";
+          cardDisabled = ' aria-disabled="true"';
+          cardAction = ' tabindex="-1"';
+        }
+        var html = '<article class="showcase-product-card" aria-label="' + escapeHtml(product.title) + '"' + cardAction + cardDisabled + '>';
+        html += '<div class="showcase-product-image" aria-hidden="true">' + escapeHtml(product.noImage ? "Нет фото" : (product.imageText || product.shortTitle || "?")) + '</div>';
         html += '<div class="showcase-product-title">' + escapeHtml(product.title) + '</div>';
         html += '<div class="showcase-product-badges">';
         for (var i = 0; i < badges.length; i += 1) {
@@ -2858,10 +2928,7 @@
         } else if (product.available === false) {
           actionText = "Показать ошибку";
         }
-        if (showcaseState.paymentStatus === "processing") {
-          disabled = " disabled";
-        }
-        html += '<button type="button" class="showcase-button" data-action="add-product" data-id="' + escapeHtml(product.id) + '"' + disabled + '>' + escapeHtml(actionText) + '</button>';
+        html += '<span class="showcase-button showcase-card-action' + (disabled ? " is-disabled" : "") + '" aria-hidden="true">' + escapeHtml(actionText) + '</span>';
         html += '</article>';
         return html;
       }
@@ -3044,7 +3111,25 @@
           return;
         }
         root.onclick = handleShowcaseClick;
+        root.onkeydown = handleShowcaseKeydown;
         root.onchange = handleShowcaseChange;
+      }
+
+      function handleShowcaseKeydown(event) {
+        var key = event ? (event.key || event.keyCode) : "";
+        if (key !== "Enter" && key !== " " && key !== "Spacebar" && key !== 13 && key !== 32) {
+          return true;
+        }
+        var target = event ? event.target : null;
+        var action = target && target.getAttribute ? target.getAttribute("data-action") : "";
+        if (!action || target.getAttribute("aria-disabled") === "true") {
+          return true;
+        }
+        runShowcaseAction(action, target);
+        if (event.preventDefault) {
+          event.preventDefault();
+        }
+        return false;
       }
 
       function handleShowcaseClick(event) {
