@@ -712,6 +712,13 @@
       overflow: hidden;
     }
 
+    .showcase-product-image img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
     .showcase-product-title {
       height: 44px;
       margin-top: 8px;
@@ -1289,12 +1296,15 @@
     </div>
   </main>
 
+  <div id="showcase-catalog-mailbox" hidden data-updated-at="" data-version=""></div>
+  <div id="showcase-catalog-result-mailbox" hidden data-updated-at=""></div>
+
   <script>
     (function () {
       var DIAGNOSTIC_VERSION = "0.1";
       var REPORT_SCHEMA_VERSION = "0.2";
       var TEST_PACK_VERSION = "0.2";
-      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-showcase-2026-05-21-01";
+      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-showcase-2026-05-21-02";
       var BUILD_TIMESTAMP = "2026-05-21T00:00:00.000Z";
       var STATUS_TEXT = {
         supported: "Поддерживается",
@@ -1325,13 +1335,606 @@
       var query = parseQuery();
       var appMode = getRuntimeMode(query.mode);
       var SHOWCASE_DEMO_BANNER = "Демо-режим. Данные тестовые. РМК, оплата и ККТ не подключены.";
+      var SHOWCASE_API_VERSION = "0.1";
+      var SHOWCASE_SUPPORTED_CATALOG_VERSION = "0.1";
+      var SHOWCASE_MOCK_CATALOG_ID = "mock-default";
       var showcaseState = null;
       var showcaseProducts = [];
       var showcaseCategories = [];
+      var showcaseCatalogStatus = null;
+      var showcaseRuntimeReady = false;
+      var showcaseMailboxTimer = null;
+      var showcaseMailboxSignature = "";
       var showcaseLayout = {
         orientation: "landscape",
         profile: "landscape_standard"
       };
+
+      installShowcaseApiStub();
+
+      function installShowcaseApiStub() {
+        var api = window.Showcase && typeof window.Showcase === "object" ? window.Showcase : {};
+        api.apiVersion = SHOWCASE_API_VERSION;
+        api.ready = !!showcaseRuntimeReady;
+        if (typeof api.pendingCatalog === "undefined") {
+          api.pendingCatalog = null;
+        }
+        if (typeof api.lastCatalogResult === "undefined") {
+          api.lastCatalogResult = null;
+        }
+        if (typeof api.lastCatalogResultJson === "undefined") {
+          api.lastCatalogResultJson = "";
+        }
+        api.receiveCatalog = function (catalogJson) {
+          return receiveShowcaseCatalog(catalogJson, "direct");
+        };
+        api.getRuntimeInfo = function () {
+          return getShowcaseRuntimeInfo();
+        };
+        api.getCatalogStatusJson = function () {
+          return getShowcaseCatalogStatusJson();
+        };
+        api.getCatalogStatus = function () {
+          return cloneForApi(getCurrentShowcaseCatalogStatus());
+        };
+        api.clearCatalog = function () {
+          return clearShowcaseCatalog();
+        };
+        window.Showcase = api;
+        syncShowcaseApiStatus();
+      }
+
+      function syncShowcaseApiStatus() {
+        if (!window.Showcase || typeof window.Showcase !== "object") {
+          return;
+        }
+        window.Showcase.apiVersion = SHOWCASE_API_VERSION;
+        window.Showcase.ready = !!showcaseRuntimeReady;
+        if (showcaseCatalogStatus) {
+          window.Showcase.lastCatalogResult = cloneForApi(showcaseCatalogStatus);
+          window.Showcase.lastCatalogResultJson = safeJsonStringify(showcaseCatalogStatus);
+        }
+      }
+
+      function getShowcaseRuntimeInfo() {
+        var status = getCurrentShowcaseCatalogStatus();
+        return {
+          apiVersion: SHOWCASE_API_VERSION,
+          ready: !!showcaseRuntimeReady,
+          mode: appMode,
+          buildId: DIAGNOSTIC_BUILD_ID,
+          catalogStatus: {
+            source: status.source,
+            catalogId: status.catalogId
+          },
+          groupsCount: showcaseCategories.length,
+          productsCount: showcaseProducts.length
+        };
+      }
+
+      function getShowcaseCatalogStatusJson() {
+        return safeJsonStringify(getCurrentShowcaseCatalogStatus());
+      }
+
+      function getCurrentShowcaseCatalogStatus() {
+        if (!showcaseCatalogStatus) {
+          showcaseCatalogStatus = createMockCatalogStatus();
+        }
+        return showcaseCatalogStatus;
+      }
+
+      function createMockCatalogStatus() {
+        return {
+          ok: true,
+          source: "mock",
+          catalogId: SHOWCASE_MOCK_CATALOG_ID,
+          contractVersion: SHOWCASE_SUPPORTED_CATALOG_VERSION,
+          groupsAccepted: showcaseCategories.length,
+          productsAccepted: countBaseMockProducts(),
+          productsSkipped: 0,
+          errors: []
+        };
+      }
+
+      function countBaseMockProducts() {
+        var count = 0;
+        var i;
+        for (i = 0; i < showcaseProducts.length; i += 1) {
+          if (!showcaseProducts[i].generated) {
+            count += 1;
+          }
+        }
+        return count;
+      }
+
+      function receiveShowcaseCatalog(catalogJson, deliveryMode) {
+        var pendingResult;
+        if (!showcaseRuntimeReady || !showcaseState) {
+          if (window.Showcase && typeof window.Showcase === "object") {
+            window.Showcase.pendingCatalog = catalogJson;
+          }
+          pendingResult = makeCatalogResult({
+            ok: false,
+            pending: true,
+            source: "1c",
+            catalogId: "",
+            contractVersion: SHOWCASE_SUPPORTED_CATALOG_VERSION,
+            groupsAccepted: 0,
+            productsAccepted: 0,
+            productsSkipped: 0,
+            errors: ["showcase-not-ready"]
+          });
+          setShowcaseCatalogStatus(pendingResult);
+          return cloneForApi(pendingResult);
+        }
+        return applyShowcaseCatalogPayload(catalogJson, deliveryMode || "direct");
+      }
+
+      function applyShowcaseCatalogPayload(catalogJson, deliveryMode) {
+        var normalized = normalizeShowcaseCatalog(catalogJson, deliveryMode);
+        var result = normalized.result;
+        if (!result.ok) {
+          setShowcaseCatalogStatus(result);
+          return cloneForApi(result);
+        }
+        showcaseCategories = normalized.groups;
+        showcaseProducts = normalized.products;
+        resetShowcaseStateForCatalog();
+        setShowcaseCatalogStatus(result);
+        renderShowcase();
+        return cloneForApi(result);
+      }
+
+      function clearShowcaseCatalog() {
+        if (window.Showcase && typeof window.Showcase === "object") {
+          window.Showcase.pendingCatalog = null;
+        }
+        initShowcaseData();
+        initShowcaseState();
+        showcaseRuntimeReady = true;
+        showcaseCatalogStatus = createMockCatalogStatus();
+        syncShowcaseApiStatus();
+        renderShowcase();
+        return cloneForApi(showcaseCatalogStatus);
+      }
+
+      function normalizeShowcaseCatalog(catalogJson, deliveryMode) {
+        var errors = [];
+        var catalog = parseCatalogPayload(catalogJson, errors);
+        var rootCurrency;
+        var rootCatalogId;
+        var groups = [];
+        var products = [];
+        var groupById = {};
+        var productsSkipped = 0;
+        var result;
+        if (!catalog) {
+          result = makeCatalogResult({
+            ok: false,
+            source: "1c",
+            catalogId: "",
+            contractVersion: SHOWCASE_SUPPORTED_CATALOG_VERSION,
+            groupsAccepted: 0,
+            productsAccepted: 0,
+            productsSkipped: 0,
+            errors: errors
+          });
+          return { result: result, groups: [], products: [] };
+        }
+        rootCurrency = trimCatalogString(catalog.currency);
+        rootCatalogId = trimCatalogString(catalog.catalogId);
+        validateCatalogRoot(catalog, errors);
+        if (errors.length) {
+          result = makeCatalogResult({
+            ok: false,
+            source: "1c",
+            catalogId: rootCatalogId,
+            contractVersion: trimCatalogString(catalog.contractVersion) || SHOWCASE_SUPPORTED_CATALOG_VERSION,
+            groupsAccepted: 0,
+            productsAccepted: 0,
+            productsSkipped: Array.isArray(catalog.products) ? catalog.products.length : 0,
+            errors: errors
+          });
+          return { result: result, groups: [], products: [] };
+        }
+        groups = normalizeCatalogGroups(catalog.groups, groupById, errors);
+        products = normalizeCatalogProducts(catalog.products, groupById, rootCurrency, errors);
+        productsSkipped = catalog.products.length - products.length;
+        result = makeCatalogResult({
+          ok: true,
+          source: "1c",
+          catalogId: rootCatalogId,
+          contractVersion: SHOWCASE_SUPPORTED_CATALOG_VERSION,
+          groupsAccepted: groups.length,
+          productsAccepted: products.length,
+          productsSkipped: productsSkipped,
+          deliveryMode: deliveryMode || "direct",
+          errors: errors
+        });
+        return { result: result, groups: groups, products: products };
+      }
+
+      function parseCatalogPayload(catalogJson, errors) {
+        if (typeof catalogJson === "string") {
+          if (!catalogJson.replace(/\s+/g, "")) {
+            addCatalogError(errors, "catalog-json-empty");
+            return null;
+          }
+          try {
+            return JSON.parse(catalogJson);
+          } catch (e) {
+            addCatalogError(errors, "catalog-json-invalid");
+            return null;
+          }
+        }
+        if (catalogJson && typeof catalogJson === "object" && !Array.isArray(catalogJson)) {
+          return catalogJson;
+        }
+        addCatalogError(errors, "catalog-payload-must-be-json-string");
+        return null;
+      }
+
+      function validateCatalogRoot(catalog, errors) {
+        if (!catalog || typeof catalog !== "object" || Array.isArray(catalog)) {
+          addCatalogError(errors, "catalog-root-invalid");
+          return;
+        }
+        if (trimCatalogString(catalog.contractVersion) !== SHOWCASE_SUPPORTED_CATALOG_VERSION) {
+          addCatalogError(errors, "catalog-contract-version-unsupported");
+        }
+        if (trimCatalogString(catalog.source) !== "1c") {
+          addCatalogError(errors, "catalog-source-must-be-1c");
+        }
+        if (!trimCatalogString(catalog.generatedAt)) {
+          addCatalogError(errors, "catalog-generated-at-missing");
+        }
+        if (!trimCatalogString(catalog.catalogId)) {
+          addCatalogError(errors, "catalog-id-missing");
+        }
+        if (!trimCatalogString(catalog.currency)) {
+          addCatalogError(errors, "catalog-currency-missing");
+        }
+        if (!Array.isArray(catalog.groups)) {
+          addCatalogError(errors, "catalog-groups-must-be-array");
+        }
+        if (!Array.isArray(catalog.products)) {
+          addCatalogError(errors, "catalog-products-must-be-array");
+        }
+      }
+
+      function normalizeCatalogGroups(inputGroups, groupById, errors) {
+        var groups = [];
+        var i;
+        var raw;
+        var id;
+        var title;
+        var group;
+        for (i = 0; i < inputGroups.length; i += 1) {
+          raw = inputGroups[i];
+          if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+            addCatalogError(errors, "group-" + i + "-invalid");
+            continue;
+          }
+          id = trimCatalogString(raw.id);
+          title = trimCatalogString(raw.title);
+          if (!id) {
+            addCatalogError(errors, "group-" + i + "-id-missing");
+            continue;
+          }
+          if (groupById[id]) {
+            addCatalogError(errors, "group-" + i + "-duplicate-id");
+            continue;
+          }
+          if (!title) {
+            addCatalogError(errors, "group-" + i + "-title-missing");
+            continue;
+          }
+          if (!isFiniteNumber(raw.sortOrder)) {
+            addCatalogError(errors, "group-" + i + "-sort-order-invalid");
+            continue;
+          }
+          if (typeof raw.visible !== "boolean") {
+            addCatalogError(errors, "group-" + i + "-visible-invalid");
+            continue;
+          }
+          if (raw.visible !== true) {
+            continue;
+          }
+          group = {
+            id: id,
+            parentId: raw.parentId === null || typeof raw.parentId === "undefined" ? null : trimCatalogString(raw.parentId),
+            title: title,
+            sortOrder: Number(raw.sortOrder),
+            visible: true,
+            image: trimCatalogString(raw.image) || null,
+            icon: trimCatalogString(raw.icon) || null
+          };
+          groupById[id] = group;
+          groups.push(group);
+        }
+        groups.sort(compareCatalogItems);
+        return groups;
+      }
+
+      function normalizeCatalogProducts(inputProducts, groupById, rootCurrency, errors) {
+        var products = [];
+        var seen = {};
+        var i;
+        var raw;
+        var id;
+        var groupId;
+        var title;
+        var shortTitle;
+        var badges;
+        var image;
+        for (i = 0; i < inputProducts.length; i += 1) {
+          raw = inputProducts[i];
+          if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+            addCatalogError(errors, "product-" + i + "-invalid");
+            continue;
+          }
+          id = trimCatalogString(raw.id);
+          groupId = trimCatalogString(raw.groupId);
+          title = trimCatalogString(raw.title);
+          if (!id) {
+            addCatalogError(errors, "product-" + i + "-id-missing");
+            continue;
+          }
+          if (seen[id]) {
+            addCatalogError(errors, "product-" + i + "-duplicate-id");
+            continue;
+          }
+          seen[id] = true;
+          if (!groupId || !groupById[groupId]) {
+            addCatalogError(errors, "product-" + i + "-group-invalid");
+            continue;
+          }
+          if (!title) {
+            addCatalogError(errors, "product-" + i + "-title-missing");
+            continue;
+          }
+          if (!isFiniteNumber(raw.price)) {
+            addCatalogError(errors, "product-" + i + "-price-invalid");
+            continue;
+          }
+          if (trimCatalogString(raw.currency) !== rootCurrency) {
+            addCatalogError(errors, "product-" + i + "-currency-invalid");
+            continue;
+          }
+          if (typeof raw.visible !== "boolean") {
+            addCatalogError(errors, "product-" + i + "-visible-invalid");
+            continue;
+          }
+          if (raw.visible !== true) {
+            continue;
+          }
+          if (typeof raw.available !== "boolean") {
+            addCatalogError(errors, "product-" + i + "-available-invalid");
+            continue;
+          }
+          if (raw.available !== true) {
+            continue;
+          }
+          if (!isFiniteNumber(raw.sortOrder)) {
+            addCatalogError(errors, "product-" + i + "-sort-order-invalid");
+            continue;
+          }
+          shortTitle = trimCatalogString(raw.shortTitle);
+          badges = Array.isArray(raw.badges) ? normalizeStringArray(raw.badges) : [];
+          image = trimCatalogString(raw.image);
+          products.push({
+            id: id,
+            groupId: groupId,
+            categoryId: groupId,
+            title: title,
+            shortTitle: shortTitle || title,
+            price: Number(raw.price),
+            currency: rootCurrency,
+            image: image || null,
+            noImage: !image,
+            badges: badges,
+            available: true,
+            visible: true,
+            requiresStaff: raw.requiresStaff === true,
+            ageRestrictedMock: raw.ageRestrictedMock === true,
+            barcode: trimCatalogString(raw.barcode) || "",
+            unit: trimCatalogString(raw.unit) || "",
+            quantityStep: isFiniteNumber(raw.quantityStep) ? Number(raw.quantityStep) : null,
+            sortOrder: Number(raw.sortOrder),
+            imageText: (shortTitle || title || "?").charAt(0),
+            source: "1c"
+          });
+        }
+        products.sort(compareCatalogItems);
+        return products;
+      }
+
+      function resetShowcaseStateForCatalog() {
+        var theme = showcaseState ? showcaseState.theme : "light";
+        var editMode = showcaseState ? showcaseState.editMode : false;
+        var editBlock = showcaseState ? showcaseState.editBlock : "categoryArea";
+        var zoneOrder = showcaseState && showcaseState.zoneOrder ? showcaseState.zoneOrder.slice(0) : ["categoryArea", "searchArea"];
+        var cardDensity = showcaseState ? showcaseState.cardDensity : "standard";
+        var cardSize = showcaseState ? showcaseState.cardSize : "standard";
+        initShowcaseState();
+        showcaseState.theme = theme;
+        showcaseState.editMode = editMode;
+        showcaseState.editBlock = editBlock;
+        showcaseState.zoneOrder = zoneOrder;
+        showcaseState.cardDensity = cardDensity;
+        showcaseState.cardSize = cardSize;
+        showcaseState.categoryId = getFirstShowcaseCategoryId();
+        showcaseState.screen = "shopping";
+        showcaseState.cart = [];
+        showcaseState.paymentMethod = "";
+        showcaseState.paymentStatus = "idle";
+        showcaseState.modalMessage = "";
+        showcaseState.mockReceipt = null;
+        showcaseState.cartSheetOpen = false;
+        showcaseState.keyboardVisible = false;
+        showcaseState.searchBuffer = "";
+      }
+
+      function getFirstShowcaseCategoryId() {
+        return showcaseCategories.length ? showcaseCategories[0].id : "";
+      }
+
+      function setShowcaseCatalogStatus(result) {
+        showcaseCatalogStatus = makeCatalogResult(result);
+        syncShowcaseApiStatus();
+        writeCatalogResultMailbox();
+        return showcaseCatalogStatus;
+      }
+
+      function makeCatalogResult(input) {
+        var result = {
+          ok: input && input.ok === true,
+          source: input && input.source ? String(input.source) : "1c",
+          catalogId: input && input.catalogId ? String(input.catalogId) : "",
+          contractVersion: input && input.contractVersion ? String(input.contractVersion) : SHOWCASE_SUPPORTED_CATALOG_VERSION,
+          groupsAccepted: input && isFiniteNumber(input.groupsAccepted) ? Number(input.groupsAccepted) : 0,
+          productsAccepted: input && isFiniteNumber(input.productsAccepted) ? Number(input.productsAccepted) : 0,
+          productsSkipped: input && isFiniteNumber(input.productsSkipped) ? Number(input.productsSkipped) : 0,
+          errors: input && Array.isArray(input.errors) ? input.errors.slice(0, 40) : []
+        };
+        if (input && input.pending === true) {
+          result.pending = true;
+        }
+        if (input && input.deliveryMode) {
+          result.deliveryMode = String(input.deliveryMode);
+        }
+        return result;
+      }
+
+      function startShowcaseMailboxWatcher() {
+        if (showcaseMailboxTimer) {
+          clearInterval(showcaseMailboxTimer);
+        }
+        ensureShowcaseMailboxNodes();
+        readShowcaseCatalogMailbox();
+        showcaseMailboxTimer = setInterval(readShowcaseCatalogMailbox, 350);
+      }
+
+      function ensureShowcaseMailboxNodes() {
+        ensureHiddenNode("showcase-catalog-mailbox", { "data-updated-at": "", "data-version": "" });
+        ensureHiddenNode("showcase-catalog-result-mailbox", { "data-updated-at": "" });
+      }
+
+      function ensureHiddenNode(id, attrs) {
+        var node = byId(id);
+        var key;
+        if (!node) {
+          node = document.createElement("div");
+          node.id = id;
+          document.body.appendChild(node);
+        }
+        node.setAttribute("hidden", "hidden");
+        for (key in attrs) {
+          if (Object.prototype.hasOwnProperty.call(attrs, key) && !node.getAttribute(key)) {
+            node.setAttribute(key, attrs[key]);
+          }
+        }
+        return node;
+      }
+
+      function readShowcaseCatalogMailbox() {
+        var node = byId("showcase-catalog-mailbox");
+        var updatedAt;
+        var version;
+        var text;
+        var signature;
+        if (!node || !showcaseRuntimeReady) {
+          return;
+        }
+        updatedAt = node.getAttribute("data-updated-at") || "";
+        version = node.getAttribute("data-version") || "";
+        text = node.textContent || node.innerText || "";
+        if (!text.replace(/\s+/g, "")) {
+          return;
+        }
+        signature = updatedAt + "|" + version + "|" + String(text.length);
+        if (signature === showcaseMailboxSignature) {
+          return;
+        }
+        showcaseMailboxSignature = signature;
+        receiveShowcaseCatalog(text, "dom-mailbox");
+      }
+
+      function writeCatalogResultMailbox() {
+        var node = byId("showcase-catalog-result-mailbox");
+        if (!node || !showcaseCatalogStatus) {
+          return;
+        }
+        node.textContent = safeJsonStringify(showcaseCatalogStatus);
+        node.setAttribute("data-updated-at", nowIso());
+      }
+
+      function applyInitialShowcaseCatalogs() {
+        var pending;
+        if (typeof window.__SHOWCASE_INITIAL_CATALOG__ !== "undefined" && window.__SHOWCASE_INITIAL_CATALOG__ !== null) {
+          receiveShowcaseCatalog(window.__SHOWCASE_INITIAL_CATALOG__, "embedded");
+        }
+        if (window.Showcase && typeof window.Showcase === "object" && typeof window.Showcase.pendingCatalog !== "undefined" && window.Showcase.pendingCatalog !== null) {
+          pending = window.Showcase.pendingCatalog;
+          window.Showcase.pendingCatalog = null;
+          receiveShowcaseCatalog(pending, "pending-direct");
+        }
+      }
+
+      function compareCatalogItems(a, b) {
+        var sortA = isFiniteNumber(a.sortOrder) ? Number(a.sortOrder) : 0;
+        var sortB = isFiniteNumber(b.sortOrder) ? Number(b.sortOrder) : 0;
+        if (sortA !== sortB) {
+          return sortA - sortB;
+        }
+        return String(a.title || "").localeCompare(String(b.title || ""));
+      }
+
+      function normalizeStringArray(items) {
+        var result = [];
+        var i;
+        var value;
+        for (i = 0; i < items.length; i += 1) {
+          value = trimCatalogString(items[i]);
+          if (value) {
+            result.push(value);
+          }
+        }
+        return result;
+      }
+
+      function trimCatalogString(value) {
+        if (typeof value === "undefined" || value === null) {
+          return "";
+        }
+        return String(value).replace(/^\s+|\s+$/g, "");
+      }
+
+      function isFiniteNumber(value) {
+        return typeof value === "number" && isFinite(value);
+      }
+
+      function addCatalogError(errors, code) {
+        if (errors.length < 40) {
+          errors.push(code);
+        }
+      }
+
+      function safeJsonStringify(value) {
+        try {
+          return JSON.stringify(value);
+        } catch (e) {
+          return "{\"ok\":false,\"errors\":[\"json-stringify-failed\"]}";
+        }
+      }
+
+      function cloneForApi(value) {
+        try {
+          return JSON.parse(JSON.stringify(value));
+        } catch (e) {
+          return value;
+        }
+      }
 
       function byId(id) {
         return document.getElementById(id);
@@ -2627,9 +3230,14 @@
 
       function bootShowcase() {
         applyRuntimeMode();
+        installShowcaseApiStub();
         initShowcaseData();
         initShowcaseState();
+        showcaseRuntimeReady = true;
+        syncShowcaseApiStatus();
         renderShowcase();
+        startShowcaseMailboxWatcher();
+        applyInitialShowcaseCatalogs();
         try {
           window.onresize = function () {
             if (appMode === "showcase") {
@@ -2723,6 +3331,8 @@
             generated: true
           });
         }
+        showcaseCatalogStatus = createMockCatalogStatus();
+        syncShowcaseApiStatus();
       }
 
       function renderShowcase() {
@@ -2744,6 +3354,7 @@
         html += renderModal();
         html += '</div>';
         root.innerHTML = html;
+        ensureShowcaseMailboxNodes();
         wireShowcaseRuntime();
       }
 
@@ -2894,13 +3505,20 @@
         var html = '<div class="showcase-product-grid' + (showcaseState.editMode ? " showcase-zone-frame" : "") + '" aria-label="Каталог товаров">';
         var i;
         if (!products.length) {
-          html += '<div class="showcase-notice"><strong>Товар не найден.</strong><br>Это mock-состояние поиска. Реальный РМК не проверяется.</div>';
+          html += renderEmptyProductNotice();
         }
         for (i = 0; i < products.length; i += 1) {
           html += renderProductCard(products[i]);
         }
         html += '</div>';
         return html;
+      }
+
+      function renderEmptyProductNotice() {
+        if (showcaseCatalogStatus && showcaseCatalogStatus.source === "1c") {
+          return '<div class="showcase-notice"><strong>Товары не найдены.</strong><br>Каталог пуст или товары скрыты правилами витрины.</div>';
+        }
+        return '<div class="showcase-notice"><strong>Товар не найден.</strong><br>Это mock-состояние поиска. Реальный РМК не проверяется.</div>';
       }
 
       function renderProductCard(product) {
@@ -2915,7 +3533,11 @@
           cardAction = ' tabindex="-1"';
         }
         var html = '<article class="showcase-product-card" aria-label="' + escapeHtml(product.title) + '"' + cardAction + cardDisabled + '>';
-        html += '<div class="showcase-product-image" aria-hidden="true">' + escapeHtml(product.noImage ? "Нет фото" : (product.imageText || product.shortTitle || "?")) + '</div>';
+        if (product.image) {
+          html += '<div class="showcase-product-image" aria-hidden="true"><img data-showcase-img="1" src="' + escapeHtml(product.image) + '" alt=""></div>';
+        } else {
+          html += '<div class="showcase-product-image" aria-hidden="true">' + escapeHtml(product.noImage ? "Нет фото" : (product.imageText || product.shortTitle || "?")) + '</div>';
+        }
         html += '<div class="showcase-product-title">' + escapeHtml(product.title) + '</div>';
         html += '<div class="showcase-product-badges">';
         for (var i = 0; i < badges.length; i += 1) {
@@ -3113,6 +3735,23 @@
         root.onclick = handleShowcaseClick;
         root.onkeydown = handleShowcaseKeydown;
         root.onchange = handleShowcaseChange;
+        wireShowcaseImages(root);
+      }
+
+      function wireShowcaseImages(root) {
+        var images;
+        var i;
+        if (!root || !root.querySelectorAll) {
+          return;
+        }
+        images = root.querySelectorAll("img[data-showcase-img]");
+        for (i = 0; i < images.length; i += 1) {
+          images[i].onerror = function () {
+            if (this && this.parentNode) {
+              this.parentNode.textContent = "Нет фото";
+            }
+          };
+        }
       }
 
       function handleShowcaseKeydown(event) {
@@ -3159,7 +3798,7 @@
           window.location.href = buildModeUrl("diagnostic");
         } else if (action === "start") {
           showcaseState.screen = "shopping";
-          showcaseState.categoryId = "popular";
+          showcaseState.categoryId = showcaseState.categoryId || getFirstShowcaseCategoryId();
           renderShowcase();
         } else if (action === "category") {
           showcaseState.categoryId = id;
@@ -3198,6 +3837,7 @@
           renderShowcase();
         } else if (action === "new-purchase") {
           initShowcaseState();
+          showcaseState.categoryId = getFirstShowcaseCategoryId();
           renderShowcase();
         } else if (action === "close-modal") {
           showcaseState.screen = showcaseState.previousScreen || "shopping";
@@ -3338,7 +3978,7 @@
       }
 
       function fillShowcaseCart() {
-        var ids = ["p001", "p002", "p003", "p004", "p005", "p006", "p010", "p011", "p013", "p031", "p032"];
+        var ids = getFillCartProductIds();
         var i;
         showcaseState.cart = [];
         for (i = 0; i < ids.length; i += 1) {
@@ -3347,6 +3987,20 @@
         showcaseState.cartSheetOpen = showcaseLayout.orientation === "portrait";
         showcaseState.screen = "cart";
         renderShowcase();
+      }
+
+      function getFillCartProductIds() {
+        var ids = [];
+        var i;
+        if (!showcaseCatalogStatus || showcaseCatalogStatus.source === "mock") {
+          return ["p001", "p002", "p003", "p004", "p005", "p006", "p010", "p011", "p013", "p031", "p032"];
+        }
+        for (i = 0; i < showcaseProducts.length && ids.length < 11; i += 1) {
+          if (!showcaseProducts[i].requiresStaff && !showcaseProducts[i].ageRestrictedMock) {
+            ids.push(showcaseProducts[i].id);
+          }
+        }
+        return ids;
       }
 
       function addProductToCartSilently(id, qty) {
@@ -3454,7 +4108,7 @@
           if (showcaseState.productMode !== "100" && showcaseState.screen !== "search" && product.categoryId !== showcaseState.categoryId) {
             continue;
           }
-          if (search && String(product.title).toLowerCase().indexOf(search) < 0 && String(product.shortTitle).toLowerCase().indexOf(search) < 0) {
+          if (search && String(product.title || "").toLowerCase().indexOf(search) < 0 && String(product.shortTitle || "").toLowerCase().indexOf(search) < 0) {
             continue;
           }
           result.push(product);

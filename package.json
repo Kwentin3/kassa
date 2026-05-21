@@ -10,7 +10,8 @@
     "typecheck": "tsc -b --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "visual:cards": "node scripts/visual-product-cards-smoke.mjs"
+    "visual:cards": "node scripts/visual-product-cards-smoke.mjs",
+    "smoke:showcase-catalog": "node scripts/showcase-catalog-api-smoke.mjs"
   },
   "dependencies": {
     "html5-qrcode": "^2.3.8",
