@@ -1,7 +1,7 @@
 # 1C HTML Shell Slice 2 Copy Refactor Report
 
 Дата: 2026-05-21
-Статус: готово к деплою
+Статус: реализовано, задеплоено
 
 ## Что изменено
 
@@ -25,7 +25,10 @@
 - `npm run build`: passed.
 - `npm run visual:cards`: passed.
 - Локальный Playwright smoke diagnostic page: passed.
+- Деплой на `kassa-web`: passed.
+- Public smoke `https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=diagnostic`: passed.
+- Public smoke диагностика -> витрина -> диагностика с сохранением `runId`: passed.
 
 ## Следующий шаг
 
-После деплоя проверить публичный URL `/diagnostics/1c-html-shell?mode=diagnostic` и убедиться, что новый блок Slice 2 виден на странице и в JSON.
+Следующий содержательный шаг - реализовывать/проверять настоящий Slice 2 Diagnostic Loader в целевой 1С-среде. Текущий деплой только уточняет формулировки и не подключает РМК, оплату, ККТ или фискализацию.
