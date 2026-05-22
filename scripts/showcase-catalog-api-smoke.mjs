@@ -101,12 +101,24 @@ try {
   assert(mockStatus.source === 'mock', 'Initial catalog status source should be mock');
   assert(mockStatus.productsAccepted === 32, `Expected 32 base mock products, got ${mockStatus.productsAccepted}`);
 
+  assert(await page.locator('#showcase-debug-panel').count() === 0, 'Debug panel should be hidden by default');
+  await page.locator('#showcase-debug-toggle').check();
+  await page.waitForSelector('#showcase-debug-panel');
+  const initialDebugText = await page.locator('#showcase-debug-panel').textContent();
+  assert(initialDebugText.includes('Runtime'), 'Debug panel should show runtime section');
+  assert(initialDebugText.includes('JSON'), 'Debug panel should state read-only JSON diagnostics');
+
   const directResult = await page.evaluate((payload) => window.Showcase.receiveCatalog(payload), JSON.stringify(sampleCatalog));
   assert(directResult.ok === true, `Direct catalog result should be ok: ${JSON.stringify(directResult)}`);
   assert(directResult.catalogId === 'showcase-sample-1c', 'Direct catalogId mismatch');
   assert(directResult.groupsAccepted === 2, `Expected 2 groups accepted, got ${directResult.groupsAccepted}`);
   assert(directResult.productsAccepted === 4, `Expected 4 products accepted, got ${directResult.productsAccepted}`);
   assert(directResult.productsSkipped === 2, `Expected 2 products skipped, got ${directResult.productsSkipped}`);
+
+  const directDebugText = await page.locator('#showcase-debug-panel').textContent();
+  assert(directDebugText.includes('showcase-sample-1c'), 'Debug panel should show direct catalogId');
+  assert(directDebugText.includes('productsAccepted'), 'Debug panel should show accepted product count label');
+  assert(directDebugText.includes('catalog applied'), 'Debug panel should show catalog applied event');
 
   const directUi = await page.evaluate(() => ({
     categories: [...document.querySelectorAll('.showcase-category-button')].map((node) => node.textContent.trim()),

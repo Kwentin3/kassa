@@ -473,7 +473,8 @@
       color: var(--shell-text, #17212b);
     }
 
-    .showcase-edit-toggle {
+    .showcase-edit-toggle,
+    .showcase-debug-toggle {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -481,9 +482,25 @@
       font-weight: 700;
     }
 
-    .showcase-edit-toggle input {
+    .showcase-debug-toggle {
+      min-height: 40px;
+      padding: 7px 10px;
+      border: 1px solid var(--shell-border, #cbd5df);
+      border-radius: 7px;
+      background: rgba(232, 240, 244, 0.95);
+      color: var(--shell-text, #17212b);
+    }
+
+    .showcase-edit-toggle input,
+    .showcase-debug-toggle input {
       width: auto;
       min-height: 0;
+    }
+
+    .showcase-edit-toggle input:focus-visible,
+    .showcase-debug-toggle input:focus-visible {
+      outline: 3px solid var(--shell-accent, #e06f2f);
+      outline-offset: 2px;
     }
 
     .showcase-button,
@@ -566,6 +583,7 @@
       min-height: 0;
       align-items: center;
       justify-content: center;
+      gap: 12px;
       padding: 24px;
       overflow: auto;
     }
@@ -581,6 +599,11 @@
 
     .showcase-idle-panel h1 {
       font-size: 34px;
+    }
+
+    .showcase-idle .showcase-debug-panel {
+      align-self: stretch;
+      max-height: calc(100vh - 130px);
     }
 
     .showcase-layout-note {
@@ -849,6 +872,181 @@
       display: none;
     }
 
+    .showcase-debug-panel {
+      box-sizing: border-box;
+      width: 360px;
+      min-width: 320px;
+      max-width: 38vw;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border: 1px solid #334155;
+      border-radius: var(--shell-radius, 8px);
+      background: #101820;
+      color: #eef5f8;
+      box-shadow: var(--shell-shadow, 0 6px 16px rgba(23, 33, 43, 0.14));
+      overflow: hidden;
+    }
+
+    .showcase-debug-head {
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid #334155;
+      background: #162231;
+    }
+
+    .showcase-debug-head h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .showcase-debug-head p {
+      margin: 0;
+      color: #b8c6d1;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .showcase-debug-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: auto;
+      padding: 10px 12px 12px;
+    }
+
+    .showcase-debug-section {
+      padding: 10px 0;
+      border-top: 1px solid rgba(203, 213, 223, 0.18);
+    }
+
+    .showcase-debug-section:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .showcase-debug-section h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      line-height: 1.2;
+      color: #dbeafe;
+      text-transform: uppercase;
+    }
+
+    .showcase-debug-grid {
+      display: grid;
+      grid-template-columns: minmax(108px, 42%) minmax(0, 1fr);
+      gap: 5px 8px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .showcase-debug-key {
+      color: #9fb0bf;
+    }
+
+    .showcase-debug-value {
+      min-width: 0;
+      overflow-wrap: anywhere;
+      font-family: Consolas, "Courier New", monospace;
+      color: #f8fafc;
+    }
+
+    .showcase-debug-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #64748b;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .showcase-debug-pill.ok {
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+
+    .showcase-debug-pill.error {
+      border-color: #fb7185;
+      color: #fecdd3;
+    }
+
+    .showcase-debug-empty {
+      margin: 0;
+      color: #b8c6d1;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .showcase-debug-code {
+      box-sizing: border-box;
+      max-height: 150px;
+      margin: 8px 0 0;
+      padding: 8px;
+      overflow: auto;
+      border: 1px solid rgba(203, 213, 223, 0.22);
+      border-radius: 6px;
+      background: #071018;
+      color: #e2e8f0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .showcase-debug-details summary {
+      cursor: pointer;
+      color: #dbeafe;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .showcase-debug-details summary:focus-visible {
+      outline: 3px solid #e06f2f;
+      outline-offset: 2px;
+    }
+
+    .showcase-debug-events {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .showcase-debug-event {
+      border: 1px solid rgba(203, 213, 223, 0.18);
+      border-radius: 6px;
+      padding: 7px;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 12px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .showcase-debug-event strong {
+      display: block;
+      margin-bottom: 2px;
+      color: #f8fafc;
+    }
+
+    .showcase-debug-event span {
+      display: block;
+      color: #9fb0bf;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+    }
+
     .showcase-keyboard {
       box-sizing: border-box;
       border: 1px solid var(--shell-border, #cbd5df);
@@ -961,6 +1159,19 @@
       min-width: 260px;
     }
 
+    .profile-landscape_compact .showcase-debug-panel,
+    .profile-portrait_compact .showcase-debug-panel,
+    .profile-portrait_standard .showcase-debug-panel {
+      position: fixed;
+      top: 74px;
+      right: 8px;
+      bottom: 8px;
+      width: min(360px, calc(100vw - 16px));
+      min-width: 0;
+      max-width: none;
+      z-index: 8;
+    }
+
     .profile-portrait_compact .showcase-shell,
     .profile-portrait_standard .showcase-shell {
       min-height: 520px;
@@ -970,6 +1181,11 @@
     .profile-portrait_standard .showcase-service {
       min-height: 62px;
       align-items: flex-start;
+    }
+
+    .profile-portrait_compact .showcase-debug-panel,
+    .profile-portrait_standard .showcase-debug-panel {
+      top: 68px;
     }
 
     .profile-portrait_compact .showcase-brand,
@@ -1363,6 +1579,7 @@
         orientation: "landscape",
         profile: "landscape_standard"
       };
+      var showcaseDebugState = createShowcaseDebugState();
 
       installShowcaseApiStub();
 
@@ -1380,18 +1597,23 @@
           api.lastCatalogResultJson = "";
         }
         api.receiveCatalog = function (catalogJson) {
+          pushShowcaseDebugEvent("receiveCatalog()", "direct JS call");
           return receiveShowcaseCatalog(catalogJson, "direct");
         };
         api.getRuntimeInfo = function () {
+          pushShowcaseDebugEvent("getRuntimeInfo()", "called");
           return getShowcaseRuntimeInfo();
         };
         api.getCatalogStatusJson = function () {
+          pushShowcaseDebugEvent("getCatalogStatusJson()", "called");
           return getShowcaseCatalogStatusJson();
         };
         api.getCatalogStatus = function () {
+          pushShowcaseDebugEvent("getCatalogStatus()", "called");
           return cloneForApi(getCurrentShowcaseCatalogStatus());
         };
         api.clearCatalog = function () {
+          pushShowcaseDebugEvent("clearCatalog()", "called");
           return clearShowcaseCatalog();
         };
         window.Showcase = api;
@@ -1450,6 +1672,103 @@
         };
       }
 
+      function createShowcaseDebugState() {
+        return {
+          bootedAt: nowIso(),
+          lastInbound: null,
+          lastResult: null,
+          events: []
+        };
+      }
+
+      function pushShowcaseDebugEvent(type, detail) {
+        if (!showcaseDebugState) {
+          return;
+        }
+        showcaseDebugState.events.push({
+          at: nowIso(),
+          type: String(type || "event"),
+          detail: String(detail || "")
+        });
+        while (showcaseDebugState.events.length > 50) {
+          showcaseDebugState.events.shift();
+        }
+        refreshShowcaseDebugPanel();
+      }
+
+      function makeShowcaseInboundDebug(catalogJson, deliveryMode) {
+        var text = catalogPayloadToDebugText(catalogJson);
+        return {
+          receivedAt: nowIso(),
+          deliveryMode: deliveryMode || "direct",
+          payloadType: Array.isArray(catalogJson) ? "array" : typeof catalogJson,
+          payloadChars: text.length,
+          rawPreview: clipDebugText(text, 8192),
+          rawTruncated: text.length > 8192,
+          parseOk: false,
+          source: "",
+          contractVersion: "",
+          catalogId: "",
+          groupsInput: "",
+          productsInput: "",
+          errors: []
+        };
+      }
+
+      function catalogPayloadToDebugText(value) {
+        if (typeof value === "string") {
+          return value;
+        }
+        try {
+          return JSON.stringify(value, null, 2);
+        } catch (e) {
+          return safeJsonStringify(value);
+        }
+      }
+
+      function clipDebugText(text, limit) {
+        var value = String(text || "");
+        var max = limit || 8192;
+        if (value.length <= max) {
+          return value;
+        }
+        return value.substring(0, max) + "\n... truncated ...";
+      }
+
+      function updateShowcaseInboundDebug(info, catalog, errors) {
+        if (!info) {
+          return;
+        }
+        info.parseOk = !!catalog;
+        if (catalog && typeof catalog === "object" && !Array.isArray(catalog)) {
+          info.source = trimCatalogString(catalog.source);
+          info.contractVersion = trimCatalogString(catalog.contractVersion);
+          info.catalogId = trimCatalogString(catalog.catalogId);
+          info.groupsInput = Array.isArray(catalog.groups) ? catalog.groups.length : "not-array";
+          info.productsInput = Array.isArray(catalog.products) ? catalog.products.length : "not-array";
+        }
+        info.errors = Array.isArray(errors) ? errors.slice(0, 40) : [];
+        showcaseDebugState.lastInbound = info;
+        pushShowcaseDebugEvent("catalog input", "mode=" + info.deliveryMode + ", chars=" + info.payloadChars);
+      }
+
+      function setShowcaseDebugResult(result) {
+        var status = makeCatalogResult(result);
+        showcaseDebugState.lastResult = status;
+        pushShowcaseDebugEvent(status.ok ? "catalog applied" : "catalog rejected", "catalogId=" + (status.catalogId || "-") + ", errors=" + status.errors.length);
+      }
+
+      function refreshShowcaseDebugPanel() {
+        var panel;
+        if (!showcaseState || showcaseState.debugPanelOpen !== true) {
+          return;
+        }
+        panel = byId("showcase-debug-panel");
+        if (panel && typeof panel.outerHTML === "string") {
+          panel.outerHTML = renderShowcaseDebugPanel();
+        }
+      }
+
       function countBaseMockProducts() {
         var count = 0;
         var i;
@@ -1463,10 +1782,13 @@
 
       function receiveShowcaseCatalog(catalogJson, deliveryMode) {
         var pendingResult;
+        var inboundDebug = makeShowcaseInboundDebug(catalogJson, deliveryMode || "direct");
+        pushShowcaseDebugEvent("receiveCatalog route", "mode=" + (deliveryMode || "direct"));
         if (!showcaseRuntimeReady || !showcaseState) {
           if (window.Showcase && typeof window.Showcase === "object") {
             window.Showcase.pendingCatalog = catalogJson;
           }
+          updateShowcaseInboundDebug(inboundDebug, null, ["showcase-not-ready"]);
           pendingResult = makeCatalogResult({
             ok: false,
             pending: true,
@@ -1514,6 +1836,7 @@
 
       function normalizeShowcaseCatalog(catalogJson, deliveryMode) {
         var errors = [];
+        var inboundDebug = makeShowcaseInboundDebug(catalogJson, deliveryMode || "direct");
         var catalog = parseCatalogPayload(catalogJson, errors);
         var rootCurrency;
         var rootCatalogId;
@@ -1533,6 +1856,7 @@
             productsSkipped: 0,
             errors: errors
           });
+          updateShowcaseInboundDebug(inboundDebug, catalog, errors);
           return { result: result, groups: [], products: [] };
         }
         rootCurrency = trimCatalogString(catalog.currency);
@@ -1549,6 +1873,7 @@
             productsSkipped: Array.isArray(catalog.products) ? catalog.products.length : 0,
             errors: errors
           });
+          updateShowcaseInboundDebug(inboundDebug, catalog, errors);
           return { result: result, groups: [], products: [] };
         }
         groups = normalizeCatalogGroups(catalog.groups, groupById, errors);
@@ -1565,6 +1890,7 @@
           deliveryMode: deliveryMode || "direct",
           errors: errors
         });
+        updateShowcaseInboundDebug(inboundDebug, catalog, errors);
         return { result: result, groups: groups, products: products };
       }
 
@@ -1795,6 +2121,7 @@
 
       function setShowcaseCatalogStatus(result) {
         showcaseCatalogStatus = makeCatalogResult(result);
+        setShowcaseDebugResult(showcaseCatalogStatus);
         syncShowcaseApiStatus();
         writeCatalogResultMailbox();
         return showcaseCatalogStatus;
@@ -1871,6 +2198,7 @@
           return;
         }
         showcaseMailboxSignature = signature;
+        pushShowcaseDebugEvent("mailbox update", "chars=" + String(text.length));
         receiveShowcaseCatalog(text, "dom-mailbox");
       }
 
@@ -3249,6 +3577,7 @@
         initShowcaseState();
         showcaseRuntimeReady = true;
         syncShowcaseApiStatus();
+        pushShowcaseDebugEvent("showcase ready", "mode=" + appMode);
         renderShowcase();
         startShowcaseMailboxWatcher();
         applyInitialShowcaseCatalogs();
@@ -3263,6 +3592,7 @@
       }
 
       function initShowcaseState() {
+        var debugPanelOpen = showcaseState && showcaseState.debugPanelOpen === true;
         showcaseState = {
           screen: "idle",
           previousScreen: "shopping",
@@ -3282,7 +3612,8 @@
           paymentMethod: "",
           paymentStatus: "idle",
           modalMessage: "",
-          mockReceipt: null
+          mockReceipt: null,
+          debugPanelOpen: debugPanelOpen
         };
       }
 
@@ -3421,6 +3752,7 @@
 
       function renderShowcaseHeader() {
         var checked = showcaseState.editMode ? " checked" : "";
+        var debugChecked = showcaseState.debugPanelOpen ? " checked" : "";
         return ''
           + '<header class="showcase-service">'
           + '<div class="showcase-brand">1C HTML Shell</div>'
@@ -3432,12 +3764,128 @@
           + themeOption("light", "Светлая") + themeOption("dark", "Тёмная") + themeOption("graphite", "Графитовая") + themeOption("coffee", "Тёплая кофейная") + themeOption("retail", "Яркая retail")
           + '</select>'
           + '<label class="showcase-edit-toggle"><input id="showcase-edit-toggle" type="checkbox" data-action="edit-toggle"' + checked + '> Режим редактирования</label>'
+          + '<label class="showcase-debug-toggle"><input id="showcase-debug-toggle" type="checkbox" data-action="debug-toggle"' + debugChecked + '> Debug 1C</label>'
           + '</div>'
           + '</header>';
       }
 
       function themeOption(value, label) {
         return '<option value="' + escapeHtml(value) + '"' + (showcaseState.theme === value ? " selected" : "") + '>' + escapeHtml(label) + '</option>';
+      }
+
+      function renderShowcaseDebugPanel() {
+        var runtimeMethods = [];
+        var api = window.Showcase && typeof window.Showcase === "object" ? window.Showcase : null;
+        var status = showcaseDebugState.lastResult || getCurrentShowcaseCatalogStatus();
+        var inbound = showcaseDebugState.lastInbound;
+        var html = '';
+        if (api && typeof api.getRuntimeInfo === "function") {
+          runtimeMethods.push("getRuntimeInfo");
+        }
+        if (api && typeof api.receiveCatalog === "function") {
+          runtimeMethods.push("receiveCatalog");
+        }
+        if (api && typeof api.getCatalogStatusJson === "function") {
+          runtimeMethods.push("getCatalogStatusJson");
+        }
+        html += '<aside id="showcase-debug-panel" class="showcase-debug-panel" aria-label="Отладка обмена 1С и HTML">';
+        html += '<div class="showcase-debug-head"><div><h2>1C -> HTML Debug</h2><p>Только просмотр. JSON руками не загружать.</p></div>';
+        html += '<span class="showcase-debug-pill ' + (status.ok ? "ok" : "error") + '">' + escapeHtml(status.ok ? "OK" : "ERROR") + '</span></div>';
+        html += '<div class="showcase-debug-scroll">';
+        html += '<section class="showcase-debug-section"><h3>Runtime</h3>' + renderDebugRows([
+          ["ready", showcaseRuntimeReady],
+          ["mode", appMode],
+          ["window.Showcase", !!api],
+          ["methods", runtimeMethods.length ? runtimeMethods.join(", ") : "-"],
+          ["catalog source", status.source || "-"],
+          ["catalogId", status.catalogId || "-"]
+        ]) + '</section>';
+        html += '<section class="showcase-debug-section"><h3>Last input from 1C</h3>';
+        if (inbound) {
+          html += renderDebugRows([
+            ["receivedAt", inbound.receivedAt],
+            ["deliveryMode", inbound.deliveryMode],
+            ["payloadType", inbound.payloadType],
+            ["payloadChars", inbound.payloadChars],
+            ["parseOk", inbound.parseOk],
+            ["source", inbound.source || "-"],
+            ["contractVersion", inbound.contractVersion || "-"],
+            ["catalogId", inbound.catalogId || "-"],
+            ["groups input", inbound.groupsInput === "" ? "-" : inbound.groupsInput],
+            ["products input", inbound.productsInput === "" ? "-" : inbound.productsInput],
+            ["input errors", inbound.errors && inbound.errors.length ? inbound.errors.join(", ") : "-"]
+          ]);
+          if (inbound.rawPreview) {
+            html += '<details class="showcase-debug-details"><summary>Raw preview, first 8 KB' + (inbound.rawTruncated ? " (truncated)" : "") + '</summary>';
+            html += '<pre class="showcase-debug-code">' + escapeHtml(inbound.rawPreview) + '</pre></details>';
+          }
+        } else {
+          html += '<p class="showcase-debug-empty">Каталог из 1С ещё не приходил. Сейчас показаны mock-данные HTML.</p>';
+        }
+        html += '</section>';
+        html += '<section class="showcase-debug-section"><h3>HTML response</h3>' + renderDebugRows([
+          ["ok", status.ok],
+          ["pending", status.pending === true],
+          ["deliveryMode", status.deliveryMode || "-"],
+          ["groupsAccepted", status.groupsAccepted],
+          ["productsAccepted", status.productsAccepted],
+          ["productsSkipped", status.productsSkipped],
+          ["errors", status.errors && status.errors.length ? status.errors.join(", ") : "-"],
+          ["statusJson", safeJsonStringify(status)]
+        ]) + '</section>';
+        html += '<section class="showcase-debug-section"><h3>Events</h3>' + renderDebugEvents() + '</section>';
+        html += '</div></aside>';
+        return html;
+      }
+
+      function renderDebugRows(rows) {
+        var html = '<div class="showcase-debug-grid">';
+        var i;
+        for (i = 0; i < rows.length; i += 1) {
+          html += '<div class="showcase-debug-key">' + escapeHtml(rows[i][0]) + '</div>';
+          html += '<div class="showcase-debug-value">' + escapeHtml(formatDebugValue(rows[i][1])) + '</div>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      function renderDebugEvents() {
+        var events = showcaseDebugState.events || [];
+        var html;
+        var i;
+        var count = 0;
+        if (!events.length) {
+          return '<p class="showcase-debug-empty">Событий пока нет.</p>';
+        }
+        html = '<ol class="showcase-debug-events">';
+        for (i = events.length - 1; i >= 0 && count < 30; i -= 1) {
+          html += '<li class="showcase-debug-event"><strong>' + escapeHtml(events[i].type) + '</strong><span>' + escapeHtml(events[i].at) + '</span>' + escapeHtml(events[i].detail || "") + '</li>';
+          count += 1;
+        }
+        html += '</ol>';
+        return html;
+      }
+
+      function formatDebugValue(value) {
+        if (value === null) {
+          return "null";
+        }
+        if (typeof value === "undefined" || value === "") {
+          return "-";
+        }
+        if (typeof value === "boolean") {
+          return value ? "true" : "false";
+        }
+        if (typeof value === "number") {
+          return String(value);
+        }
+        if (Array.isArray(value)) {
+          return value.join(", ");
+        }
+        if (typeof value === "object") {
+          return safeJsonStringify(value);
+        }
+        return String(value);
       }
 
       function renderIdleScreen() {
@@ -3454,6 +3902,7 @@
           + '</div>'
           + '<div class="showcase-notice">РМК, реальная оплата, ККТ, фискализация, чек и маркировка не подключены. JSON руками не загружайте.</div>'
           + '</div>'
+          + (showcaseState.debugPanelOpen ? renderShowcaseDebugPanel() : "")
           + '</section>';
       }
 
@@ -3471,6 +3920,9 @@
         }
         html += '</div>';
         html += renderCartPanel("side");
+        if (showcaseState.debugPanelOpen) {
+          html += renderShowcaseDebugPanel();
+        }
         html += '</section>';
         if (showcaseState.cartSheetOpen) {
           html += renderCartPanel("sheet");
@@ -3791,7 +4243,7 @@
         while (target && target !== document) {
           action = target.getAttribute ? target.getAttribute("data-action") : "";
           if (action) {
-            if (action === "theme" || action === "edit-toggle" || action === "density" || action === "card-size" || action === "edit-block") {
+            if (action === "theme" || action === "edit-toggle" || action === "debug-toggle" || action === "density" || action === "card-size" || action === "edit-block") {
               return true;
             }
             runShowcaseAction(action, target);
@@ -3902,6 +4354,9 @@
           showcaseState.theme = value || "light";
         } else if (action === "edit-toggle") {
           showcaseState.editMode = !!checked;
+        } else if (action === "debug-toggle") {
+          showcaseState.debugPanelOpen = !!checked;
+          pushShowcaseDebugEvent("debug panel", showcaseState.debugPanelOpen ? "opened" : "closed");
         } else if (action === "density") {
           showcaseState.cardDensity = value || "standard";
         } else if (action === "card-size") {
