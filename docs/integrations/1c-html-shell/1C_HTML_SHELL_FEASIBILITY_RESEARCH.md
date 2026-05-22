@@ -90,7 +90,7 @@ HTML button tap
 Не надо полагаться на произвольные browser APIs без проверки. Надежнее сначала проверить два транспорта:
 
 - `href` command transport: `oneshell://command/<encoded-json>`;
-- DOM mailbox transport: hidden textarea/div with JSON + synthetic click/link event.
+- DOM mailbox transport: hidden textarea/div with JSON + synthetic click/link event. Это транспорт между 1С и HTML, не пользовательский import UI и не ручная вставка каталога.
 
 ## 1C -> HTML JavaScript Calls
 

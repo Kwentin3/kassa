@@ -1,431 +1,211 @@
 ﻿# 1C Showcase Catalog Adaptation Plan
 
-Дата: 2026-05-21
-Статус: план первого перехода от mock-каталога к каталогу 1С; runtime API первого среза реализован в `public/diagnostics/1c-html-shell/index.html`
+Дата: 2026-05-22
+Статус: план Slice 1, runtime API уже реализован в `public/diagnostics/1c-html-shell/index.html`
 
 ## Цель
 
-Адаптировать существующую HTML-витрину так, чтобы mock-группы и mock-карточки товаров можно было заменить безопасным JSON-каталогом из 1С.
+Заменить mock-группы и mock-товары HTML-витрины безопасным каталогом из 1С.
 
-Первый срез не делает production-кассу. HTML пока только отображает витринный каталог и позволяет работать с demo-корзиной на стороне витрины.
+Не меняем кассовый scope:
 
-## Границы владения
+- корзина остаётся HTML/mock;
+- оплата остаётся HTML/mock;
+- чек остаётся HTML/mock;
+- РМК, ККТ, фискализация и маркировка не подключаются;
+- production bridge не проектируется.
 
-| Область | Владелец на этом этапе |
+## Короткая схема
+
+```text
+1С safe catalog JSON
+-> window.Showcase.receiveCatalog(jsonString)
+-> HTML validate/normalize
+-> showcaseCategories/showcaseProducts
+-> renderShowcase()
+```
+
+Запрещённая схема:
+
+```text
+HTML -> база 1С / OData / РМК / чек / оплата / ККТ
+```
+
+## Кто за что отвечает
+
+| Область | Ответственный |
 |---|---|
-| Подготовка безопасного каталога | 1С |
-| Opaque ids для групп/товаров | 1С |
-| Валидация JSON на входе | HTML-витрина |
-| Отображение групп и карточек | HTML-витрина |
-| Placeholder при отсутствии картинки | HTML-витрина |
-| Demo-корзина | HTML-витрина, mock-only |
-| Demo-оплата, чек, ошибки, сотрудник | HTML-витрина, mock-only |
-| Кассовая истина, РМК, чек, ККТ | Не входит в этап |
+| Подготовить безопасный JSON каталога | 1С |
+| Подготовить safe `id` и `groupId` | 1С |
+| Открыть URL в `Поле HTML-документа` | 1С |
+| Вызвать `window.Showcase.receiveCatalog(jsonString)` | 1С |
+| Проверить `getCatalogStatusJson()` | 1С |
+| Создать `window.Showcase` | HTML |
+| Проверить JSON | HTML |
+| Показать группы и товары | HTML |
+| Показать placeholder для `image=null` | HTML |
+| Demo-корзина и demo-оплата | HTML/mock |
+| РМК, чек, ККТ, фискализация | Не входит |
 
-## Boundary contract
+`window.Showcase.*` - это JavaScript-методы HTML-страницы, не методы платформы 1С.
 
-Граница этого этапа:
+## Что уже есть в runtime
+
+В `public/diagnostics/1c-html-shell/index.html` уже есть:
+
+- `mode=diagnostic` и `mode=showcase`;
+- `window.Showcase`;
+- `getRuntimeInfo()`;
+- `receiveCatalog(catalogJson)`;
+- `getCatalogStatusJson()`;
+- `getCatalogStatus()`;
+- `clearCatalog()`;
+- direct JS call path;
+- DOM mailbox fallback;
+- embedded initial catalog hook;
+- валидация и нормализация каталога;
+- placeholder для товара без картинки;
+- запрет manual catalog import UI в showcase.
+
+## Runtime delivery
+
+Каталог в runtime передаётся только нативно из 1С в HTML.
+
+Primary:
 
 ```text
-1С safe catalog JSON -> HTML validate/normalize -> showcaseCategories/showcaseProducts -> render
+1С -> direct JS call -> window.Showcase.receiveCatalog(catalogJsonString)
 ```
 
-Запрещенная граница:
+Fallback:
 
 ```text
-HTML -> база 1С / РМК / чек / оплата / ККТ
+1С -> DOM mailbox -> HTML читает mailbox -> receiveCatalog()
 ```
 
-Контракт данных описан в:
+Last resort:
+
+```text
+1С формирует HTML/макет/строку с embedded catalog и загружает это в Поле HTML-документа
+```
+
+Не делать:
+
+- ручной импорт JSON;
+- вставку JSON в `textarea`;
+- загрузку JSON-файла пользователем;
+- service panel для ручной вставки каталога;
+- HTML-запрос в базу 1С;
+- HTML-запрос в OData как основной путь.
+
+Developer fixture разрешён только для dev/test/autotest.
+
+## Контракт данных
+
+Основной документ:
 
 ```text
 docs/integrations/1c-html-shell/1C_SHOWCASE_CATALOG_DATA_CONTRACT.md
 ```
 
-Handoff для 1С-специалиста:
+Минимально:
 
-```text
-docs/integrations/1c-html-shell/1C_SHOWCASE_CATALOG_DELIVERY_HANDOFF_FOR_1C_SPECIALIST.md
-```
+- root: `contractVersion`, `source`, `generatedAt`, `catalogId`, `currency`, `groups`, `products`;
+- group: `id`, `title`, `sortOrder`, `visible`;
+- product: `id`, `groupId`, `title`, `price`, `currency`, `available`, `visible`, `sortOrder`;
+- `id` и `groupId` - safe display ids, не внутренние ссылки 1С;
+- `image=null` допустимо.
 
-## Non-negotiable Rule
+## Медиа и картинки
 
-Каталог в runtime передается только нативно из 1С в HTML.
-Пользователь не загружает и не вставляет JSON вручную.
+Пауза до отдельного разговора с 1С-специалистами.
 
-## Этап A: Dev fixture / contract smoke, без пользовательского импорта
+- `image=null` - нормальное состояние;
+- HTML показывает placeholder;
+- внутренние ссылки 1С на картинки не передавать;
+- обязательный media delivery path не добавлять;
+- подробный media contract сейчас не развивать.
 
-Цель: проверить adapter и contract validation в dev/test-режиме на sample JSON, не как runtime delivery path.
+## Slice 1
 
-Шаги:
+Входит:
 
-1. Агент готовит или получает sample JSON по контракту `0.1`.
-2. Агент проверяет, что sample не содержит секретов, внутренних ссылок, чеков, оплат, фискальных данных и технических имен регистров/документов.
-3. Sample JSON кладется в репозиторий как developer fixture.
-4. Локальный dev/test adapter валидирует `groups` и `products`, нормализует поля и заполняет `showcaseCategories/showcaseProducts`.
-5. Проверяются группы, товары, карточки, длинные названия, отсутствие картинок, сортировка, видимость и доступность.
-6. Корзина, оплата, чек, ошибки и сотрудник остаются mock-only.
+- диагностическая страница;
+- `mode=diagnostic` / `mode=showcase`;
+- mock-витрина;
+- visual contract;
+- `window.Showcase.receiveCatalog()`;
+- отображение групп и товаров из безопасного каталога 1С;
+- status через `getCatalogStatusJson()`;
+- DOM mailbox fallback;
+- demo-корзина HTML/mock;
+- demo-оплата HTML/mock.
 
-Разрешенный путь fixture:
+Не входит:
 
-```text
-docs/integrations/1c-html-shell/fixtures/showcase-catalog.1c.sample.json
-```
-
-Правила:
-
-- fixture не является пользовательским сценарием;
-- fixture не является способом runtime-доставки для 1С-программиста;
-- fixture не должен требовать ручной загрузки в HTML;
-- fixture можно использовать только локально в dev/test или как sample формата;
-- HTML runtime не должен запрашивать у человека JSON;
-- первый реальный runtime path остается direct JS call или DOM mailbox со стороны 1С.
-
-Минимальная реализация adapter:
-
-```text
-parseCatalogJson(input)
-validateCatalog(catalog)
-normalizeCatalog(catalog)
-applyCatalog(normalizedCatalog)
-renderShowcase()
-```
-
-Acceptance для этапа A:
-
-- dev/test run заменяет mock-группы группами из fixture;
-- dev/test run заменяет mock-товары товарами из fixture;
-- пустой `image` дает placeholder;
-- длинные названия не ломают карточку;
-- `visible=false` не показывается;
-- `available=false` не показывается;
-- товар без валидной цены не показывается;
-- товар с неизвестным `groupId` не показывается;
-- большой список товаров scrollится внутри `productGrid`;
-- demo-корзина продолжает работать только на стороне HTML;
-- mock-оплата и mock-чек не стали реальными.
-
-## Этап B: receiveCatalog() из 1С через direct JS call
-
-Цель: принять каталог из 1С через основной runtime path.
-
-Минимальный JS API:
-
-```js
-window.Showcase.receiveCatalog(catalogJson)
-```
-
-Runtime path:
-
-```text
-1С -> Document.defaultView -> window.Showcase.receiveCatalog(catalogJson)
-```
-
-Правила:
-
-- `catalogJson` может быть объектом или JSON-строкой;
-- функция валидирует root, groups, products;
-- функция не вызывает РМК и не отправляет кассовые команды;
-- при успехе заменяет текущий каталог и вызывает rerender;
-- при ошибке сохраняет последний валидный каталог или показывает buyer-safe пустой каталог;
-- технические ошибки доступны только диагностически, не покупателю;
-- функция возвращает короткий результат для 1С.
-
-Рекомендуемый результат:
-
-```json
-{
-  "ok": true,
-  "catalogId": "showcase-default",
-  "groupsAccepted": 7,
-  "productsAccepted": 120,
-  "productsSkipped": 3,
-  "errors": []
-}
-```
-
-Пример ошибки:
-
-```json
-{
-  "ok": false,
-  "catalogId": null,
-  "groupsAccepted": 0,
-  "productsAccepted": 0,
-  "productsSkipped": 0,
-  "errors": [
-    "contractVersion is unsupported",
-    "products[12].price is missing"
-  ]
-}
-```
-
-Важное ограничение: `window.Showcase.receiveCatalog()` не является production bridge командой. Это inbound catalog update для витринного UI. Его нельзя смешивать с `cart.addProduct`, `payment.startCard`, `receipt.getStatus` и аналогичными кассовыми командами.
-
-Acceptance для этапа B:
-
-- 1С может вызвать `window.Showcase.receiveCatalog(catalogJson)`;
-- HTML принимает и валидирует payload;
-- каталог заменяется без перезагрузки страницы;
-- активная demo-корзина либо очищается, либо сохраняет только строки, чьи `productId` есть в новом каталоге. Для первого среза выбрать очистку корзины при полной замене каталога;
-- buyer-facing UI не показывает stack trace/JSON;
-- mode routing `diagnostic/showcase` не ломается;
-- real payment/receipt/KKT не подключаются.
-
-## Этап C: DOM mailbox native fallback
-
-Цель: сохранить native 1С -> HTML delivery, если direct JS call недоступен или не возвращает стабильный результат.
-
-Схема:
-
-```text
-1С записывает catalog JSON в согласованный скрытый DOM-узел
-HTML считывает узел
-HTML вызывает receiveCatalog(catalogJson)
-HTML пишет result в согласованный result DOM-узел
-1С читает result
-```
-
-Правила:
-
-- DOM mailbox заполняет только 1С;
-- пользователь не вставляет JSON;
-- HTML не открывает file picker;
-- HTML не показывает UI для импорта каталога пользователем;
-- mailbox является fallback транспортом, а не новым контрактом каталога;
-- результат применения каталога должен быть доступен 1С через result node или `getCatalogStatus()`.
-
-Acceptance для этапа C:
-
-- direct JS call можно отключить/не использовать;
-- 1С записывает JSON в agreed DOM node;
-- HTML применяет каталог через тот же `receiveCatalog()` path;
-- invalid catalog не ломает UI;
-- result фиксируется для 1С;
-- реальная кассовая логика не подключается.
-
-## Этап D: HTML reload with embedded catalog by 1С
-
-Цель: last-resort native fallback, если direct JS call и DOM mailbox не прошли на целевой версии 1С.
-
-Схема:
-
-```text
-1С формирует HTML text / макет / строку с embedded catalog
-1С загружает это в Поле HTML-документа
-HTML применяет initial catalog при boot
-```
-
-Правила:
-
-- embedded catalog формирует только 1С автоматически;
-- пользователь не вставляет JSON;
-- этот путь сбрасывает состояние витрины;
-- использовать только как last resort;
-- не использовать для будущей частой синхронизации.
-
-Acceptance для этапа D:
-
-- каталог применен при загрузке HTML;
-- состояние mock-корзины сброшено;
-- отсутствует ручной пользовательский импорт;
-- real payment/receipt/KKT не подключаются.
-
-## Этап E: будущая синхронизация
-
-Это vNext, не первый срез.
-
-Будущие задачи:
-
-- обновление каталога без полной замены;
-- обновление цен;
-- скрытие товаров;
-- обновление картинок;
-- обработка удаления группы;
-- частичные патчи;
-- версия каталога и stale-state handling;
-- throttling/debounce частых обновлений;
-- отдельная политика для активной demo-корзины при обновлении каталога;
-- отдельный visual smoke на 500+ товаров, если бизнесу нужен большой каталог.
-
-В vNext можно обсудить:
-
-```text
-window.Showcase.receiveCatalogPatch(patchJson)
-window.Showcase.clearCatalog()
-window.Showcase.getCatalogStatus()
-```
-
-Но это не нужно для первого перехода.
-
-## Что НЕ делать на этом этапе
-
-Не подключать:
-
+- production bridge;
+- `cart.addProduct`;
+- `payment.startCard`;
+- `receipt.getStatus`;
 - РМК;
-- реальный чек;
-- оплату;
+- чек;
+- оплата;
 - ККТ;
-- фискализацию;
-- маркировку;
-- production bridge команд `cart.*`, `payment.*`, `receipt.*`;
-- реальные остатки без отдельного решения;
-- production pricing engine;
-- loyalty/discount engine.
+- фискализация;
+- маркировка;
+- media delivery.
 
-Не делать:
+## Slice 2
 
-- HTML-запросы напрямую в базу 1С;
-- HTML-запросы напрямую в OData без отдельного решения;
-- хранение кассовой истины в HTML;
-- расчет финальной кассовой суммы как production-операцию;
-- попытку сделать HTML источником правды по остаткам, оплатам или чекам;
-- раскрытие внутренних ссылок и технических имен 1С в витринный JSON.
+Slice 2 - будущий отдельный этап:
 
-## Правила валидации для реализации
+- Diagnostic Loader;
+- bridge probe;
+- полноценная проверка HTML ↔ 1С;
+- позже production bridge.
 
-Выбранные правила первого среза:
+`receiveCatalog()` не является Slice 2 production bridge. Это inbound catalog update для витринного UI в Slice 1.
 
-| Случай | Поведение |
-|---|---|
-| `groupId` товара не найден | Товар не показывать |
-| `price` отсутствует | Товар не показывать |
-| `price` не число | Товар не показывать |
-| `title` пустой | Товар не показывать |
-| `image` битая/null | Placeholder |
-| `visible=false` | Не показывать |
-| `available=false` | Не показывать в первом срезе |
-| Данных слишком много | Scroll внутри `productGrid`, без global horizontal scroll |
-| Каталог полностью invalid | Сохранить последний валидный каталог или показать пустое buyer-safe состояние |
+## Проверки для 1С-специалиста
 
-Если позже бизнес захочет показывать недоступные товары серыми карточками, это отдельное UI-решение. В первом срезе скрытие проще и безопаснее.
+Минимальный набор:
 
-## Тесты и проверки
-
-Минимальная проверка после реализации этапа A:
-
-- `node --check` для inline script, если менялся `index.html`;
-- локальный smoke `mode=showcase`;
-- переключение категорий;
-- поиск по `title/shortTitle`;
-- карточка без картинки;
-- длинное название;
-- 100 товаров или developer fixture с большим числом товаров;
-- добавление доступного товара в demo-корзину;
-- проверка, что `requiresStaff` и `ageRestrictedMock` открывают mock-сотрудника;
-- проверка, что `available=false` не показан;
-- mock-оплата остается demo-only.
-
-Минимальная проверка после реализации этапа B:
-
-- вызов `window.Showcase.receiveCatalog(sampleCatalogJson)` со стороны 1С;
-- повторный native вызов с новым каталогом;
-- invalid catalog не ломает UI;
-- query params и `mode=showcase` сохраняются;
-- нет вызовов РМК/оплаты/ККТ.
-
-Минимальная проверка после реализации этапа C:
-
-- 1С записывает JSON в agreed DOM mailbox node;
-- HTML применяет каталог через `receiveCatalog()`;
-- result доступен 1С;
-- пользователь не вставляет JSON;
-- нет вызовов РМК/оплаты/ККТ.
-
-Минимальная проверка после реализации этапа D:
-
-- 1С загружает HTML с embedded catalog;
-- каталог применен на boot;
-- состояние витрины сброшено ожидаемо;
-- пользователь не вставляет JSON;
-- нет вызовов РМК/оплаты/ККТ.
-
-## Вопросы к 1С-программисту
-
-1. Из какого справочника берем группы?
-2. Это группы номенклатуры или отдельный справочник витрины?
-3. Нужна ли вложенность групп?
-4. Какие товары должны попадать в витрину?
-5. Как определить `visible=true`?
-6. Как определить `available=true`?
-7. Откуда брать цену?
-8. Цена уже финальная для покупателя или требует расчета?
-9. Есть ли картинки товаров?
-10. Если картинок нет, можно ли пока использовать placeholder?
-11. Нужно ли передавать штрихкод?
-12. Нужно ли передавать единицу измерения?
-13. Нужны ли товары, требующие сотрудника?
-14. Нужны ли возрастные ограничения как mock-флаг?
-15. Как сортировать группы и товары?
-16. Как часто каталог должен обновляться?
-17. Можно ли сформировать отдельные opaque ids, не совпадающие с внутренними ссылками 1С?
-18. Какой максимальный ожидаемый размер первого каталога: группы, товары, JSON size?
-19. Нужен ли отдельный признак витринной публикации товара?
-20. Должны ли товары без цены попадать в выгрузку или отбрасываться на стороне 1С?
-
-## Минимальные данные первой JSON-выгрузки
-
-Для первой проверки 1С должна выгрузить:
-
-Root:
-
-- `contractVersion`;
-- `source`;
-- `generatedAt`;
-- `catalogId`;
-- `currency`;
-- `groups`;
-- `products`.
-
-Для каждой группы:
-
-- `id`;
-- `title`;
-- `sortOrder`;
-- `visible`;
-- `parentId: null`, если вложенность пока не используется;
-- `image: null`;
-- `icon: null`.
-
-Для каждого товара:
-
-- `id`;
-- `groupId`;
-- `title`;
-- `price`;
-- `currency`;
-- `available`;
-- `visible`;
-- `sortOrder`;
-- `shortTitle`, если есть;
-- `image: null`, если картинки пока не готовы;
-- `badges: []`, если бейджей пока нет;
-- `requiresStaff: false`, если нет такого признака;
-- `ageRestrictedMock: false`, если нет такого mock-сценария;
-- `barcode`, если 1С-программист считает его безопасным и нужным для ближайшего поиска;
-- `unit`, если важно для отображения.
-
-Минимальный объем developer fixture для проверки:
-
-- 5-8 групп;
+- маленький каталог: 2 группы / 5 товаров;
 - 20-50 товаров;
-- минимум один товар без картинки;
-- минимум один товар с длинным названием;
-- минимум один товар с бейджем;
-- минимум один товар `available=false`, чтобы проверить скрытие;
-- минимум один товар `visible=false`, чтобы проверить скрытие;
-- минимум один товар с `requiresStaff=true`, если такой сценарий нужен в демо;
-- минимум один товар с `ageRestrictedMock=true`, если такой сценарий нужен в демо;
-- 80-120 товаров отдельной тестовой выгрузкой для проверки scroll/layout, если реальный каталог может быть большим.
+- 100 товаров;
+- кириллица;
+- длинные названия;
+- `image=null`;
+- `visible=false`;
+- `available=false`;
+- invalid JSON;
+- товар с неизвестным `groupId`;
+- товар без `price`;
+- payload size;
+- direct return value;
+- `getCatalogStatusJson()`;
+- DOM mailbox fallback.
 
-## Критерий готовности этапа
+Зафиксировать:
 
-Этап считается подготовленным, когда понятно:
+- direct JS call работает или нет;
+- return value доступен или нет;
+- какой максимальный payload прошёл стабильно;
+- понадобился ли DOM mailbox fallback;
+- вернулся ли `ok=true`;
+- сколько групп и товаров принято;
+- какие ошибки вернулись;
+- скриншот витрины после применения каталога.
 
-- какие mock-данные текущей витрины заменяются;
-- какой JSON должна дать 1С;
-- какие поля обязательны;
-- как витрина отображает реальные группы и товары;
-- как обрабатываются отсутствующие картинки, длинные названия и скрытые товары;
-- что корзина, оплата, чек, ошибки и сотрудник остаются mock;
-- что РМК, ККТ, фискализация, маркировка и production bridge не входят в этот этап.
+## Acceptance
+
+Готово, если:
+
+- 1С открывает URL `mode=showcase`;
+- `window.Showcase.getRuntimeInfo()` возвращает `ready=true`;
+- 1С вызывает `receiveCatalog(jsonString)`;
+- HTML заменяет группы и товары без перезагрузки;
+- `getCatalogStatusJson()` возвращает статус;
+- manual JSON import отсутствует;
+- картинок может не быть, placeholder работает;
+- РМК, чек, оплата, ККТ и фискализация не подключены.

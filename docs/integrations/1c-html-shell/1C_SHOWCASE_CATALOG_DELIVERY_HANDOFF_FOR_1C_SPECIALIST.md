@@ -1,124 +1,188 @@
-﻿# Handoff: передача каталога 1С в HTML-витрину
+﻿# Handoff: передача каталога из 1С в HTML-витрину
 
-## 1. Что мы хотим
+Дата: 2026-05-22
+Статус: рабочая памятка Slice 1
 
-Нужно, чтобы 1С передала HTML-витрине список групп и товаров для отображения на экране самообслуживания.
+## Коротко
 
-HTML-витрина:
+1С:
 
-- не ходит в базу 1С;
-- не читает OData;
-- не получает внутренние ссылки объектов 1С;
-- принимает только безопасный JSON витрины;
-- рисует группы и карточки товаров;
-- не выполняет РМК, оплату, ККТ, чек, фискализацию и маркировку.
+- открывает URL витрины в `Поле HTML-документа`;
+- ждёт загрузки страницы;
+- получает доступ к HTML `window`;
+- формирует безопасную JSON-строку каталога;
+- вызывает `window.Showcase.receiveCatalog(jsonString)`;
+- проверяет результат через `window.Showcase.getCatalogStatusJson()`.
 
-Каталог в runtime передаётся только нативно из 1С в HTML. Пользователь не загружает и не вставляет JSON вручную.
+HTML:
 
-## 2. Общая схема
+- создаёт `window.Showcase`;
+- объявляет `getRuntimeInfo()`, `receiveCatalog()`, `getCatalogStatusJson()`;
+- принимает JSON-строку;
+- проверяет каталог;
+- заменяет группы и товары;
+- перерисовывает витрину;
+- сохраняет статус последней загрузки.
 
-1С открывает HTML-витрину:
-
-```text
-https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase&runId=<id>&terminalLabel=<label>
-```
-
-1С ждёт готовности страницы.
-
-1С формирует JSON каталога.
-
-1С вызывает:
-
-```javascript
-window.Showcase.receiveCatalog(catalogJsonString)
-```
-
-HTML проверяет каталог, применяет его и перерисовывает витрину.
-
-1С получает статус:
-
-```javascript
-window.Showcase.getCatalogStatusJson()
-```
-
-## 3. Что открыть
-
-URL:
+Самая короткая версия:
 
 ```text
-https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase&runId=<id>&terminalLabel=<label>
+Открыть URL - делает 1С.
+window.Showcase - создаёт HTML.
+receiveCatalog(jsonString) - вызывает 1С, но метод живёт в HTML.
+JSON каталога - формирует 1С.
+Отрисовку карточек - делает HTML.
+РМК, чек, оплата, ККТ - не участвуют.
 ```
 
-`runId` и `terminalLabel` задаёт сторона 1С. HTML-витрина не генерирует эти значения и не проверяет по ним права.
+## Важное уточнение терминов
 
-Эти параметры нужны только как correlation labels: по ним команда может понять, какой терминал открыл витрину и с каким запуском связаны статус, лог, скриншот или результат `getCatalogStatusJson()`.
+`window.Showcase.*` - это **не нативные методы 1С**.
 
-`runId` - идентификатор конкретного запуска. В рабочем spike лучше делать его уникальным, например:
+Это JavaScript-методы, которые живут внутри HTML-страницы.
+
+Правильная цепочка:
 
 ```text
-catalog-20260521-153000-kiosk-01
+Поле HTML-документа
+-> Документ
+-> window / defaultView
+-> window.Showcase
+-> getRuntimeInfo()
+-> receiveCatalog()
+-> getCatalogStatusJson()
 ```
 
-В простом тесте можно поставить любое безопасное значение, например:
+Правильная формулировка:
+
+> 1С нативно открывает HTML-страницу и получает доступ к объекту `window` этой страницы. Методы `window.Showcase.*` создаются нашей HTML-витриной и вызываются из 1С через `Поле HTML-документа`.
+
+Не пишем и не говорим так, будто `Showcase` - штатный API платформы 1С.
+
+## URL
+
+Открывать:
 
 ```text
-runId=1
+https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase&runId=<safe-run-id>&terminalLabel=<safe-terminal-label>
 ```
 
-`terminalLabel` - стабильная безопасная метка терминала или рабочего места, например:
+`runId` и `terminalLabel` - только безопасные метки для связи скриншота, статуса и журнала. Это не авторизация и не секрет.
+
+Не передавайте в URL токены, пароли, строки подключения, ФИО, телефоны, e-mail, внутренние ссылки 1С или коммерческие данные клиента.
+
+## Псевдокод 1С
+
+Это структура действий, не универсальный готовый BSL. Имена формы, события загрузки и доступность `defaultView` проверяет 1С-специалист на целевой версии платформы.
 
 ```text
-terminalLabel=kiosk-01
+HTMLПоле.ОткрытьURL(
+  "https://kassa.speechbattle.com/diagnostics/1c-html-shell?mode=showcase"
+)
+
+ДокументHTML = HTMLПоле.Документ
+ОкноHTML = ДокументHTML.defaultView
+
+Инфо = ОкноHTML.Showcase.getRuntimeInfo()
+
+Если Инфо.ready = Истина Тогда
+    JSONКаталога = СформироватьКаталогJSON()
+    ОкноHTML.Showcase.receiveCatalog(JSONКаталога)
+    СтатусJSON = ОкноHTML.Showcase.getCatalogStatusJson()
+КонецЕсли
 ```
 
-В простом тесте можно поставить:
+Если `defaultView` или прямой вызов метода недоступны, используйте DOM mailbox fallback ниже. `parentWindow` может быть только legacy fallback, не основной путь.
+
+## Псевдокод HTML
+
+```js
+window.Showcase = {
+  ready: false,
+
+  getRuntimeInfo: function () {
+    return {
+      ready: true,
+      mode: "showcase"
+    };
+  },
+
+  receiveCatalog: function (catalogJsonString) {
+    var catalog = JSON.parse(catalogJsonString);
+    validateCatalog(catalog);
+    applyCatalog(catalog);
+    renderShowcase();
+
+    this.lastCatalogStatus = {
+      ok: true,
+      groupsAccepted: catalog.groups.length,
+      productsAccepted: catalog.products.length
+    };
+  },
+
+  getCatalogStatusJson: function () {
+    return JSON.stringify(this.lastCatalogStatus);
+  }
+};
+```
+
+Фактическая реализация уже находится в:
 
 ```text
-terminalLabel=1
+public/diagnostics/1c-html-shell/index.html
 ```
 
-Это не cookie, не авторизация и не секрет. Это явная подпись/correlation id в URL, которую 1С сама подставляет при открытии витрины.
+## Runtime delivery
 
-Не передавайте в `runId` и `terminalLabel` секреты, токены, строки подключения, внутренние ссылки 1С, ФИО, телефоны, e-mail или коммерческие данные клиента.
+Каталог в runtime передаётся только нативно из 1С в HTML.
 
-## 4. Когда передавать каталог
+Разрешено:
 
-Сначала дождитесь события формирования/загрузки HTML-документа в Поле HTML-документа.
+```text
+Primary:
+1С -> direct JS call -> window.Showcase.receiveCatalog(catalogJsonString)
 
-Затем проверьте публичный API:
+Fallback:
+1С -> DOM mailbox -> HTML читает mailbox -> receiveCatalog()
 
-```javascript
-window.Showcase.getRuntimeInfo()
+Last resort:
+1С формирует HTML/макет/строку с embedded catalog и загружает это в Поле HTML-документа
 ```
 
-Каталог передавайте только когда:
+Запрещено:
 
-```json
-{
-  "ready": true,
-  "mode": "showcase"
-}
+- ручная вставка JSON в `textarea`;
+- ручная загрузка JSON-файла пользователем;
+- service panel для ручной вставки JSON;
+- пользовательский manual JSON import;
+- HTML-запрос напрямую в базу 1С;
+- HTML-запрос напрямую в OData как основной путь.
+
+Sample fixture допустим только для dev/test/autotest и как пример формата. Это не пользовательский сценарий и не runtime fallback.
+
+## DOM mailbox fallback
+
+Если direct JS call не работает, 1С может записать JSON в скрытый DOM-узел:
+
+```text
+#showcase-catalog-mailbox
 ```
 
-Если `ready=false`, подождите и проверьте ещё раз. Витрина создаёт ранний `window.Showcase` stub, но применять каталог нужно после готовности runtime.
+Затем 1С меняет атрибут:
 
-## 5. Как передать каталог
-
-Основной способ:
-
-```javascript
-window.Showcase.receiveCatalog(catalogJsonString)
+```text
+data-updated-at
 ```
 
-`catalogJsonString` - строка JSON, которую сформировала 1С. Для 1С-контракта передаём именно строку, не HTML-файл и не ввод пользователя.
+HTML считывает mailbox, вызывает тот же `receiveCatalog()` и пишет результат в:
 
-После вызова можно сразу запросить статус:
-
-```javascript
-window.Showcase.getCatalogStatusJson()
+```text
+#showcase-catalog-result-mailbox
 ```
 
-## 6. В каком виде отдавать данные
+Это всё ещё native 1С -> HTML delivery. Пользователь JSON руками не вставляет.
+
+## Что передать в receiveCatalog()
 
 Root:
 
@@ -168,68 +232,19 @@ Product:
 }
 ```
 
-`id` и `groupId` должны быть opaque string. HTML не должен знать внутренние ссылки объектов 1С.
+`id` и `groupId` - безопасные витринные идентификаторы. Не внутренние ссылки 1С.
 
-## 7. Какие поля обязательны
+Подробный контракт: [`1C_SHOWCASE_CATALOG_DATA_CONTRACT.md`](1C_SHOWCASE_CATALOG_DATA_CONTRACT.md).
 
-Группа:
+## Что вернёт HTML
 
-- `id`;
-- `title`;
-- `sortOrder`;
-- `visible`.
+Проверять:
 
-Товар:
-
-- `id`;
-- `groupId`;
-- `title`;
-- `price`;
-- `currency`;
-- `available`;
-- `visible`;
-- `sortOrder`.
-
-Optional поля товара:
-
-- `shortTitle`;
-- `image`;
-- `badges`;
-- `requiresStaff`;
-- `ageRestrictedMock`;
-- `description`;
-- `barcode`;
-- `unit`;
-- `quantityStep`.
-
-## 8. Что запрещено передавать
-
-Не передавайте в HTML:
-
-- внутренние ссылки объектов 1С;
-- GUID/UUID, если они раскрывают структуру базы;
-- себестоимость;
-- закупочные цены;
-- остатки без отдельного решения;
-- персональные данные;
-- данные чеков;
-- данные оплат;
-- фискальные данные;
-- токены;
-- строки подключения;
-- технические имена регистров/документов;
-- служебные комментарии сотрудников;
-- коммерческие внутренние данные клиента.
-
-## 9. Что HTML вернёт
-
-После передачи каталога вызовите:
-
-```javascript
+```text
 window.Showcase.getCatalogStatusJson()
 ```
 
-Пример ответа:
+Пример:
 
 ```json
 {
@@ -244,102 +259,78 @@ window.Showcase.getCatalogStatusJson()
 }
 ```
 
-Если JSON невалидный, `ok=false`, а текущий валидный каталог на экране не ломается.
+Если JSON невалидный, `ok=false`, а последний валидный каталог не должен ломаться.
 
-## 10. Что считается успехом
+## Slice 1 и Slice 2
 
-Успех:
+Slice 1:
 
-- витрина открылась;
-- `window.Showcase` существует;
-- `getRuntimeInfo()` возвращает `ready=true`;
-- `mode=showcase`;
-- `receiveCatalog()` вызван без ошибки;
-- группы на экране заменились на группы из 1С;
-- товары на экране заменились на товары из 1С;
-- `getCatalogStatusJson()` показывает `ok=true`;
-- РМК, оплата, чек, ККТ и фискализация не затронуты.
+- диагностическая страница;
+- проверка HTML-render/V8WebKit;
+- showcase runtime;
+- `mode=diagnostic` / `mode=showcase`;
+- mock-витрина;
+- visual contract;
+- приём каталога через `window.Showcase.receiveCatalog()`;
+- отображение групп и товаров из безопасного каталога 1С;
+- demo-корзина остаётся HTML/mock;
+- demo-оплата остаётся HTML/mock;
+- РМК не подключён.
 
-## 11. Что делать, если прямой вызов не работает
+Slice 2:
 
-Fallback: DOM mailbox.
+- отдельный будущий этап;
+- проверка полноценного обмена HTML ↔ 1С;
+- Diagnostic Loader / bridge probe;
+- production bridge позже.
 
-1С записывает JSON в скрытый DOM-узел:
+Не путать:
 
-```text
-#showcase-catalog-mailbox
-```
+- `receiveCatalog()` - inbound catalog update для витринного UI;
+- это не production bridge;
+- это не `cart.addProduct`;
+- это не `payment.startCard`;
+- это не `receipt.getStatus`.
 
-Затем 1С меняет атрибут:
+## Медиа и картинки
 
-```text
-data-updated-at
-```
+Тему публикации картинок пока не развиваем.
 
-HTML сам считывает содержимое узла и вызывает тот же `receiveCatalog()`.
+- `image=null` допустимо;
+- HTML показывает placeholder;
+- реальные картинки / media delivery - отдельный будущий вопрос;
+- внутренние ссылки 1С на картинки передавать нельзя;
+- обязательный media delivery path сейчас не добавляется.
 
-Результат HTML пишет в:
+## Что нельзя передавать
 
-```text
-#showcase-catalog-result-mailbox
-```
+Не передавайте в каталог:
 
-Это тоже нативная передача 1С -> HTML. Пользователь не вставляет JSON вручную.
+- внутренние ссылки 1С;
+- GUID/UUID, если раскрывают структуру базы;
+- себестоимость;
+- закупочные цены;
+- остатки без отдельного решения;
+- персональные данные;
+- чеки;
+- оплаты;
+- фискальные данные;
+- токены;
+- строки подключения;
+- технические имена регистров/документов;
+- служебные комментарии сотрудников;
+- коммерческие внутренние данные клиента.
 
-## 12. Что не делать
+## Минимальный чек-лист
 
-Не делать:
-
-- ручной импорт JSON;
-- вставку JSON в textarea;
-- загрузку JSON-файла пользователем;
-- service panel для ручной вставки каталога;
-- HTML-запрос в базу 1С;
-- HTML-запрос в OData как основной путь;
-- передачу внутренних ссылок 1С;
-- вызов `cart.*`, `payment.*`, `receipt.*`;
-- РМК;
-- оплату;
-- ККТ;
-- чек;
-- фискализацию;
-- маркировку.
-
-## 13. Минимальный spike
-
-Проверьте на целевой версии платформы 1С и на целевом клиенте:
-
-- маленький каталог: 2 группы / 5 товаров;
-- каталог 20-50 товаров;
-- каталог 100 товаров;
-- кириллицу;
-- длинные названия;
-- товар без картинки;
-- `visible=false`;
-- `available=false`;
-- invalid catalog;
-- payload size;
-- доступность return value от `receiveCatalog()`;
-- чтение `getCatalogStatusJson()`;
-- DOM mailbox fallback.
-
-Зафиксируйте:
-
-- direct JS call работает или нет;
-- return value доступен или нет;
-- какой максимальный payload прошёл стабильно;
-- понадобился ли DOM mailbox fallback;
-- вернулся ли `ok=true`;
-- сколько групп и товаров принято;
-- какие ошибки вернулись;
-- скриншот витрины после применения каталога.
-
-## 14. Краткая памятка в 7 шагов
-
-1. Откройте URL витрины в Поле HTML-документа.
-2. Дождитесь загрузки документа.
-3. Проверьте `window.Showcase.getRuntimeInfo()`.
-4. Сформируйте JSON каталога по контракту `0.1`.
-5. Вызовите `window.Showcase.receiveCatalog(jsonString)`.
-6. Проверьте `window.Showcase.getCatalogStatusJson()`.
-7. Верните команде статус, ошибки, размер JSON и скриншот витрины.
+- [ ] Открыт URL `mode=showcase` в `Поле HTML-документа`.
+- [ ] `window.Showcase` существует.
+- [ ] `getRuntimeInfo()` возвращает `ready=true` и `mode=showcase`.
+- [ ] 1С сформировала JSON-строку по контракту `0.1`.
+- [ ] Вызван `receiveCatalog(jsonString)`.
+- [ ] Группы и товары на экране заменились.
+- [ ] `getCatalogStatusJson()` вернул `ok=true`.
+- [ ] В статусе есть число принятых групп и товаров.
+- [ ] Товар без картинки показывает placeholder.
+- [ ] Нет ручной вставки JSON пользователем.
+- [ ] РМК, чек, оплата, ККТ и фискализация не затронуты.

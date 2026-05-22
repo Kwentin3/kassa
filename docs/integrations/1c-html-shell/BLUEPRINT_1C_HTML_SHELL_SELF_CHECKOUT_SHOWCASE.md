@@ -17,9 +17,25 @@ Blueprint проектирует демонстрационный showcase runti
 
 Оба режима должны жить в одном совместимом single-file runtime artifact, чтобы не добавлять риск второго bundle, CDN, ES modules или отдельной загрузки CSS/JS внутри V8WebKit.
 
-Showcase работает только на mock-данных. Он показывает UX и визуальную гипотезу HTML-оболочки, но не является production-кассой и не подключает РМК, оплату, ККТ, чек, фискализацию или маркировку.
+Showcase остаётся demo-only по бизнес-логике. В Slice 1 он может принять безопасный каталог из 1С через `window.Showcase.receiveCatalog(jsonString)` и отрисовать группы/товары, но корзина, оплата и чек остаются HTML/mock. Это не production-касса и не подключение РМК, оплаты, ККТ, чека, фискализации или маркировки.
 
 Refine v0.2 поднимает landscape/portrait support из open question в обязательное runtime-требование. Layout engine, zones, visual contract, test matrix и smoke checklist должны быть orientation-aware.
+
+## 0.1. Catalog Delivery Boundary
+
+Каталог в runtime передаётся только нативно из 1С в HTML:
+
+```text
+Primary: 1С -> direct JS call -> window.Showcase.receiveCatalog(catalogJsonString)
+Fallback: 1С -> DOM mailbox -> HTML читает mailbox -> receiveCatalog()
+Last resort: 1С формирует HTML/макет/строку с embedded catalog
+```
+
+`window.Showcase.*` - это JavaScript-методы HTML-страницы, не нативные методы 1С. 1С вызывает их через `Поле HTML-документа -> Документ -> defaultView/window`.
+
+`receiveCatalog()` относится к Slice 1 как inbound catalog update для витринного UI. Это не Slice 2, не production bridge и не кассовая команда.
+
+Медиа/картинки на паузе: `image=null` допустимо, HTML показывает placeholder, внутренние ссылки 1С на картинки не передаются, новый media contract не добавляется без отдельного решения.
 
 ## 1. Scope
 
@@ -36,7 +52,7 @@ Refine v0.2 поднимает landscape/portrait support из open question в 
 - экранную клавиатуру;
 - smoke-checks внутри V8WebKit.
 
-Это не production-касса. Blueprint не проектирует РМК, RMK Adapter, production bridge, реальный чек, оплату, эквайринг, ККТ, фискализацию, маркировку, печать или работу с реальными товарами.
+Это не production-касса. Blueprint не проектирует РМК, RMK Adapter, production bridge, реальный чек, оплату, эквайринг, ККТ, фискализацию, маркировку, печать или кассовую работу с реальными товарами. Безопасный каталог из 1С используется только для отображения витрины.
 
 ## 2. Source Documents
 
@@ -48,6 +64,8 @@ Refine v0.2 поднимает landscape/portrait support из open question в 
 | `BLUEPRINT_1C_HTML_SHELL_DIAGNOSTIC_HARNESS.md` | Текущий diagnostic route, single-file baseline, query params, freshness/no-cache discipline. |
 | `1C_HTML_SHELL_BRIDGE_MANIFEST.md` | Только граница будущего: HTML не источник кассовой истины. Production bridge в этом Blueprint не проектируется. |
 | `SELF_CHECKOUT_SHOWCASE_VISUAL_REFERENCES.md` | Secondary visual reference board. Используется только для композиционных паттернов, UX-ориентиров и анти-паттернов. Не является источником scope, не разрешает копировать чужой дизайн и не отменяет PRD / Blueprint / Runtime Capability Contract. |
+| `1C_SHOWCASE_CATALOG_DELIVERY_HANDOFF_FOR_1C_SPECIALIST.md` | Практический handoff для 1С-специалиста по `receiveCatalog()`. |
+| `1C_SHOWCASE_CATALOG_DATA_CONTRACT.md` | JSON-контракт безопасного витринного каталога. |
 
 ## 2.1. Visual Reference Synthesis
 
@@ -853,7 +871,13 @@ Do not require:
 - service worker/PWA;
 - real RMK/payment/KKT.
 
-## 20. Implementation Slices
+## 20. Historical UI Implementation Slices
+
+Эта таблица описывает старые UI-implementation chunks A-F. Не путать их с интеграционными Slice 1 / Slice 2:
+
+- Slice 1 сейчас включает diagnostic/showcase runtime и `window.Showcase.receiveCatalog()` для входящего каталога.
+- Slice 2 - будущий Diagnostic Loader / bridge probe для полноценного HTML ↔ 1С обмена.
+- `receiveCatalog()` не является production bridge.
 
 | Slice | Scope | Excluded |
 |---|---|---|

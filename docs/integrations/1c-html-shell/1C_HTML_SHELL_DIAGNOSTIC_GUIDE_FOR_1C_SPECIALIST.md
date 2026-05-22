@@ -30,6 +30,13 @@ HTML не должен:
 
 HTML должен только показывать состояние, принимать нажатия пользователя, отправлять намерения в 1С и перерисовывать экран по снимку состояния, который вернула 1С.
 
+Уточнение по каталогу showcase:
+
+- `window.Showcase.receiveCatalog(jsonString)` относится к Slice 1 и нужен только для входящей передачи витринного каталога из 1С в HTML.
+- `window.Showcase.*` - JavaScript-методы HTML-страницы, не нативные методы 1С.
+- `receiveCatalog()` не является Slice 2 bridge, `cart.addProduct`, `payment.startCard` или `receipt.getStatus`.
+- Подробный handoff по каталогу: [`1C_SHOWCASE_CATALOG_DELIVERY_HANDOFF_FOR_1C_SPECIALIST.md`](1C_SHOWCASE_CATALOG_DELIVERY_HANDOFF_FOR_1C_SPECIALIST.md).
+
 ## 2. Зачем нужна диагностическая страница
 
 У команды проекта нет собственной 1С-среды и реального кассового терминала. Поэтому сделана диагностическая web-страница:

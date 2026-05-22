@@ -1067,8 +1067,8 @@
   <main id="diagnostic-page" class="page">
     <section class="hero">
       <h1>Диагностическая страница 1C HTML Shell</h1>
-      <p><strong>Назначение:</strong> открыть эту страницу в обычном браузере или внутри 1С через Поле HTML-документа и получить профиль среды запуска.</p>
-      <p>Профиль показывает, какие возможности HTML, CSS, JavaScript, ввода и прокрутки доступны в этой среде. Он помогает решить, можно ли дальше проектировать покупательскую HTML-оболочку для кассы самообслуживания.</p>
+      <p><strong>Назначение:</strong> проверить, как HTML-страница работает внутри Поля HTML-документа 1С.</p>
+      <p>Страница собирает профиль HTML/CSS/JavaScript, ввода и прокрутки. Режим витрины открывается кнопкой ниже и принимает каталог только от 1С.</p>
       <div class="notice danger">
         <p><strong>Это не касса и не проверка готовности кассы.</strong></p>
         <p>Страница не проверяет РМК, чек, оплату, ККТ, фискализацию, печать и маркировку. Для этого нужны отдельные проверки 1С/RMK Adapter.</p>
@@ -1085,12 +1085,12 @@
     <section class="section" aria-labelledby="legend-title">
       <h2 id="legend-title">Что проверяет инструмент</h2>
       <ul>
-        <li>Отрисовку HTML и базовых CSS-возможностей.</li>
-        <li>Работу простого JavaScript и JSON.</li>
+        <li>Открытие страницы в обычном браузере или Поле HTML-документа 1С.</li>
+        <li>Отрисовку HTML, CSS и работу простого JavaScript.</li>
         <li>Касания, нажатия, фокус поля ввода и прокрутку.</li>
-        <li>Возможность сформировать, скопировать и скачать JSON-отчёт.</li>
+        <li>Формирование диагностического JSON-отчёта.</li>
         <li>Пробную загрузку CSS/JavaScript из встроенного <code>data:</code>-ресурса. Это не доказывает загрузку отдельных файлов по URL.</li>
-        <li>Статус обмена HTML ↔ 1С. Без 1С Diagnostic Loader он будет "Не подключено"; Slice 2 проверяет этот обмен отдельно.</li>
+        <li>Статус обмена HTML ↔ 1С. Без Diagnostic Loader он будет "Не подключено"; это нормально для Slice 1.</li>
       </ul>
       <h3>Что не проверяется</h3>
       <ul>
@@ -1098,6 +1098,22 @@
         <li>Оплата, эквайринг, ККТ, фискализация, печать, маркировка.</li>
         <li>Кассовые права и внутренние процедуры конфигурации 1С.</li>
       </ul>
+    </section>
+
+    <section class="section" aria-labelledby="catalog-delivery-title">
+      <h2 id="catalog-delivery-title">Как 1С передаёт каталог</h2>
+      <ol>
+        <li>1С открывает эту страницу в <code>Поле HTML-документа</code>.</li>
+        <li>HTML создаёт <code>window.Showcase</code>.</li>
+        <li>1С проверяет готовность через <code>getRuntimeInfo()</code>.</li>
+        <li>1С передаёт JSON-строку каталога через <code>receiveCatalog()</code>.</li>
+        <li>HTML отображает группы и товары.</li>
+        <li>1С проверяет результат через <code>getCatalogStatusJson()</code>.</li>
+      </ol>
+      <div class="notice">
+        <p><strong>Важно:</strong> <code>window.Showcase.*</code> - методы HTML-страницы, не штатные методы 1С. 1С вызывает их через <code>Поле HTML-документа → Документ → window/defaultView</code>.</p>
+        <p>Не загружайте JSON руками. Каталог передаёт только 1С. РМК, чек, оплата и ККТ не участвуют.</p>
+      </div>
     </section>
 
     <section class="section" aria-labelledby="summary-title">
@@ -1243,13 +1259,13 @@
 
     <section class="section" aria-labelledby="json-title">
       <h2 id="json-title">JSON-отчёт</h2>
-      <p>Скопируйте JSON и передайте команде проекта. Если кнопка копирования не работает, выделите текст вручную и скопируйте его.</p>
+      <p>Это диагностический отчёт страницы, не каталог товаров. Скопируйте его и передайте команде проекта.</p>
       <!-- TODO backend collector vNext: optional server-side report saving must not replace local copy/download. -->
       <!-- TODO saved report page vNext: add report viewer only after collector access/TTL/delete policy is defined. -->
       <div id="copy-feedback" class="notice">Отчёт готовится.</div>
       <div class="actions">
-        <button id="copy-json" type="button">Скопировать JSON</button>
-        <button id="download-json" type="button" class="secondary">Скачать JSON</button>
+        <button id="copy-json" type="button">Скопировать отчёт</button>
+        <button id="download-json" type="button" class="secondary">Скачать отчёт</button>
       </div>
       <label for="json-report">Содержимое отчёта</label>
       <textarea id="json-report" readonly spellcheck="false"></textarea>
@@ -1258,27 +1274,25 @@
     <!-- TODO real 1C HTML field smoke: run this exact URL inside Поле HTML-документа before using results for FrontShell decisions. -->
     <section class="section" aria-labelledby="guide-title">
       <h2 id="guide-title">Инструкция для 1С-специалиста</h2>
-      <p class="notice">
-        Slice 2 - это следующий отдельный шаг после базовой диагностики: небольшой периметрный диагностический адаптер между HTML-страницей и кодом 1С.
-        Он проверяет только двусторонний обмен HTML → 1С → HTML, а не РМК и не кассовые операции.
-        Подробное задание:
-        <a href="https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md" target="_blank" rel="noopener">1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md</a>.
-        Исходники для самостоятельной сборки внешней обработки:
-        <a href="https://github.com/Kwentin3/kassa/tree/mvp/self-checkout-web-ui/tools/1c-diagnostic-loader" target="_blank" rel="noopener">tools/1c-diagnostic-loader/</a>.
-        Откройте эти материалы в обычном браузере, если Поле HTML-документа 1С не должно уходить со страницы диагностики.
-      </p>
+      <p>Для каталога нужен Slice 1: открыть витрину, дождаться <code>ready</code>, вызвать <code>receiveCatalog(jsonString)</code>, проверить <code>getCatalogStatusJson()</code>.</p>
       <ol>
-        <li>Slice 1: откройте URL этой страницы в форме 1С через Поле HTML-документа и получите базовый JSON-профиль среды.</li>
-        <li>Для повторной проверки передайте новый <code>runId</code>, например: <code>/diagnostics/1c-html-shell?runId=test-001&amp;terminalLabel=test-terminal&amp;v=manual-test</code>.</li>
-        <li><code>runId</code> - метка конкретного запуска диагностики. <code>terminalLabel</code> - безопасная подпись терминала, например номер тестового рабочего места.</li>
-        <li>Если в базовом отчёте указано "Обмен HTML ↔ 1С: Не подключено", это не ошибка. Это значит, что Slice 2 ещё не запускался.</li>
-        <li>Slice 2: соберите или адаптируйте <a href="https://github.com/Kwentin3/kassa/tree/mvp/self-checkout-web-ui/tools/1c-diagnostic-loader" target="_blank" rel="noopener">исходники внешней обработки</a> и подключите их в тестовой базе.</li>
-        <li>Проверьте round-trip: HTML отправляет безопасную команду <code>diag.ping</code>, 1С принимает её и возвращает ответ в HTML с тем же <code>requestId</code>.</li>
-        <li>После Slice 2 передайте команде итоговый JSON, журнал обработки и комментарий, какой транспорт сработал: href/navigation, DOM mailbox, direct JS call или fallback.</li>
-        <li>Готовый файл <code>.epf</code> пока не собран. 1С-специалист собирает внешнюю обработку в своей тестовой базе и проверяет обмен на целевой версии платформы.</li>
-        <li>Не добавляйте в отчёт товары, чеки, суммы покупок, персональные данные, токены, пароли, данные карт, фискальные данные и внутренние ссылки на объекты 1С.</li>
-        <li>Этот тест не проверяет РМК, оплату, ККТ, фискализацию, печать и маркировку.</li>
+        <li>Откройте <code>/diagnostics/1c-html-shell?mode=showcase</code> в форме 1С через <code>Поле HTML-документа</code>.</li>
+        <li>Получите <code>Документ</code>, затем <code>defaultView</code> или доступный аналог <code>window</code>.</li>
+        <li>Вызовите <code>window.Showcase.getRuntimeInfo()</code> и дождитесь <code>ready=true</code>.</li>
+        <li>Сформируйте JSON каталога по контракту <code>0.1</code>. Не передавайте внутренние ссылки 1С, токены, чеки, оплаты и фискальные данные.</li>
+        <li>Вызовите <code>window.Showcase.receiveCatalog(jsonString)</code>.</li>
+        <li>Проверьте <code>window.Showcase.getCatalogStatusJson()</code> и сделайте скриншот витрины.</li>
       </ol>
+      <div class="notice">
+        <p><strong>Slice 1:</strong> диагностика, витрина, mock UI и входящий каталог через <code>receiveCatalog()</code>.</p>
+        <p><strong>Slice 2:</strong> отдельный будущий Diagnostic Loader для проверки HTML ↔ 1С. Он не нужен для ручной вставки каталога и не является РМК.</p>
+      </div>
+      <p>
+        Документы:
+        <a href="https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/1C_SHOWCASE_CATALOG_DELIVERY_HANDOFF_FOR_1C_SPECIALIST.md" target="_blank" rel="noopener">handoff по каталогу</a>,
+        <a href="https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/1C_SHOWCASE_CATALOG_DATA_CONTRACT.md" target="_blank" rel="noopener">контракт JSON</a>,
+        <a href="https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/1C_HTML_SHELL_DIAGNOSTIC_GUIDE_FOR_1C_SPECIALIST.md" target="_blank" rel="noopener">Slice 2 guide</a>.
+      </p>
     </section>
 
     <div id="hidden-probe" class="hidden-probe" aria-hidden="true"></div>
@@ -1288,8 +1302,8 @@
     <div class="showcase-shell theme-light profile-landscape_standard">
       <div class="showcase-idle">
         <div class="showcase-idle-panel">
-          <h1>Демонстрационная витрина кассы самообслуживания</h1>
-          <p>Если вы видите этот текст, JavaScript ещё готовит витрину. Это demo-only интерфейс: РМК, оплата и ККТ не подключены.</p>
+          <h1>HTML-витрина 1С</h1>
+          <p>JavaScript готовит витрину. Каталог передаёт 1С через <code>receiveCatalog()</code>; РМК, оплата и ККТ не подключены.</p>
           <p><a class="showcase-link-button" href="/diagnostics/1c-html-shell?mode=diagnostic">Назад к диагностике</a></p>
         </div>
       </div>
@@ -1334,7 +1348,7 @@
       var lastManualClickAt = 0;
       var query = parseQuery();
       var appMode = getRuntimeMode(query.mode);
-      var SHOWCASE_DEMO_BANNER = "Демо-режим. Данные тестовые. РМК, оплата и ККТ не подключены.";
+      var SHOWCASE_DEMO_BANNER = "Демо-режим. Каталог может прийти из 1С. Корзина, оплата и ККТ не подключены.";
       var SHOWCASE_API_VERSION = "0.1";
       var SHOWCASE_SUPPORTED_CATALOG_VERSION = "0.1";
       var SHOWCASE_MOCK_CATALOG_ID = "mock-default";
@@ -2503,10 +2517,10 @@
           recommendations.push("Не использовать SVG-анимацию.");
         }
         if (fetchStatus !== "supported" && xhrStatus === "supported") {
-          recommendations.push("Для отправки отчёта позже использовать XHR fallback. В первом срезе достаточно ручного копирования JSON.");
+          recommendations.push("Для отправки диагностического отчёта позже использовать XHR fallback. В первом срезе достаточно ручного копирования отчёта.");
         }
         if (clipboard !== "supported") {
-          recommendations.push("Если кнопка копирования не работает, выделите JSON вручную и скопируйте его.");
+          recommendations.push("Если кнопка копирования не работает, выделите диагностический JSON-отчёт вручную и скопируйте его.");
         }
         if (resourceCss === "failed" || resourceCss === "timeout") {
           recommendations.push("Встроенный CSS data:-ресурс не загрузился. Оставить диагностический запуск single-file и исследовать загрузку ресурсов отдельно.");
@@ -3085,7 +3099,7 @@
         addResult("network.blob.exists", "network", "Поддержка Blob/download", typeof window.Blob === "function" && window.URL ? "supported" : "failed", typeof window.Blob === "function", null, 0);
         addResult("network.anchor_download", "network", "Поддержка скачивания через ссылку", "download" in document.createElement("a") ? "supported" : "unknown", "download" in document.createElement("a"), null, 0);
         addResult("network.clipboard.exists", "network", "Clipboard API", navigator.clipboard && navigator.clipboard.writeText ? "supported" : "failed", !!(navigator.clipboard && navigator.clipboard.writeText), null, 0);
-        addResult("network.manual_copy", "network", "Ручное копирование JSON", byId("json-report") ? "supported" : "failed", !!byId("json-report"), null, 0);
+        addResult("network.manual_copy", "network", "Ручное копирование отчёта", byId("json-report") ? "supported" : "failed", !!byId("json-report"), null, 0);
         addResult("bridge.status", "bridge", "Обмен HTML ↔ 1С", "not_connected", "Slice 2 Diagnostic Loader не подключён", null, 0);
         addResult("rmk.status", "rmk", "РМК-адаптер", "not_tested", "РМК проверяется только отдельным adapter spike", null, 0);
       }
@@ -3178,7 +3192,7 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
           try {
             navigator.clipboard.writeText(text).then(function () {
-              setText("copy-feedback", "JSON скопирован в буфер обмена.");
+              setText("copy-feedback", "Отчёт скопирован в буфер обмена.");
             }, function () {
               fallbackSelectJson();
             });
@@ -3196,7 +3210,7 @@
           node.focus();
           node.select();
         }
-        setText("copy-feedback", "Автоматическое копирование недоступно. JSON выделен: скопируйте его вручную.");
+        setText("copy-feedback", "Автоматическое копирование недоступно. Отчёт выделен: скопируйте его вручную.");
       }
 
       function downloadJson() {
@@ -3206,7 +3220,7 @@
         var url;
         var a;
         if (typeof window.Blob !== "function" || !window.URL || !URL.createObjectURL) {
-          setText("copy-feedback", "Скачивание недоступно в этой среде. Скопируйте JSON вручную.");
+          setText("copy-feedback", "Скачивание недоступно в этой среде. Скопируйте отчёт вручную.");
           fallbackSelectJson();
           return;
         }
@@ -3222,9 +3236,9 @@
             URL.revokeObjectURL(url);
             removeNode(a);
           }, 1000);
-          setText("copy-feedback", "JSON подготовлен для скачивания.");
+          setText("copy-feedback", "Отчёт подготовлен для скачивания.");
         } catch (e) {
-          setText("copy-feedback", "Не удалось скачать JSON. Скопируйте его вручную.");
+          setText("copy-feedback", "Не удалось скачать отчёт. Скопируйте его вручную.");
         }
       }
 
@@ -3431,14 +3445,14 @@
           + '<section class="showcase-idle" aria-label="Экран ожидания">'
           + '<div class="showcase-idle-panel">'
           + '<p class="showcase-demo-banner">' + escapeHtml(SHOWCASE_DEMO_BANNER) + '</p>'
-          + '<h1>Демонстрационная касса самообслуживания</h1>'
-          + '<p>Это визуальная HTML-витрина на тестовых данных. Она показывает покупательский сценарий, темы, адаптивную раскладку и режим редактирования.</p>'
+          + '<h1>HTML-витрина 1С</h1>'
+          + '<p>Витрина показывает группы и товары. Каталог передаёт 1С через window.Showcase.receiveCatalog(jsonString). Если каталог не передан, используются mock-данные.</p>'
           + '<p class="showcase-status-text">Профиль раскладки: <strong>' + escapeHtml(showcaseLayout.profile) + '</strong>, viewport ' + escapeHtml(showcaseLayout.width + " x " + showcaseLayout.height) + '.</p>'
           + '<div class="showcase-action-bar">'
           + '<button type="button" class="showcase-button" data-action="start">Начать покупку</button>'
           + '<button type="button" class="showcase-button secondary" data-action="back-diagnostic">Назад к диагностике</button>'
           + '</div>'
-          + '<div class="showcase-notice">Это не production-касса. РМК, реальная оплата, ККТ, фискализация, чек и маркировка не подключены.</div>'
+          + '<div class="showcase-notice">РМК, реальная оплата, ККТ, фискализация, чек и маркировка не подключены. JSON руками не загружайте.</div>'
           + '</div>'
           + '</section>';
       }

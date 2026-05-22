@@ -1,4 +1,4 @@
-# 1C Diagnostic Loader README
+﻿# 1C Diagnostic Loader README
 
 Дата: 2026-05-19
 Обновлено: 2026-05-21
@@ -22,6 +22,8 @@ Slice 2: HTML отправил diag.* команду в 1С, а 1С вернул
 ```
 
 Если Slice 1 baseline уже есть, этот пакет нужен именно для Slice 2: проверить round-trip HTML → 1С → HTML и безопасные metadata 1С.
+
+Каталог showcase не относится к этому loader-у. `window.Showcase.receiveCatalog(jsonString)` - это Slice 1 inbound catalog update для HTML-витрины. Он не является production bridge и не заменяет `diag.*` проверку Slice 2.
 
 ## Почему выбран формат исходников внешней обработки
 

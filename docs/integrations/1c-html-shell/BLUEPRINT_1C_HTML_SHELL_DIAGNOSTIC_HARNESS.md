@@ -305,7 +305,7 @@ Tests:
 - Blob/download support;
 - anchor `download` support if detectable;
 - clipboard API;
-- manual textarea JSON copy fallback.
+- manual textarea JSON copy fallback for the diagnostic report only, not for showcase catalog runtime delivery.
 
 Success: at least visible JSON and manual copy fallback are available after JS bootstrap.
 Fail: network send failure recorded; report remains local.
@@ -738,7 +738,7 @@ Access and storage policy:
 
 Mandatory fallback when collector absent:
 
-- JSON visible in textarea/pre;
+- diagnostic report JSON visible in textarea/pre; this is not a catalog import UI;
 - Copy JSON via clipboard if possible;
 - manual select/copy instructions;
 - Download JSON if Blob/download is supported.
