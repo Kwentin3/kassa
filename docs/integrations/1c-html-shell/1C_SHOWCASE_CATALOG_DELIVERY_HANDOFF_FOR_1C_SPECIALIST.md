@@ -203,7 +203,6 @@ Group:
 ```json
 {
   "id": "group-drinks",
-  "parentId": null,
   "title": "Напитки",
   "sortOrder": 10,
   "visible": true,
@@ -211,6 +210,8 @@ Group:
   "icon": null
 }
 ```
+
+Для корневой группы `parentId` можно не передавать. Это нормальный вариант для 1С, если JSON-писатель неудобно пишет `null`. HTML воспримет отсутствие поля как `null`. Не передавайте строку `"null"`.
 
 Product:
 

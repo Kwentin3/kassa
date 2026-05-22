@@ -70,7 +70,6 @@ Sample fixture допустим только для dev/test/autotest и как 
 ```json
 {
   "id": "group-drinks",
-  "parentId": null,
   "title": "Напитки",
   "sortOrder": 10,
   "visible": true,
@@ -93,6 +92,8 @@ Sample fixture допустим только для dev/test/autotest и как 
 - `sortOrder` - число, чем меньше, тем раньше группа;
 - `visible=false` означает не показывать группу;
 - `parentId`, `image`, `icon` optional;
+- для корневой группы `parentId` можно не передавать; HTML трактует отсутствующий `parentId` как `null`;
+- не передавайте строку `"null"` вместо `null`;
 - вложенность групп в текущем UI не является обязательной.
 
 ## Product
@@ -229,7 +230,6 @@ visible + available products -> groupId match -> sortOrder asc -> title asc
   "groups": [
     {
       "id": "group-drinks",
-      "parentId": null,
       "title": "Напитки",
       "sortOrder": 10,
       "visible": true,
