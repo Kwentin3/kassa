@@ -33,6 +33,7 @@
 - Playwright external visual smoke is available: `npm run visual:cards`; it checks size, no unwanted body/content scroll, card/nav shadows and pressed transforms.
 - Latest deployed visual change: BOLARS adaptive landscapeCompact refactor for start/cart/payment/final; use current branch head after deploy.
 - Latest BOLARS viewport smoke: local Playwright metrics passed for `1366x768`, `1280x800`, `1920x1080`, `1080x1920`; post-public-smoke correction removed compact-landscape clipping on payment waiting/final/status bodies.
+- Latest BOLARS full-state adaptive audit: `docs/reports/2026-05-23/BOLARS_FULL_SCREEN_ADAPTIVE_AUDIT.report.md`; 20 preview scenarios × 4 viewport profiles passed locally after adapting discount states, payment setup, payment waiting compact order and portrait discount overflow.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

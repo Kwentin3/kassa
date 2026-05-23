@@ -27,4 +27,12 @@ describe('visual contract css', () => {
     expect(css).toContain('height: calc(100dvh - var(--bolars-work-header-min))');
     expect(css).toContain('.bolars-payment-layout .bolars-main-column');
   });
+
+  it('keeps BOLARS hidden states inside the adaptive stage', () => {
+    expect(css).toContain('.bolars-screen-paymentSetup .bolars-help-card');
+    expect(css).toContain('padding-block: min(var(--bolars-screen-pad), 20px)');
+    expect(css).toContain('.bolars-payment-layout .bolars-review-panel');
+    expect(css).toContain('max-height: 100%');
+    expect(css).toContain('.bolars-screen-paymentWaiting .bolars-compact-order-items');
+  });
 });

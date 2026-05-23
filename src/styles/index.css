@@ -1348,6 +1348,14 @@ select:focus-visible {
   width: 100%;
 }
 
+.bolars-screen-paymentSetup .bolars-help-card {
+  display: none;
+}
+
+.bolars-screen-paymentSetup .bolars-payment-layout {
+  padding-block: min(var(--bolars-screen-pad), 20px);
+}
+
 .bolars-review-panel,
 .bolars-package-panel,
 .bolars-discount-panel {
@@ -2525,7 +2533,9 @@ select:focus-visible {
   .bolars-payment-layout .bolars-review-panel {
     grid-column: 1;
     grid-row: 1 / span 6;
+    max-height: 100%;
     min-height: 0;
+    box-sizing: border-box;
     overflow-y: auto;
   }
 
@@ -2550,7 +2560,7 @@ select:focus-visible {
 
   .bolars-section-heading {
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
   }
 
   .bolars-section-heading > svg {
@@ -2605,9 +2615,9 @@ select:focus-visible {
   }
 
   .bolars-package-grid button {
-    min-height: clamp(50px, 7.2dvh, 66px);
+    min-height: clamp(42px, 6dvh, 52px);
     padding: 8px;
-    font-size: clamp(15px, 2.4dvh, 18px);
+    font-size: clamp(13px, 2.2dvh, 16px);
   }
 
   .bolars-package-grid button svg {
@@ -2616,16 +2626,28 @@ select:focus-visible {
   }
 
   .bolars-phone-row {
-    min-height: clamp(50px, 7.5dvh, 60px);
+    min-height: clamp(44px, 6.2dvh, 52px);
+    gap: 8px;
   }
 
   .bolars-phone-row input {
     padding-inline: 12px;
   }
 
+  .bolars-phone-row button {
+    padding-inline: 14px;
+  }
+
+  .bolars-success-note,
+  .bolars-warning-note {
+    margin-top: 6px;
+    padding: 8px 10px;
+    font-size: clamp(13px, 2.1dvh, 16px);
+  }
+
   .bolars-final-total-band {
     border-radius: 12px;
-    padding: clamp(12px, 1.8dvh, 16px) 18px;
+    padding: clamp(8px, 1.4dvh, 12px) 16px;
   }
 
   .bolars-final-total-band span {
@@ -2633,12 +2655,17 @@ select:focus-visible {
   }
 
   .bolars-final-total-band strong {
-    font-size: clamp(38px, 6dvh, 52px);
+    font-size: clamp(32px, 5.2dvh, 44px);
   }
 
   .bolars-pay-bottom {
-    min-height: clamp(58px, 8.6dvh, 72px);
-    font-size: clamp(22px, 3.6dvh, 30px);
+    min-height: clamp(50px, 7.4dvh, 58px);
+    font-size: clamp(20px, 3.2dvh, 26px);
+  }
+
+  .bolars-payment-layout .bolars-info-action.full {
+    min-height: clamp(42px, 6.2dvh, 50px);
+    font-size: clamp(16px, 2.5dvh, 20px);
   }
 
   .bolars-status-screen {
@@ -2754,6 +2781,10 @@ select:focus-visible {
   }
 
   .bolars-compact-order-items em {
+    display: none;
+  }
+
+  .bolars-screen-paymentWaiting .bolars-compact-order-items {
     display: none;
   }
 
