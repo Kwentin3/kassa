@@ -2194,7 +2194,7 @@ select:focus-visible {
     --bolars-scan-card-height: clamp(58px, 9dvh, 74px);
     --bolars-cart-row-height: clamp(92px, 15dvh, 118px);
     --bolars-summary-total-font: clamp(36px, 6.2dvh, 48px);
-    --bolars-payment-visual-height: clamp(170px, 29dvh, 260px);
+    --bolars-payment-visual-height: clamp(150px, 24dvh, 235px);
     --bolars-payment-terminal-width: clamp(98px, 13dvw, 150px);
     --bolars-payment-terminal-height: clamp(142px, 23dvh, 205px);
     --bolars-payment-phone-width: clamp(66px, 7.8dvw, 92px);
@@ -2538,6 +2538,10 @@ select:focus-visible {
     grid-column: 2;
   }
 
+  .bolars-payment-layout .bolars-help-card {
+    display: none;
+  }
+
   .bolars-review-panel,
   .bolars-package-panel,
   .bolars-discount-panel {
@@ -2643,10 +2647,17 @@ select:focus-visible {
 
   .bolars-status-body,
   .bolars-final-body {
-    height: calc(100dvh - var(--bolars-brand-header-min));
+    height: 100%;
+    max-height: 100%;
+    box-sizing: border-box;
+    align-content: stretch;
     gap: clamp(8px, 1.4dvh, 14px);
     padding: clamp(12px, 1.8dvh, 20px) clamp(24px, 3dvw, 40px);
     overflow: hidden;
+  }
+
+  .bolars-screen-paymentWaiting .bolars-status-body {
+    grid-template-rows: auto auto minmax(120px, 1fr) auto auto auto;
   }
 
   .bolars-payment-title-block h1 {
@@ -2716,7 +2727,7 @@ select:focus-visible {
   }
 
   .bolars-compact-order {
-    max-height: clamp(74px, 13dvh, 110px);
+    max-height: clamp(58px, 9dvh, 82px);
     overflow: hidden;
     padding: 10px 12px;
   }
@@ -2737,9 +2748,13 @@ select:focus-visible {
   }
 
   .bolars-compact-order-items .bolars-product-thumb {
-    width: 48px;
-    height: 40px;
+    width: 42px;
+    height: 34px;
     font-size: 18px;
+  }
+
+  .bolars-compact-order-items em {
+    display: none;
   }
 
   .bolars-status-card {

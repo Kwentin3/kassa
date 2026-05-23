@@ -31,8 +31,8 @@
 - Product card contract is element-level: single/few cards should stay compact, with capped thumbnails, no full-width stretching, stronger depth shadow and pressed feedback on the add CTA.
 - Catalog left panel uses floating category buttons with depth shadow, active-state and pressed feedback.
 - Playwright external visual smoke is available: `npm run visual:cards`; it checks size, no unwanted body/content scroll, card/nav shadows and pressed transforms.
-- Latest deployed visual change: `Add floating catalog nav interactions`; use current branch head after deploy.
-- Latest BOLARS local visual change before deploy: adaptive landscapeCompact refactor for start/cart/payment/final; local Playwright metrics passed for `1366x768`, `1280x800`, `1920x1080`, `1080x1920`.
+- Latest deployed visual change: BOLARS adaptive landscapeCompact refactor for start/cart/payment/final; use current branch head after deploy.
+- Latest BOLARS viewport smoke: local Playwright metrics passed for `1366x768`, `1280x800`, `1920x1080`, `1080x1920`; post-public-smoke correction removed compact-landscape clipping on payment waiting/final/status bodies.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

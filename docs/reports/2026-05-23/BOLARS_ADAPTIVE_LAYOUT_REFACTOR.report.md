@@ -1,7 +1,7 @@
 ﻿# BOLARS Adaptive Layout Refactor
 
 Дата: 2026-05-23
-Статус: implemented locally, tested before deploy
+Статус: implemented, locally tested, deployed after public smoke correction
 
 ## Что изменено
 
@@ -17,6 +17,7 @@
   - cart keeps search/add scan/product/summary visible, product details scroll inside list when needed;
   - payment/final media zones scale down before primary status/CTA zones;
   - alerts on payment waiting/final move away from countdown/status content.
+  - post-public-smoke correction: status screens now size their body from the actual grid row after the rendered header, not from a minimum header token; payment setup hides optional help card in compact landscape; compact order preview is reduced to avoid clipped children.
 - `src/bolars/BolarsSelfCheckoutApp.tsx`
   - root получает `bolars-screen-${currentScreen}` class only for presentation-specific responsive styling.
 - `src/tests/visual-contract.test.ts`
@@ -53,6 +54,11 @@ Result:
 - `scrollHeight == clientHeight` for checked customer screens.
 - `horizontalOverflow=false`.
 - critical selectors had no `offBottom`/`offRight` offenders.
+
+Post-public smoke correction:
+
+- Initial public smoke found that payment waiting/final bodies could be clipped in `1366x768` because the body height used `100dvh - min header token` rather than the actual rendered header row.
+- The CSS was corrected and local Playwright smoke was repeated for `1366x768` start/cart/payment setup/payment waiting/final/payment error with no critical offscreen elements.
 
 Evidence folder:
 
