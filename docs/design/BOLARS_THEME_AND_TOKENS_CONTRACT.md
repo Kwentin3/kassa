@@ -1,6 +1,6 @@
 ﻿# BOLARS Theme and Tokens Contract
 
-Статус: draft 0.1
+Статус: draft 0.2
 Дата: 2026-05-23
 Назначение: контракт тем, цветовых профилей и дизайн-токенов для portrait-first кассы самообслуживания БОЛАРС.
 
@@ -99,6 +99,14 @@ Semantic tokens:
 - `color.manager.fg`
 - `color.final.countdownTrack`
 - `color.final.countdownFill`
+- `color.summary.totalFg`
+- `color.summary.countFg`
+- `color.help.bg`
+- `color.help.icon`
+- `color.receipt.bg`
+- `color.receipt.perforation`
+- `color.productImage.bg`
+- `color.productImage.placeholderFg`
 
 ## 5. Типографические Токены
 
@@ -255,7 +263,111 @@ Manager badge отображается только из `managerState`, не и
 
 Конфетти должно быть статичным или очень коротким; при reduced motion отключается.
 
-## 14. High Contrast Profile
+## 14. Reference Fidelity Token Groups
+
+Следующий visual refactor должен добавлять недостающую похожесть на эскизы через tokens, а не через component-local CSS constants.
+
+### 14.1 Header / Clock Tokens
+
+- `header.brand.height`
+- `header.work.height`
+- `header.bg`
+- `header.logo.fg`
+- `header.logo.accent`
+- `header.clock.icon`
+- `header.clock.text`
+- `header.clock.separator`
+- `header.radius.bottom`
+- `header.shadow`
+
+`brandHeader` используется на start/payment waiting/final. `workHeader` используется на cart/payment setup.
+
+### 14.2 Product Image Slot Tokens
+
+- `productImage.slot.width`
+- `productImage.slot.height`
+- `productImage.slot.bg`
+- `productImage.slot.radius`
+- `productImage.slot.fit`
+- `productImage.placeholder.bg`
+- `productImage.placeholder.fg`
+- `productImage.placeholder.icon`
+
+Даже если media delivery paused, product row anatomy сохраняет image slot. Placeholder является visual fallback, а не изменением product scope.
+
+### 14.3 Bottom Summary / Sticky CTA Tokens
+
+- `summary.band.bg`
+- `summary.band.border`
+- `summary.band.radius`
+- `summary.band.shadow`
+- `summary.band.height`
+- `summary.total.fg`
+- `summary.total.fontSize`
+- `summary.count.icon`
+- `summary.count.fg`
+- `summary.cta.height`
+- `summary.cta.radius`
+
+Cart portrait pattern использует bottom summary band: item count, total, green payment CTA. Desktop/right rail может быть fallback для отличающегося viewport, но не должен стать основным portrait contract.
+
+### 14.4 Scan Action / Scanner Visual Tokens
+
+- `scanAction.card.bg`
+- `scanAction.card.border`
+- `scanAction.card.radius`
+- `scanAction.card.shadow`
+- `scanAction.icon.bg`
+- `scanAction.icon.fg`
+- `scanner.barcode.fg`
+- `scanner.corner.glow`
+- `scanner.centerLine.color`
+
+Scan action card используется на start и cart as continuation hint. Cyan остаётся scanner/search/payment guidance; magenta остаётся brand/barcode accent.
+
+### 14.5 Payment Visual Tokens
+
+- `paymentVisual.frame.cornerColor`
+- `paymentVisual.frame.glow`
+- `paymentVisual.terminal.bg`
+- `paymentVisual.card.bg`
+- `paymentVisual.phone.bg`
+- `paymentVisual.status.infoFg`
+- `paymentVisual.status.spinnerFg`
+- `paymentVisual.orderPreview.bg`
+
+Если bitmap illustration недоступна, implementation использует tokenized vector/CSS fallback, но зона оплаты не исчезает.
+
+### 14.6 Receipt / Countdown Tokens
+
+- `receipt.bg`
+- `receipt.logo.fg`
+- `receipt.text.primary`
+- `receipt.text.secondary`
+- `receipt.total.fg`
+- `receipt.shadow`
+- `receipt.perforation.bg`
+- `countdown.card.bg`
+- `countdown.ring.track`
+- `countdown.ring.fill`
+- `countdown.progress.track`
+- `countdown.progress.fill`
+
+Финальный экран должен иметь receipt preview и countdown card. Это visual confirmation, не юридически значимая фискализация.
+
+### 14.7 Help Card Tokens
+
+- `help.card.bg`
+- `help.card.border`
+- `help.card.radius`
+- `help.card.shadow`
+- `help.icon.bg`
+- `help.icon.fg`
+- `help.chevron.fg`
+
+Help card является отдельной zone и не конкурирует с payment CTA.
+
+## 15. High Contrast Profile
 
 `bolars-light-contrast` обязан:
 
@@ -266,7 +378,7 @@ Manager badge отображается только из `managerState`, не и
 - не использовать цвет как единственный носитель состояния;
 - иметь видимый focus ring на black, white, green и magenta surfaces.
 
-## 15. Theme Config Contract
+## 16. Theme Config Contract
 
 Пример JSON-структуры. В реальной реализации это может быть TypeScript object, JSON или YAML, но форма должна быть валидируемой.
 
@@ -355,7 +467,7 @@ Manager badge отображается только из `managerState`, не и
 
 Важно: `#1f8f3f` в примере тоже находится внутри theme config. В компонентах допускается только `token('color.cta.pay.pressedBg')` или эквивалент.
 
-## 16. Validation Rules
+## 17. Validation Rules
 
 - Theme config должен проходить schema validation.
 - Primary text contrast на surface не ниже WCAG AA для крупного текста.
@@ -363,8 +475,9 @@ Manager badge отображается только из `managerState`, не и
 - Focus ring должен быть виден на всех interactive surfaces.
 - Missing token должен падать в development/test, а не молча заменяться случайным цветом.
 - Custom profile не может скрывать help, cancel confirmation, payment error и final success.
+- Missing reference-fidelity tokens для header/product image/summary/payment visual/receipt/countdown должны обнаруживаться visual/token tests до refactor acceptance.
 
-## 17. Запреты
+## 18. Запреты
 
 - Не писать `#E6007E` или другие HEX в JSX/TSX/CSS компонентов.
 - Не использовать brand palette напрямую вместо semantic tokens.

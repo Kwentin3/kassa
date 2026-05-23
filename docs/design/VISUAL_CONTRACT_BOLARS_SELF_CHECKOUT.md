@@ -1,15 +1,17 @@
 ﻿# Visual Contract: BOLARS Self-Checkout
 
-Статус: draft 0.1
+Статус: draft 0.2
 Дата: 2026-05-23
 Назначение: визуальный контракт будущего portrait-first интерфейса кассы самообслуживания в теме БОЛАРС.
-Основание: эскизы БОЛАРС, `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`, этап prototype MVP и runtime/adapter boundary.
+Основание: эскизы БОЛАРС, `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`, этап prototype MVP, runtime/adapter boundary и visual delta audit текущей реализации.
 
 ## 1. Назначение
 
 Этот документ фиксирует визуальные решения из эскизов БОЛАРС в техническом виде для следующего implementation agent. Контракт описывает композицию, иерархию, зоны, состояния и запреты. Он не реализует frontend; prototype MVP может использовать `MockAdapter`, но визуальный контракт сохраняет продуктовую границу с runtime/1С/лояльностью/эквайрингом.
 
 Цель: получить scan-first kiosk UI, который можно собрать из theme tokens, runtime state snapshot и typed user-intent commands без хардкода бренда и без бизнес-логики в UI-компонентах.
+
+Refactor rule: перед визуальным refactor реализации сначала обновляется этот контракт и screen composition spec. Кодовые изменения должны ссылаться на конкретные пункты контракта, а не на субъективное "похоже / не похоже".
 
 ## Related Documents
 
@@ -255,3 +257,130 @@ Magenta активно используется для brand, amount, selected/a
 - Не скрывать search/help fallback.
 - Не очищать cart при ошибке оплаты.
 - Не расширять рабочий экран на desktop без portrait/stage contract.
+
+## 18. Reference Fidelity Delta Before UI Refactor
+
+Этот раздел фиксирует расхождения между raster reference sketches и текущим prototype MVP. Он является входом для следующего visual refactor, но не меняет RuntimePort, MockAdapter, PreviewAdapter, OneCInterfaceAdapter или scan-first product scope.
+
+### 18.1 Customer screenshots must be clean
+
+Visual acceptance screenshots для customer screens должны сниматься без debug/preview overlays. `debug=1` и `preview=1` полезны для сценариев и диагностики, но финальная визуальная приёмка start/cart/payment/final должна показывать только customer UI. Если preview используется для быстрого выбора state, implementation должен иметь способ снять clean screenshot customer layer без floating debug/preview panels.
+
+### 18.2 Priority map
+
+| Priority | Refactor target | Why |
+| --- | --- | --- |
+| P0 | Restore reference screen anatomy: black brand header, large scan/payment/final visual zones, bottom summary/CTA zones, product image slots, receipt/countdown on final. | Без этого MVP выглядит как functional wireframe, а не как БОЛАРС kiosk prototype. |
+| P0 | Keep RuntimePort boundary while changing visuals. | Визуальный refactor не должен вернуть бизнес-логику в UI. |
+| P1 | Add reference-level product/media treatment with fallback. | Референсы используют реальные товарные изображения как key recognition aid; если media contour paused, нужны stable placeholders/image slots. |
+| P1 | Align cart/payment spacing, radii, shadows and typography with sketches. | Сейчас отдельные зоны читаются, но не повторяют hierarchy sketches. |
+| P2 | Add decorative texture/confetti/payment illustration fallbacks. | Это усиливает бренд, но не должно блокировать первый рабочий refactor. |
+
+### 18.3 Start screen delta
+
+Reference anatomy:
+
+- black `brandHeader` with large BOLARS logo left and clock/date right;
+- light textured body, not full magenta gradient body;
+- central black scan instruction with magenta welcome line;
+- cyan scanner brackets and magenta barcode;
+- product/ строительные смеси imagery at left/right edges;
+- two large action cards: scan first, manual search second;
+- separate text scale card with `A / A+ / A++`;
+- separate help card at bottom.
+
+Current MVP delta to close:
+
+- start screen must stop being a single full-magenta hero; magenta remains an accent, not the whole customer surface;
+- start action buttons should become reference-style cards under the scan visual, not compact generic buttons;
+- text scale controls and help must be present on start as separate visible zones if enabled by `uiConfig`;
+- product imagery may use configured assets or fallback silhouettes/placeholders, but the side media zones should be reserved in layout;
+- clock/date is allowed from `uiConfig.showClock`; if unavailable, header layout must not collapse.
+
+### 18.4 Cart screen delta
+
+Reference anatomy:
+
+- black `workHeader`: title, cancel outline magenta, `A/A+/A++`, manager badge;
+- full-width search field with cyan outline and explicit `4+` hint;
+- scan continuation card with barcode/scanner visual;
+- product rows have image slot, name, package/size, article, quantity controls, line total and delete;
+- recently added row uses pale cyan wash + cyan border + small status chip;
+- bottom summary band shows item count, payable total and large green `Перейти к оплате`;
+- help card sits below summary.
+
+Current MVP delta to close:
+
+- cart should prefer a bottom summary band on portrait reference, not a persistent desktop-like right rail as the main pattern;
+- product image slot is mandatory in row anatomy; if real media is unavailable, use stable fallback image/thumbnail placeholder, not text-only rows;
+- product name should not be forced into very narrow multiline columns while there is horizontal room;
+- scan/add action should be a reference-style continuation card above the list, not only a side-panel test button;
+- help card should be visible in the customer cart flow when `uiConfig.showHelpAction=true`;
+- changed row highlight should use cyan reference language; green is reserved for success/pay action.
+
+### 18.5 Payment setup delta
+
+Reference anatomy:
+
+- black `workHeader` with title `Оплата`;
+- main order review card with product images, quantities and line totals;
+- subtotal/discount/payable total block inside review card;
+- package card with three magenta-outline package actions and package prices;
+- discount/bonus card with phone input/keypad action and green applied-discount state;
+- cyan final-total band;
+- full-width green bottom `Оплатить`;
+- help card below.
+
+Current MVP delta to close:
+
+- order review should look like a checkout confirmation card, not a plain table/list;
+- package actions need prices/amounts when runtime supplies them;
+- discount area should visually separate input, apply action and applied/notFound status;
+- final payable total must be more dominant and closer to the reference cyan band;
+- primary payment CTA should become full-width bottom action in portrait customer view.
+
+### 18.6 Payment waiting/error delta
+
+Reference anatomy:
+
+- black `brandHeader` with logo and clock/date;
+- screen title `Оплата` and order number;
+- amount/order summary card near top;
+- large central payment terminal/card/phone illustration framed by cyan scanner corners;
+- instruction `Приложите карту к терминалу оплаты`;
+- cyan waiting status line with spinner;
+- compact order preview with product thumbnails;
+- retry/return action cards only for failed/error state.
+
+Current MVP delta to close:
+
+- waiting screen should not be a generic centered white card on empty gray field;
+- amount and order count must sit in a top summary card before the payment instruction;
+- central payment visual must become a first-class zone; if bitmap/media is unavailable, use tokenized illustration/fallback, not only a small icon;
+- order preview should show representative product thumbnails or stable image placeholders;
+- error state should keep the same order context and use the reference recovery card hierarchy.
+
+### 18.7 Final success delta
+
+Reference anatomy:
+
+- black `brandHeader` with logo and clock/date;
+- light body, green check, large black `Спасибо за покупку!`;
+- receipt preview card with order lines and total;
+- countdown reset card with circular timer/progress bar and exact seconds;
+- magenta used as accent for total/progress, not as full-screen background.
+
+Current MVP delta to close:
+
+- final screen should not be dominated by solid magenta background;
+- receipt preview is mandatory visual structure for prototype, but must remain demo-safe and not claim real fiscal receipt;
+- countdown should be concrete and visual: seconds + progress, controlled by `uiConfig.finalAutoResetSeconds`;
+- success state uses green mark and light body to match reference hierarchy.
+
+### 18.8 Refactor guardrails
+
+- Refactor should happen screen-by-screen against this delta: start, cart, payment setup, payment waiting/error, final.
+- Keep all user actions as typed commands; do not add UI-owned cart/product/payment logic.
+- Keep all colors, radii, shadows, dimensions and image-slot rules tokenized.
+- If media delivery is not solved, implement visual slots/fallbacks rather than removing image anatomy from the layout.
+- Do not make debug/preview panels part of customer screenshots or customer composition.

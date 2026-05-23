@@ -1,6 +1,6 @@
 ﻿# Screen Composition Spec: BOLARS Self-Checkout
 
-Статус: draft 0.1
+Статус: draft 0.2
 Дата: 2026-05-23
 Назначение: подробная композиционная спецификация MVP-экранов по эскизам БОЛАРС.
 
@@ -361,6 +361,7 @@ Acceptance criteria:
 - Цвета, тени, radii и spacing берутся из theme tokens.
 - UI rendering is deterministic for mock snapshots.
 - Нет product detail modal, catalog browsing или internet-shop behavior.
+- Customer visual acceptance screenshots снимаются без debug/preview overlays. Preview screenshots допустимы как scenario evidence, но не заменяют clean customer screenshots.
 
 ## 13. Default RU Copy
 
@@ -380,3 +381,118 @@ Default copy должен приходить из config/dictionary layer и б�
 - `Отменить покупку и очистить корзину?`
 - `Да, отменить`
 - `Вернуться к покупке`
+
+## 14. Reference Fidelity Refactor Notes
+
+Этот раздел уточняет, какие screen composition решения должны быть закрыты перед следующим UI refactor. Он не добавляет новые product scenarios и не меняет runtime contract.
+
+### 14.1 Shared Screen Frame
+
+- На start, payment waiting и final использовать `brandHeader`: black header, large BOLARS logo, optional clock/date.
+- На cart и payment setup использовать `workHeader`: black header, title, cancel, text scale, manager badge.
+- Body на customer screens преимущественно light surface/texture. Magenta используется как accent/brand/amount, а не как сплошная поверхность для всех экранов.
+- Help card является отдельной bottom zone, если `uiConfig.showHelpAction=true`.
+- Debug/preview floating panels не входят в customer composition.
+
+### 14.2 Start Refactor Target
+
+Required screen zones in vertical order:
+
+1. `brandHeader`: logo + clock/date.
+2. Hero scan area: magenta welcome line, large black instruction, cyan scanner corners/barcode visual.
+3. Product imagery side zones: configured bitmaps or fallback placeholders.
+4. Action card row: `Сканировать товар` first, `Найти товар вручную` second.
+5. Text scale card: large text label + `A/A+/A++`.
+6. Help card.
+
+Acceptance additions:
+
+- Start must not be accepted as only a full-magenta hero with two compact buttons.
+- Manual search card is visible but visually secondary to scan.
+- Text scale control is visible on start if enabled by config.
+
+### 14.3 Cart Refactor Target
+
+Required screen zones in vertical order:
+
+1. `workHeader`.
+2. Full-width search input with `4+` hint.
+3. Scan continuation/add-product card.
+4. Product list.
+5. Bottom summary band with item count, payable total and green `Перейти к оплате`.
+6. Help card.
+
+Product row anatomy:
+
+- image/thumbnail slot;
+- product name, package/size, article;
+- quantity controls `-`, value, `+`;
+- unit label below value if useful;
+- line total;
+- delete icon;
+- last-change chip/border from `cartLine.lastChange`.
+
+Acceptance additions:
+
+- Portrait cart should not rely on a desktop-style right summary rail as the primary pattern.
+- Product rows must reserve image slots even when real media is unavailable.
+- Recent-change highlight uses cyan reference language; green remains success/pay color.
+
+### 14.4 Payment Setup Refactor Target
+
+Required screen zones in vertical order:
+
+1. `workHeader`.
+2. Order review card with product thumbnails, quantities and line totals.
+3. Subtotal/discount/payable total section inside or immediately after review card.
+4. Package card with three package actions and prices when runtime provides prices.
+5. Discount/bonus card with phone input, keypad/apply action and result state.
+6. Cyan final-total band.
+7. Full-width green `Оплатить`.
+8. Help card.
+
+Acceptance additions:
+
+- Payment setup must look like order confirmation, not a generic admin list.
+- Discount applied/not found states must be visually adjacent to discount controls and totals.
+- `Оплатить` is the dominant bottom CTA.
+
+### 14.5 Payment Waiting/Error Refactor Target
+
+Required waiting zones:
+
+1. `brandHeader`.
+2. Title/order number.
+3. Top amount/order summary card.
+4. Central payment visual with cyan frame.
+5. Instruction and waiting/processing status.
+6. Compact order preview with thumbnails/placeholders.
+
+Required error zones:
+
+1. Same order context as waiting.
+2. User-readable error message.
+3. `Попробовать ещё раз` as primary recovery when runtime allows.
+4. `Вернуться к оплате` as secondary recovery.
+5. Help card if configured.
+
+Acceptance additions:
+
+- Waiting screen must not be accepted as a small centered generic card without brand header/payment visual/order preview.
+- Retry/return actions are hidden/disabled in pure waiting state and visible in failed/timeout state.
+
+### 14.6 Final Success Refactor Target
+
+Required screen zones:
+
+1. `brandHeader`.
+2. Green success mark.
+3. Large black thank-you copy.
+4. Receipt preview card with order lines and total.
+5. Countdown reset card with seconds and progress indicator.
+
+Acceptance additions:
+
+- Final screen must not be accepted as a solid magenta page with only a centered card.
+- Receipt preview is visual/demo-safe and does not imply legal fiscalization in mock mode.
+- Countdown is visible, concrete and driven by `uiConfig.finalAutoResetSeconds`.

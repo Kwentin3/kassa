@@ -16,7 +16,7 @@ describe('BOLARS Self-Checkout App', () => {
     setRoute('/bolars/self-checkout-mvp');
     render(<BolarsSelfCheckoutApp />);
 
-    expect(screen.getByText('Поднесите штрих-код товара к сканеру')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Поднесите штрих-код товара к сканеру' })).toBeInTheDocument();
     expect(screen.queryByLabelText('Debug panel')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Preview controls')).not.toBeInTheDocument();
   });
@@ -34,7 +34,7 @@ describe('BOLARS Self-Checkout App', () => {
     setRoute('/bolars/self-checkout-mvp');
     render(<BolarsSelfCheckoutApp />);
 
-    fireEvent.click(screen.getByRole('button', { name: /Начать покупку/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
     const addProduct = await screen.findByRole('button', { name: /Добавить товар/i });
     fireEvent.click(addProduct);
 
@@ -55,7 +55,7 @@ describe('BOLARS Self-Checkout App', () => {
     render(<BolarsSelfCheckoutApp />);
 
     expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-self-checkout-mvp');
-    fireEvent.click(screen.getByRole('button', { name: /Начать покупку/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
     expect(window.BolarsSelfCheckout?.peekOutboundStatusJson()).toContain('pendingCount');
     expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('startPurchase');
   });

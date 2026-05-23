@@ -1,6 +1,6 @@
 ﻿# Visual Acceptance Checklist: BOLARS Self-Checkout
 
-Статус: draft 0.1
+Статус: draft 0.2
 Дата: 2026-05-23
 Назначение: чек-лист приёмки реализации portrait-first интерфейса кассы самообслуживания БОЛАРС.
 
@@ -31,6 +31,32 @@
 - [ ] Scroll-зона списка товаров не ломает header и нижнюю CTA-зону.
 - [ ] Стартовый экран более брендовый; рабочие экраны спокойнее и утилитарнее.
 - [ ] Бренд БОЛАРС узнаваем, но не мешает покупке.
+- [ ] Customer visual screenshots сняты без debug/preview overlays.
+
+## 1.1 Reference Fidelity Gate
+
+Этот gate применяется перед визуальным refactor acceptance. Он проверяет не pixel-perfect копию, а обязательную композиционную близость к пяти raster reference sketches.
+
+- [ ] Start/payment waiting/final используют black `brandHeader` с крупным БОЛАРС logo и optional clock/date.
+- [ ] Cart/payment setup используют black `workHeader` с title, cancel, text scale and manager badge zone.
+- [ ] Customer body surfaces преимущественно светлые; magenta используется как brand/accent/amount, а не как full-screen фон для всех экранов.
+- [ ] Start содержит reference-style scan hero: magenta welcome, black instruction, cyan scanner brackets, barcode/payment visual language.
+- [ ] Start содержит две action cards: scan first, manual search second.
+- [ ] Start содержит отдельные text-scale and help cards when enabled.
+- [ ] Cart содержит full-width search with `4+` hint.
+- [ ] Cart содержит scan continuation/add-product card above product list.
+- [ ] Cart product rows reserve image/thumbnail slot, even if real media uses placeholder fallback.
+- [ ] Cart portrait composition uses bottom summary band with item count, total and green `Перейти к оплате`.
+- [ ] Cart recent-change highlight uses cyan reference language, not green success language.
+- [ ] Payment setup contains order-review card with product rows/thumbnails and subtotal/discount/payable total.
+- [ ] Payment setup package actions are magenta-outline cards and include price when runtime supplies it.
+- [ ] Payment setup discount block separates phone input/apply action/status and shows applied/not-found state near totals.
+- [ ] Payment setup has cyan final-total band and full-width green `Оплатить` bottom CTA.
+- [ ] Payment waiting contains top amount/order summary card, central payment terminal/card visual, instruction and compact order preview.
+- [ ] Payment error preserves order context and shows retry/return recovery cards only when runtime permits.
+- [ ] Final success contains green success mark, receipt preview and countdown card with seconds/progress.
+- [ ] Final success is not accepted as a solid magenta page with only a centered message card.
+- [ ] Preview screenshots can support scenario coverage, but clean customer screenshots are required for visual acceptance.
 
 ## 2. Theme и Tokens
 
@@ -204,6 +230,8 @@
 - [ ] Ссылку на `SelfCheckoutRuntimePort` types/implementation.
 - [ ] Тесты runtime/mock transitions для scan/search/cart/payment/discount/manager/cancel/timeout.
 - [ ] Visual smoke screenshots `1080x1920` для start/cart/payment setup/payment waiting/payment error/final.
+- [ ] Clean customer visual screenshots `1080x1920` for start/cart/payment setup/payment waiting/payment error/final without debug/preview overlays.
+- [ ] Reference delta closure notes mapping implementation changes to `VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` section 18 and `SCREEN_COMPOSITION_SPEC_BOLARS.md` section 14.
 - [ ] Runtime/mock transition evidence для scan product, repeated scan, search found/not found, quantity change, remove line, discount applied/not found, manager bound, payment success/error, inactivity timeout.
 - [ ] Проверку отсутствия hardcoded HEX в components/screens.
 - [ ] Проверку отсутствия прямых imports adapter/backend/1C/payment/search/scanner/theme из UI layer.
