@@ -27,6 +27,8 @@ import { exposeBolarsSelfCheckoutApi } from './runtime/webApi';
 import type { CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
 import { BOLARS_THEME_PROFILE_OPTIONS, DEFAULT_BOLARS_THEME_PROFILE_ID, getBolarsThemeTokens, isSelectableBolarsThemeProfileId } from './theme/bolarsTheme';
 
+const BOLARS_1C_HANDOFF_DOC_URL = 'https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md';
+
 const useRuntimeSnapshot = (runtime: SelfCheckoutRuntimePort) =>
   useSyncExternalStore(
     (listener) => runtime.subscribe(() => listener()),
@@ -662,7 +664,12 @@ const DebugPanel = ({ runtime, factory }: { runtime: SelfCheckoutRuntimePort; fa
 
   return (
     <aside className="bolars-debug-panel" aria-label="Debug panel">
-      <h2>Debug</h2>
+      <div className="bolars-debug-heading">
+        <h2>Debug</h2>
+        <a href={BOLARS_1C_HANDOFF_DOC_URL} target="_blank" rel="noreferrer">
+          1C handoff
+        </a>
+      </div>
       <dl>
         <dt>route</dt>
         <dd>{debug.route}</dd>

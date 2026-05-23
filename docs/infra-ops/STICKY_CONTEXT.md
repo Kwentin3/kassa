@@ -38,6 +38,7 @@
 - Latest BOLARS accessibility tweak: text-size control is header-only on start/work/status screens, rendered as three contrast `A` glyphs of different sizes; `normal/large/extraLarge` now affects start hero/supporting text as well as cart/payment/status/modal copy through semantic CSS scale variables.
 - Latest BOLARS mock scanner tweak: mock product set now has 10 base products; the cart `Добавить товар` scanner simulation picks the next missing mock barcode until the cart has 10 distinct lines, then cycles back to quantity increment for repeat-scan behavior.
 - Latest BOLARS theme tweak: URL params `theme=` / `themeProfile=` select the initial `snapshot.themeProfile` for `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`; preview mode also has a route-driven theme selector, while `custom`/`bolars-dark-optional` remain reserved. `bolars-light-magenta-soft` keeps white app background and uses light magenta tint for buttons, fields and containers.
+- Latest BOLARS 1C handoff tweak: concise integration guide for 1С programmers lives at `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md`; debug panel links to the GitHub document as `1C handoff`.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

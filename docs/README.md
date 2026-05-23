@@ -53,6 +53,12 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 | `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md` | Контракт реального Web ↔ 1С interface adapter, route, `window.BolarsSelfCheckout`, command delivery и snapshot apply. |
 | `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md` | Контракт `debug=1` панели: outbound commands, inbound snapshots, apply status, adapter diagnostics. |
 
+## 3.1 Integration Handoff
+
+| Документ | Роль |
+| --- | --- |
+| `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md` | Короткая инструкция для 1С-разработчика: как открыть Web, получить `window.BolarsSelfCheckout`, читать команды Web и отдавать snapshots обратно. |
+
 ## 4. Architecture Layer
 
 | Документ | Роль |

@@ -22,6 +22,7 @@
 - `docs/contracts/BOLARS_RUNTIME_ADAPTER_FACTORY_CONTRACT.md` - adapter selection.
 - `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md` - preview mode via snapshots.
 - `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md` - acceptance criteria.
+- `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md` - короткий handoff для 1С-разработчика с псевдокодом обмена commands/snapshots.
 
 ## 3. Route Contract
 

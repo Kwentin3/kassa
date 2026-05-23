@@ -66,6 +66,7 @@ Must show:
 - `getDebugStateJson` exists;
 - `drainOutboundCommandsJson` exists;
 - outbound command channel status.
+- link to `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md` on GitHub for concise 1С programmer handoff.
 
 ### 4.3 Last Outbound Command
 

@@ -2140,6 +2140,30 @@ select:focus-visible {
   font-size: 22px;
 }
 
+.bolars-debug-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bolars-debug-heading a {
+  border: 1px solid color-mix(in srgb, var(--bolars-info) 42%, transparent);
+  border-radius: 999px;
+  padding: 5px 9px;
+  color: var(--bolars-info);
+  background: color-mix(in srgb, var(--bolars-info) 8%, var(--bolars-container-bg));
+  font-size: 12px;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.bolars-debug-heading a:focus-visible,
+.bolars-debug-heading a:hover {
+  outline: 3px solid color-mix(in srgb, var(--bolars-info) 28%, transparent);
+  outline-offset: 2px;
+}
+
 .bolars-debug-panel dl {
   display: grid;
   grid-template-columns: 110px minmax(0, 1fr);

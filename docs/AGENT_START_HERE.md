@@ -225,6 +225,8 @@ RuntimeAdapterFactory в первом implementation slice использует 
 - `getLastApplyStatusJson()`;
 - `getDebugStateJson()`.
 
+Короткий handoff для 1С-разработчика: `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md`.
+
 Implementation evidence:
 
 - report: `docs/reports/2026-05-23/BOLARS_MVP_IMPLEMENTATION.report.md`;
