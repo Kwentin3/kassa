@@ -1194,23 +1194,11 @@ select:focus-visible {
   line-height: 1.12;
 }
 
-.bolars-line-name span,
-.bolars-line-name em {
+.bolars-line-name span {
   display: block;
   margin-top: 6px;
   color: var(--bolars-text-secondary);
-  font-style: normal;
   font-weight: 700;
-}
-
-.bolars-line-name em {
-  display: inline-block;
-  width: fit-content;
-  border: 1px solid var(--bolars-info);
-  border-radius: 999px;
-  padding: 4px 10px;
-  color: var(--bolars-info);
-  background: color-mix(in srgb, var(--bolars-info) 9%, var(--bolars-white));
 }
 
 .bolars-quantity-control {
@@ -2429,8 +2417,7 @@ select:focus-visible {
     font-size: clamp(21px, 3.5dvh, 25px);
   }
 
-  .bolars-line-name span,
-  .bolars-line-name em {
+  .bolars-line-name span {
     margin-top: 3px;
     font-size: clamp(13px, 2dvh, 16px);
   }

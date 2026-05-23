@@ -29,6 +29,7 @@ describe('BOLARS Self-Checkout App', () => {
     await waitFor(() => expect(screen.getByText('Ваши покупки')).toBeInTheDocument());
     expect(screen.getByText(/Клей плиточный БОЛАРС/i)).toBeInTheDocument();
     expect(container.querySelector('.bolars-alert-stack')).not.toBeInTheDocument();
+    expect(screen.queryByText('Товар добавлен')).not.toBeInTheDocument();
   });
 
   it('shows an explicit add product action in cart that still dispatches scanCode through runtime', async () => {

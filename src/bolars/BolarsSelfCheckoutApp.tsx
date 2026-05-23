@@ -309,7 +309,6 @@ const CartLineRow = ({ line, send }: { line: CartLine; send: RuntimeActions['sen
     <div className="bolars-line-name">
       <strong>{line.name}</strong>
       <span>{line.article} · {line.packageLabel ?? line.sku}</span>
-      {line.lastChange && <em>{line.lastChange.message}</em>}
     </div>
     <div className="bolars-quantity-control">
       <button type="button" aria-label="Уменьшить количество" disabled={!line.quantityControls.canDecrement} onClick={() => send('decrementQuantity', { lineId: line.lineId })}>
