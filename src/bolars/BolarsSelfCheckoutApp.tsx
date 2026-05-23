@@ -22,7 +22,7 @@ import {
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { createRuntimeAdapterFactory, type RuntimeAdapterFactoryResult } from './runtime/adapterFactory';
 import { createCommand, type CommandPayloadByType } from './runtime/commands';
-import { BOLARS_ROUTE, DEFAULT_TEXTS, MOCK_PRODUCTS } from './runtime/defaults';
+import { BOLARS_ROUTE, DEFAULT_TEXTS, MOCK_PRODUCTS, getNextMockScanProduct } from './runtime/defaults';
 import { exposeBolarsSelfCheckoutApi } from './runtime/webApi';
 import type { CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
 import { bolarsLightDefaultTokens } from './theme/bolarsTheme';
@@ -246,7 +246,7 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
             <Search size={28} />
             <input value={query} onChange={(event) => onSearch(event.target.value)} placeholder={copy(snapshot, 'searchPlaceholder')} aria-label="Поиск товара" />
           </label>
-          <button className="bolars-scan-action-card" type="button" onClick={() => send('scanCode', { code: MOCK_PRODUCTS[1].barcode }, 'scanner')}>
+          <button className="bolars-scan-action-card" type="button" onClick={() => send('scanCode', { code: getNextMockScanProduct(snapshot.cartLines).barcode }, 'scanner')}>
             <ScanLine size={42} />
             <span>
               <strong>{copy(snapshot, 'addProduct')}</strong>

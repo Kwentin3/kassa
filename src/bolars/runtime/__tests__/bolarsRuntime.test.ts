@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createRuntimeAdapterFactory } from '../adapterFactory';
 import { createCommand } from '../commands';
-import { createEmptySnapshot } from '../defaults';
+import { MOCK_PRODUCTS, createEmptySnapshot, getNextMockScanProduct } from '../defaults';
 import { MockAdapter } from '../mockAdapter';
 import { OneCInterfaceAdapter } from '../onecInterfaceAdapter';
 import { PreviewAdapter } from '../previewAdapter';
@@ -24,6 +24,14 @@ describe('BOLARS RuntimeAdapterFactory', () => {
 });
 
 describe('BOLARS MockAdapter', () => {
+  it('has enough deterministic mock products for filled-cart scanner checks', () => {
+    expect(MOCK_PRODUCTS.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(MOCK_PRODUCTS.map((product) => product.barcode)).size).toBe(MOCK_PRODUCTS.length);
+    expect(getNextMockScanProduct([]).productId).toBe(MOCK_PRODUCTS[0].productId);
+    expect(getNextMockScanProduct([{ productId: MOCK_PRODUCTS[0].productId }]).productId).toBe(MOCK_PRODUCTS[1].productId);
+    expect(getNextMockScanProduct(MOCK_PRODUCTS.map((product) => ({ productId: product.productId }))).productId).toBe(MOCK_PRODUCTS[0].productId);
+  });
+
   it('builds default snapshot and processes scan-first flow through snapshots', async () => {
     const adapter = new MockAdapter(createRuntimeAdapterFactory(route()).routeContext);
 

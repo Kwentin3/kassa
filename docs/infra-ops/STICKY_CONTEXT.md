@@ -36,6 +36,7 @@
 - Latest BOLARS full-state adaptive audit: `docs/reports/2026-05-23/BOLARS_FULL_SCREEN_ADAPTIVE_AUDIT.report.md`; 20 preview scenarios × 4 viewport profiles passed locally after adapting discount states, payment setup, payment waiting compact order and portrait discount overflow.
 - Latest BOLARS customer UI tweak: transient alert overlay labels and cart-row last-change pills such as `Товар добавлен` are no longer rendered over the stage; row highlight, inline search/discount/payment states, modals and debug snapshot alerts remain.
 - Latest BOLARS accessibility tweak: text-size control is header-only on start/work/status screens, rendered as three contrast `A` glyphs of different sizes; `normal/large/extraLarge` now affects start hero/supporting text as well as cart/payment/status/modal copy through semantic CSS scale variables.
+- Latest BOLARS mock scanner tweak: mock product set now has 10 base products; the cart `Добавить товар` scanner simulation picks the next missing mock barcode until the cart has 10 distinct lines, then cycles back to quantity increment for repeat-scan behavior.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

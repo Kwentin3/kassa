@@ -156,8 +156,89 @@ export const MOCK_PRODUCTS: RuntimeProduct[] = [
     unitLabel: 'шт',
     aliases: ['дрель', 'инструмент', 'ударная'],
     kind: 'product'
+  },
+  {
+    productId: 'bolars-plaster-gypsum',
+    sku: 'BL-PLASTER-G-30',
+    barcode: '4600001000059',
+    name: 'Штукатурка гипсовая БОЛАРС, 30 кг',
+    article: 'БЛ-044',
+    unitPrice: 390,
+    unitLabel: 'шт',
+    packageLabel: 'мешок 30 кг',
+    aliases: ['штукатурка', 'гипсовая', 'стены'],
+    kind: 'product'
+  },
+  {
+    productId: 'bolars-floor-leveler',
+    sku: 'BL-FLOOR-20',
+    barcode: '4600001000066',
+    name: 'Ровнитель для пола БОЛАРС, 20 кг',
+    article: 'БЛ-052',
+    unitPrice: 540,
+    unitLabel: 'шт',
+    packageLabel: 'мешок 20 кг',
+    aliases: ['ровнитель', 'наливной', 'пол'],
+    kind: 'product'
+  },
+  {
+    productId: 'bolars-waterproofing',
+    sku: 'BL-HYDRO-5',
+    barcode: '4600001000073',
+    name: 'Гидроизоляция БОЛАРС эластичная, 5 кг',
+    article: 'БЛ-063',
+    unitPrice: 860,
+    unitLabel: 'шт',
+    packageLabel: 'ведро 5 кг',
+    aliases: ['гидроизоляция', 'эластичная', 'влажные зоны'],
+    kind: 'product'
+  },
+  {
+    productId: 'bolars-concrete-contact',
+    sku: 'BL-CONTACT-12',
+    barcode: '4600001000080',
+    name: 'Бетонконтакт БОЛАРС, 12 кг',
+    article: 'БЛ-071',
+    unitPrice: 710,
+    unitLabel: 'шт',
+    packageLabel: 'ведро 12 кг',
+    aliases: ['бетонконтакт', 'грунт', 'адгезия'],
+    kind: 'product'
+  },
+  {
+    productId: 'bolars-putty-finish',
+    sku: 'BL-PUTTY-F-20',
+    barcode: '4600001000097',
+    name: 'Шпаклёвка финишная БОЛАРС, 20 кг',
+    article: 'БЛ-083',
+    unitPrice: 470,
+    unitLabel: 'шт',
+    packageLabel: 'мешок 20 кг',
+    aliases: ['шпаклевка', 'шпаклёвка', 'финишная'],
+    kind: 'product'
+  },
+  {
+    productId: 'bolars-masonry-mix',
+    sku: 'BL-MASON-25',
+    barcode: '4600001000103',
+    name: 'Смесь кладочная БОЛАРС М-150, 25 кг',
+    article: 'БЛ-096',
+    unitPrice: 260,
+    unitLabel: 'шт',
+    packageLabel: 'мешок 25 кг',
+    aliases: ['кладочная', 'смесь', 'м150'],
+    kind: 'product'
   }
 ];
+
+export const getNextMockScanProduct = (cartLines: Array<Pick<CartLine, 'productId'>>): RuntimeProduct => {
+  const presentProductIds = new Set(cartLines.map((line) => line.productId));
+  const nextMissingProduct = MOCK_PRODUCTS.find((product) => !presentProductIds.has(product.productId));
+  if (nextMissingProduct) return nextMissingProduct;
+
+  const productScanCount = cartLines.filter((line) => MOCK_PRODUCTS.some((product) => product.productId === line.productId)).length;
+  return MOCK_PRODUCTS[productScanCount % MOCK_PRODUCTS.length];
+};
 
 export const PACKAGE_PRODUCTS: RuntimeProduct[] = [
   {

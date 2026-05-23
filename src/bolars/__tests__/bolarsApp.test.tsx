@@ -46,13 +46,32 @@ describe('BOLARS Self-Checkout App', () => {
 
   it('shows an explicit add product action in cart that still dispatches scanCode through runtime', async () => {
     setRoute('/bolars/self-checkout-mvp');
-    render(<BolarsSelfCheckoutApp />);
+    const { container } = render(<BolarsSelfCheckoutApp />);
 
     fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
     const addProduct = await screen.findByRole('button', { name: /Добавить товар/i });
     fireEvent.click(addProduct);
 
-    await waitFor(() => expect(screen.getByText(/Грунтовка глубокого проникновения БОЛАРС/i)).toBeInTheDocument());
+    await waitFor(() => expect(container.querySelectorAll('.bolars-cart-line')).toHaveLength(1));
+  });
+
+  it('uses mock scanner button to add many distinct lines before cycling quantities', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
+    const addProduct = await screen.findByRole('button', { name: /Добавить товар/i });
+
+    for (let index = 1; index <= 10; index += 1) {
+      fireEvent.click(addProduct);
+      await waitFor(() => expect(container.querySelectorAll('.bolars-cart-line')).toHaveLength(index));
+    }
+
+    expect(screen.getByText(/Смесь кладочная БОЛАРС/i)).toBeInTheDocument();
+
+    fireEvent.click(addProduct);
+    await waitFor(() => expect(container.querySelectorAll('.bolars-cart-line')).toHaveLength(10));
+    expect(container.querySelector('.bolars-cart-line .quantity-value')?.textContent).toContain('2 шт');
   });
 
   it('opens preview controls only with debug preview route', () => {

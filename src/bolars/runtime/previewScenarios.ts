@@ -38,7 +38,7 @@ const base = (scenarioId: string, screen: CurrentScreen = 'start', textScale: Te
     textScale
   );
 
-const cartWithProducts = (scenarioId: string, count: 1 | 4, textScale: TextScale = 'normal') => {
+const cartWithProducts = (scenarioId: string, count: number, textScale: TextScale = 'normal') => {
   const lines = MOCK_PRODUCTS.slice(0, count).map((product, index) => createCartLine(product, index === 0 ? 2 : 1, index + 1, index === 0 ? 'quantityIncreased' : 'added'));
   return withScale(
     recalculateSnapshot(base(scenarioId, 'cart', textScale), lines, {
@@ -83,7 +83,7 @@ export const PREVIEW_SCENARIOS: PreviewScenario[] = [
     id: 'cartManyItems',
     label: 'Cart many items',
     screen: 'cart',
-    createSnapshot: (textScale = 'normal') => cartWithProducts('cartManyItems', 4, textScale)
+    createSnapshot: (textScale = 'normal') => cartWithProducts('cartManyItems', 10, textScale)
   },
   {
     id: 'cartWithManager',
