@@ -1,4 +1,5 @@
-import { BOLARS_ROUTE, createEmptySnapshot, maskCode, maskPhone } from './defaults';
+import { DEFAULT_BOLARS_THEME_PROFILE_ID, isSelectableBolarsThemeProfileId, type BolarsSelectableThemeProfileId } from '../theme/bolarsTheme';
+import { BOLARS_ROUTE, createEmptySnapshot, createThemeProfile, maskCode, maskPhone } from './defaults';
 import type {
   AdapterKind,
   ApplyStatus,
@@ -20,6 +21,9 @@ export type RuntimeRouteContext = {
   runId?: string;
   terminalLabel?: string;
   buildId: string;
+  themeProfileId: BolarsSelectableThemeProfileId;
+  themeProfileSource: 'default' | 'query';
+  themeProfileWarning?: string;
 };
 
 const createInitialApplyStatus = (): ApplyStatus => ({
@@ -69,7 +73,7 @@ export class BaseRuntimeAdapter implements SelfCheckoutRuntimePort {
     protected readonly adapterKind: AdapterKind,
     protected readonly routeContext: RuntimeRouteContext
   ) {
-    this.snapshot = createEmptySnapshot(adapterKind);
+    this.snapshot = this.createRuntimeSnapshot();
   }
 
   async dispatch(command: SelfCheckoutCommand): Promise<CommandResult> {
@@ -101,6 +105,13 @@ export class BaseRuntimeAdapter implements SelfCheckoutRuntimePort {
       runId: this.routeContext.runId,
       terminalLabel: this.routeContext.terminalLabel,
       buildId: this.routeContext.buildId,
+      themeProfile: {
+        id: snapshot.themeProfile.id,
+        status: snapshot.themeProfile.status,
+        tokenSetId: snapshot.themeProfile.tokenSetId,
+        highContrast: snapshot.themeProfile.highContrast,
+        source: this.routeContext.themeProfileSource
+      },
       viewport: {
         width: typeof window === 'undefined' ? 1080 : window.innerWidth,
         height: typeof window === 'undefined' ? 1920 : window.innerHeight,
@@ -286,12 +297,21 @@ export class BaseRuntimeAdapter implements SelfCheckoutRuntimePort {
       lastSnapshotCorrelationCommandId: this.snapshot.lastProcessedCommandId ?? null
     };
   }
+
+  protected createRuntimeSnapshot(overrides: Partial<SelfCheckoutStateSnapshot> = {}): SelfCheckoutStateSnapshot {
+    return createEmptySnapshot(this.adapterKind, {
+      themeProfile: createThemeProfile(this.routeContext.themeProfileId),
+      ...overrides
+    });
+  }
 }
 
 export const createRouteContext = (inputUrl: string | URL, buildId = import.meta.env?.VITE_APP_VERSION ?? 'local-dev'): RuntimeRouteContext => {
   const url = typeof inputUrl === 'string' ? new URL(inputUrl, 'https://kassa.speechbattle.com') : inputUrl;
   const debug = url.searchParams.get('debug') === '1';
   const preview = debug && url.searchParams.get('preview') === '1';
+  const rawThemeProfile = url.searchParams.get('themeProfile') ?? url.searchParams.get('theme');
+  const themeProfileId = isSelectableBolarsThemeProfileId(rawThemeProfile) ? rawThemeProfile : DEFAULT_BOLARS_THEME_PROFILE_ID;
   return {
     url,
     route: url.pathname || BOLARS_ROUTE,
@@ -299,7 +319,10 @@ export const createRouteContext = (inputUrl: string | URL, buildId = import.meta
     preview,
     runId: url.searchParams.get('runId') ?? undefined,
     terminalLabel: url.searchParams.get('terminalLabel') ?? undefined,
-    buildId: url.searchParams.get('build') ?? buildId
+    buildId: url.searchParams.get('build') ?? buildId,
+    themeProfileId,
+    themeProfileSource: rawThemeProfile && rawThemeProfile === themeProfileId ? 'query' : 'default',
+    themeProfileWarning: rawThemeProfile && !isSelectableBolarsThemeProfileId(rawThemeProfile) ? `theme profile "${rawThemeProfile}" is not selectable; ${DEFAULT_BOLARS_THEME_PROFILE_ID} is used.` : undefined
   };
 };
 

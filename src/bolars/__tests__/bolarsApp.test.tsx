@@ -75,19 +75,23 @@ describe('BOLARS Self-Checkout App', () => {
   });
 
   it('opens preview controls only with debug preview route', () => {
-    setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentError');
-    render(<BolarsSelfCheckoutApp />);
+    setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentError&theme=bolars-light-promo');
+    const { container } = render(<BolarsSelfCheckoutApp />);
 
     expect(screen.getByLabelText('Preview controls')).toBeInTheDocument();
+    expect(screen.getByLabelText('Preview theme profile')).toHaveValue('bolars-light-promo');
     expect(screen.getByLabelText('Debug panel')).toBeInTheDocument();
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-theme-bolars-light-promo');
+    expect((container.querySelector('.bolars-root') as HTMLElement).style.getPropertyValue('--bolars-background')).toBe('#F8FAEE');
     expect(screen.getByText('Оплата не прошла')).toBeInTheDocument();
   });
 
   it('exposes BolarsSelfCheckout API on debug route', () => {
-    setRoute('/bolars/self-checkout-mvp?debug=1&adapter=onec');
+    setRoute('/bolars/self-checkout-mvp?debug=1&adapter=onec&theme=bolars-light-contrast');
     render(<BolarsSelfCheckoutApp />);
 
     expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-self-checkout-mvp');
+    expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-light-contrast');
     fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
     expect(window.BolarsSelfCheckout?.peekOutboundStatusJson()).toContain('pendingCount');
     expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('startPurchase');

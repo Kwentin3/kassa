@@ -5,6 +5,7 @@ import { MOCK_PRODUCTS, createEmptySnapshot, getNextMockScanProduct } from '../d
 import { MockAdapter } from '../mockAdapter';
 import { OneCInterfaceAdapter } from '../onecInterfaceAdapter';
 import { PreviewAdapter } from '../previewAdapter';
+import { getBolarsThemeTokens } from '../../theme/bolarsTheme';
 
 const route = (query = '') => `https://kassa.speechbattle.com/bolars/self-checkout-mvp${query}`;
 
@@ -20,6 +21,22 @@ describe('BOLARS RuntimeAdapterFactory', () => {
     const result = createRuntimeAdapterFactory(route('?adapter=onec'));
     expect(result.adapterKind).toBe('mock');
     expect(result.warnings.join(' ')).toMatch(/ignored/);
+  });
+
+  it('resolves theme query into runtime context without changing adapter selection', () => {
+    const result = createRuntimeAdapterFactory(route('?debug=1&preview=1&theme=bolars-light-contrast'));
+    expect(result.adapterKind).toBe('preview');
+    expect(result.routeContext.themeProfileId).toBe('bolars-light-contrast');
+    expect(result.runtime.getState().themeProfile.id).toBe('bolars-light-contrast');
+    expect((result.runtime as PreviewAdapter).getDebugState().themeProfile.id).toBe('bolars-light-contrast');
+    expect(getBolarsThemeTokens(result.runtime.getState().themeProfile.id)['--bolars-background']).toBe('#FFFFFF');
+  });
+
+  it('falls back to default theme for reserved or unknown route values', () => {
+    const result = createRuntimeAdapterFactory(route('?debug=1&preview=1&theme=bolars-dark-optional'));
+    expect(result.routeContext.themeProfileId).toBe('bolars-light-default');
+    expect(result.runtime.getState().themeProfile.id).toBe('bolars-light-default');
+    expect(result.warnings.join(' ')).toMatch(/not selectable/);
   });
 });
 

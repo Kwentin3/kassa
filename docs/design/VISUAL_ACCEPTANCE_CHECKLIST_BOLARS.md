@@ -83,11 +83,12 @@
 - [ ] Нет хардкода цветов в компонентах.
 - [ ] Все цвета идут через токены темы.
 - [ ] HEX-значения находятся только в theme/profile config.
-- [ ] Prototype MVP реализует `bolars-light-default`.
-- [ ] Архитектурно зарезервированы `bolars-light-contrast` и `custom`.
+- [ ] Prototype MVP реализует selectable light profiles: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`.
+- [ ] URL params `theme` / `themeProfile` задают initial `snapshot.themeProfile` and do not create a direct UI/CSS bypass.
+- [ ] Архитектурно зарезервированы `custom` и `bolars-dark-optional`.
 - [ ] `bolars-dark-optional` не обязателен для MVP, но архитектурно не заблокирован.
 - [ ] Первый implementation slice не содержит production theme editor, custom theme UI или обязательную dark theme.
-- [ ] Mandatory theme profiles не расширены без отдельного решения.
+- [ ] Reserved theme profiles fallback safely and show debug warning instead of breaking UI.
 - [ ] Размеры текста поддерживают `normal`, `large`, `extraLarge`.
 - [ ] Spacing, radius, shadow/elevation не размазаны по компонентам.
 - [ ] Focus, disabled, pressed, busy и highlight states используют tokens.

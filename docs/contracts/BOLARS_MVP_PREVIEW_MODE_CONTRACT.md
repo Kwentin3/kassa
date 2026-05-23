@@ -29,12 +29,15 @@ Optional query params:
 - `screen=start|cart|paymentSetup|paymentWaiting|paymentError|finalSuccess`
 - `scenario=emptyCart|fullCart|searchFound|searchNotFound|quantityNumpad|paymentFailed|successCountdown`
 - `textScale=normal|large|extraLarge`
+- `theme=bolars-light-default|bolars-light-contrast|bolars-light-clean|bolars-light-promo`
+- `themeProfile=bolars-light-default|bolars-light-contrast|bolars-light-clean|bolars-light-promo`
 
 Rules:
 
 - `preview=1` requires `debug=1`.
 - Preview controls are hidden without `debug=1`.
 - Preview route must not affect normal customer route behavior.
+- Preview theme selector changes the route theme override; it must not bypass `PreviewAdapter` or directly render screens.
 
 ## 3. Architecture
 
@@ -95,6 +98,8 @@ Allowed controls:
 - next/previous scenario optional.
 
 Preview controls dispatch preview-safe commands or scenario selection intents to `PreviewAdapter`.
+
+Theme profile selection is URL-driven for acceptance/debug convenience. The active profile still enters UI as `snapshot.themeProfile`, and UI applies semantic CSS tokens from that snapshot.
 
 ## 6. Snapshot Markers
 

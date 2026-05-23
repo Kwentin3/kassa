@@ -4,7 +4,6 @@ import {
   MOCK_PRODUCTS,
   PACKAGE_PRODUCTS,
   createCartLine,
-  createEmptySnapshot,
   defaultScannerState,
   emptySearchState,
   lineToCandidate,
@@ -57,7 +56,7 @@ export class MockAdapter extends BaseRuntimeAdapter {
 
   constructor(routeContext: RuntimeRouteContext) {
     super('mock', routeContext);
-    this.snapshot = createEmptySnapshot('mock');
+    this.snapshot = this.createRuntimeSnapshot();
   }
 
   override async dispatch(command: SelfCheckoutCommand): Promise<CommandResult> {
@@ -245,7 +244,7 @@ export class MockAdapter extends BaseRuntimeAdapter {
 
       case 'cancelPurchaseRequest':
         if (this.snapshot.cart.isEmpty) {
-          next = createEmptySnapshot('mock', { snapshotVersion: this.snapshot.snapshotVersion + 1 });
+          next = this.createRuntimeSnapshot({ snapshotVersion: this.snapshot.snapshotVersion + 1 });
         } else {
           next = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, {
             screen: this.snapshot.currentScreen,
@@ -261,7 +260,7 @@ export class MockAdapter extends BaseRuntimeAdapter {
         break;
 
       case 'confirmCancelPurchase':
-        next = createEmptySnapshot('mock', {
+        next = this.createRuntimeSnapshot({
           snapshotVersion: this.snapshot.snapshotVersion + 1,
           terminalStatus: 'purchaseCancelled',
           alerts: [{ id: `alert-${command.commandId}`, kind: 'info', title: 'Покупка отменена' }]
@@ -369,7 +368,7 @@ export class MockAdapter extends BaseRuntimeAdapter {
         break;
 
       case 'resetToStart':
-        next = createEmptySnapshot('mock', { snapshotVersion: this.snapshot.snapshotVersion + 1 });
+        next = this.createRuntimeSnapshot({ snapshotVersion: this.snapshot.snapshotVersion + 1 });
         break;
 
       default:
@@ -410,7 +409,7 @@ export class MockAdapter extends BaseRuntimeAdapter {
     this.inactivityResetTimer = window.setTimeout(() => {
       if (this.snapshot.currentScreen === 'paymentWaiting') return;
       this.setSnapshot(
-        createEmptySnapshot('mock', {
+        this.createRuntimeSnapshot({
           snapshotVersion: this.snapshot.snapshotVersion + 1,
           terminalStatus: 'inactivityTimedOut',
           alerts: [{ id: 'inactivity-timeout', kind: 'warning', title: 'Сработал таймаут неактивности' }]

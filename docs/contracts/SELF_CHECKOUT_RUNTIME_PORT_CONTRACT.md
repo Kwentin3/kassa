@@ -543,6 +543,8 @@ interface ThemeProfileState {
   id:
     | 'bolars-light-default'
     | 'bolars-light-contrast'
+    | 'bolars-light-clean'
+    | 'bolars-light-promo'
     | 'bolars-dark-optional'
     | 'custom';
   status: 'loaded' | 'defaultProfile' | 'error';
@@ -552,7 +554,7 @@ interface ThemeProfileState {
 }
 ```
 
-The actual token values live in theme config. Snapshot chooses the active profile.
+The actual token values live in theme config. Snapshot chooses the active profile. URL params `theme` / `themeProfile` may set the initial profile for mock/preview/demo routes, but UI components still render the authoritative `snapshot.themeProfile` and do not read query params directly.
 
 ## 20. FeatureFlags
 

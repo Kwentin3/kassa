@@ -27,13 +27,33 @@
 | Profile | Назначение |
 | --- | --- |
 | `bolars-light-default` | `Bolars Light / БОЛАРС Светлая`; базовая тема MVP. |
-| `bolars-light-contrast` | `Bolars Contrast / БОЛАРС Контрастная`; будущий профиль для повышенной читаемости. |
+| `bolars-light-contrast` | `Bolars Contrast / БОЛАРС Контрастная`; профиль повышенной читаемости. |
+| `bolars-light-clean` | `Bolars Clean / БОЛАРС Чистая`; спокойный рабочий профиль с меньшей промо-насыщенностью. |
+| `bolars-light-promo` | `Bolars Promo / БОЛАРС Промо`; профиль с более активным промо-фоном и brand accents. |
 | `custom` | `Custom / Пользовательская`; будущий профиль для ручной настройки цветов. |
 | `bolars-dark-optional` | Архитектурная возможность тёмной темы, не обязательна для MVP. |
 
-Для первого prototype MVP обязательно реализовать только `bolars-light-default`. `bolars-light-contrast`, `custom` и `bolars-dark-optional` являются reserved architecture, а не обязательным объёмом первого среза.
+Для текущего prototype MVP реализованы selectable light-профили: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`. `custom` и `bolars-dark-optional` остаются reserved architecture, а не обязательным customer scope.
 
 Implementation agent не должен тратить первый срез на dark/custom theme UI или production theme editor. Нужно только token-driven foundation, где HEX живут в theme/profile config, а компоненты обращаются к semantic tokens.
+
+## 2.1. Route Theme Override
+
+Для dev/demo/acceptance допускается безопасный URL override активного профиля:
+
+```text
+/bolars/self-checkout-mvp?theme=bolars-light-contrast
+/bolars/self-checkout-mvp?debug=1&preview=1&theme=bolars-light-promo
+/bolars/self-checkout-mvp?debug=1&preview=1&themeProfile=bolars-light-clean
+```
+
+Правила:
+
+- `theme` и `themeProfile` являются alias-параметрами; если указаны оба, `themeProfile` имеет приоритет.
+- Разрешены только selectable profiles: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`.
+- Reserved значения (`custom`, `bolars-dark-optional`) и неизвестные значения должны безопасно fallback-иться на `bolars-light-default` с debug warning.
+- URL override задаёт initial `themeProfile` в runtime context и snapshot. UI всё равно применяет только tokens из snapshot, а не читает query params напрямую.
+- Production theme admin, dark theme UI и ручной custom editor не входят в MVP.
 
 ## 3. Рабочая Палитра БОЛАРС
 

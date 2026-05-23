@@ -272,7 +272,7 @@ export type UiConfigState = {
 };
 
 export type ThemeProfileState = {
-  id: 'bolars-light-default' | 'bolars-light-contrast' | 'bolars-dark-optional' | 'custom';
+  id: 'bolars-light-default' | 'bolars-light-contrast' | 'bolars-light-clean' | 'bolars-light-promo' | 'bolars-dark-optional' | 'custom';
   status: 'loaded' | 'defaultProfile' | 'error';
   version: string;
   tokenSetId: string;
@@ -364,6 +364,13 @@ export type RuntimeDebugState = {
   runId?: string;
   terminalLabel?: string;
   buildId: string;
+  themeProfile: {
+    id: ThemeProfileState['id'];
+    status: ThemeProfileState['status'];
+    tokenSetId: string;
+    highContrast: boolean;
+    source: 'default' | 'query' | 'snapshot';
+  };
   viewport: { width: number; height: number; profile: string };
   api: Record<string, boolean | string>;
   adapter: {

@@ -35,6 +35,7 @@ export const exposeBolarsSelfCheckoutApi = (factoryResult: RuntimeAdapterFactory
       buildId: factoryResult.routeContext.buildId,
       runtimePortStatus: 'ready',
       adapterKind: factoryResult.adapterKind,
+      themeProfileId: factoryResult.runtime.getState().themeProfile.id,
       lastSnapshotVersion: factoryResult.runtime.getState().snapshotVersion
     }),
     getRuntimeInfoJson: () => JSON.stringify(api.getRuntimeInfo()),

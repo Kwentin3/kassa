@@ -25,7 +25,7 @@ import { createCommand, type CommandPayloadByType } from './runtime/commands';
 import { BOLARS_ROUTE, DEFAULT_TEXTS, MOCK_PRODUCTS, getNextMockScanProduct } from './runtime/defaults';
 import { exposeBolarsSelfCheckoutApi } from './runtime/webApi';
 import type { CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
-import { bolarsLightDefaultTokens } from './theme/bolarsTheme';
+import { BOLARS_THEME_PROFILE_OPTIONS, DEFAULT_BOLARS_THEME_PROFILE_ID, getBolarsThemeTokens, isSelectableBolarsThemeProfileId } from './theme/bolarsTheme';
 
 const useRuntimeSnapshot = (runtime: SelfCheckoutRuntimePort) =>
   useSyncExternalStore(
@@ -140,13 +140,13 @@ export const BolarsSelfCheckoutApp = () => {
   }, [send, snapshot.adapterKind, snapshot.currentScreen, snapshot.uiConfig.finalAutoResetSeconds]);
 
   return (
-    <main className={`bolars-root bolars-scale-${snapshot.textScale} bolars-screen-${snapshot.currentScreen}`} style={bolarsLightDefaultTokens as CSSProperties}>
+    <main className={`bolars-root bolars-scale-${snapshot.textScale} bolars-screen-${snapshot.currentScreen} bolars-theme-${snapshot.themeProfile.id}`} style={getBolarsThemeTokens(snapshot.themeProfile.id) as CSSProperties}>
       <div className="bolars-stage">
         {renderScreen(snapshot, { send })}
         {snapshot.modalState.type !== 'none' && <BolarsModal snapshot={snapshot} send={send} />}
       </div>
       {factory.debugMode && <DebugPanel runtime={factory.runtime} factory={factory} />}
-      {factory.previewMode && factory.preview && <PreviewPanel factory={factory} currentScenario={snapshot.previewScenarioId} textScale={snapshot.textScale} />}
+      {factory.previewMode && factory.preview && <PreviewPanel factory={factory} currentScenario={snapshot.previewScenarioId} textScale={snapshot.textScale} themeProfileId={snapshot.themeProfile.id} />}
     </main>
   );
 };
@@ -598,8 +598,29 @@ const ReceiptPreview = ({ snapshot }: { snapshot: SelfCheckoutStateSnapshot }) =
   </div>
 );
 
-const PreviewPanel = ({ factory, currentScenario, textScale }: { factory: RuntimeAdapterFactoryResult; currentScenario?: string; textScale: TextScale }) => {
+const PreviewPanel = ({
+  factory,
+  currentScenario,
+  textScale,
+  themeProfileId
+}: {
+  factory: RuntimeAdapterFactoryResult;
+  currentScenario?: string;
+  textScale: TextScale;
+  themeProfileId: SelfCheckoutStateSnapshot['themeProfile']['id'];
+}) => {
   if (!factory.preview) return null;
+  const selectedThemeProfileId = isSelectableBolarsThemeProfileId(themeProfileId) ? themeProfileId : DEFAULT_BOLARS_THEME_PROFILE_ID;
+  const changeThemeProfile = (nextThemeProfileId: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('debug', '1');
+    url.searchParams.set('preview', '1');
+    url.searchParams.set('theme', nextThemeProfileId);
+    url.searchParams.set('scenario', currentScenario ?? 'startIdle');
+    url.searchParams.set('textScale', textScale);
+    window.location.assign(url.toString());
+  };
+
   return (
     <aside className="bolars-preview-panel" aria-label="Preview controls">
       <strong>Preview</strong>
@@ -612,6 +633,11 @@ const PreviewPanel = ({ factory, currentScenario, textScale }: { factory: Runtim
         <option value="normal">normal</option>
         <option value="large">large</option>
         <option value="extraLarge">extraLarge</option>
+      </select>
+      <select value={selectedThemeProfileId} onChange={(event) => changeThemeProfile(event.target.value)} aria-label="Preview theme profile">
+        {BOLARS_THEME_PROFILE_OPTIONS.map((profile) => (
+          <option value={profile.id} key={profile.id}>{profile.label}</option>
+        ))}
       </select>
       <small>Preview mode does not call 1С and does not perform business operations.</small>
     </aside>
@@ -642,6 +668,8 @@ const DebugPanel = ({ runtime, factory }: { runtime: SelfCheckoutRuntimePort; fa
         <dd>{debug.route}</dd>
         <dt>build</dt>
         <dd>{debug.buildId}</dd>
+        <dt>theme</dt>
+        <dd>{debug.themeProfile.id}</dd>
         <dt>adapterKind</dt>
         <dd>{debug.adapter.adapterKind}</dd>
         <dt>previewMode</dt>

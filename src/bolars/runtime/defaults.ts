@@ -17,6 +17,7 @@ import type {
   TotalsState,
   UiConfigState
 } from './types';
+import { DEFAULT_BOLARS_THEME_PROFILE_ID, type BolarsThemeProfileId } from '../theme/bolarsTheme';
 
 export type RuntimeProduct = {
   productId: string;
@@ -316,12 +317,12 @@ export const createUiConfig = (): UiConfigState => ({
   texts: DEFAULT_TEXTS
 });
 
-export const createThemeProfile = (): ThemeProfileState => ({
-  id: 'bolars-light-default',
+export const createThemeProfile = (id: BolarsThemeProfileId = DEFAULT_BOLARS_THEME_PROFILE_ID): ThemeProfileState => ({
+  id,
   status: 'loaded',
   version: '0.1',
-  tokenSetId: 'bolars-light-default',
-  highContrast: false
+  tokenSetId: id,
+  highContrast: id === 'bolars-light-contrast'
 });
 
 export const createFeatureFlags = (adapterKind: AdapterKind): FeatureFlagsState => ({

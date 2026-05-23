@@ -1,4 +1,3 @@
-import { createEmptySnapshot } from './defaults';
 import { BaseRuntimeAdapter, maskSensitive, payloadSummary, type RuntimeRouteContext } from './baseAdapter';
 import type { ApplyStatus, CommandResult, OutboundCommandRecord, RuntimeDebugState, SelfCheckoutCommand } from './types';
 
@@ -10,7 +9,7 @@ export class OneCInterfaceAdapter extends BaseRuntimeAdapter {
 
   constructor(routeContext: RuntimeRouteContext) {
     super('onec', routeContext);
-    this.snapshot = createEmptySnapshot('onec');
+    this.snapshot = this.createRuntimeSnapshot();
   }
 
   override async dispatch(command: SelfCheckoutCommand): Promise<CommandResult> {

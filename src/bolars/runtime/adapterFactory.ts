@@ -26,6 +26,10 @@ export const createRuntimeAdapterFactory = (inputUrl: string | URL): RuntimeAdap
     warnings.push('preview=1 ignored because debug=1 is required.');
   }
 
+  if (routeContext.themeProfileWarning) {
+    warnings.push(routeContext.themeProfileWarning);
+  }
+
   let adapterKind: AdapterKind = 'mock';
   if (routeContext.preview || (routeContext.debug && requested === 'preview')) {
     adapterKind = 'preview';

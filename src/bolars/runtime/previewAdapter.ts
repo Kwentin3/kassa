@@ -1,4 +1,5 @@
 import { BaseRuntimeAdapter, type RuntimeRouteContext } from './baseAdapter';
+import { createThemeProfile } from './defaults';
 import { getPreviewScenario, PREVIEW_SCENARIOS } from './previewScenarios';
 import type { CommandResult, CurrentScreen, RuntimeDebugState, SelfCheckoutCommand, TextScale } from './types';
 
@@ -61,6 +62,11 @@ export class PreviewAdapter extends BaseRuntimeAdapter {
   private applySelectedScenario() {
     const scenario = getPreviewScenario(this.selectedScenarioId);
     this.selectedScenarioId = scenario.id;
-    this.setSnapshot(scenario.createSnapshot(this.selectedTextScale));
+    const themeProfile = createThemeProfile(this.routeContext.themeProfileId);
+    const snapshot = scenario.createSnapshot(this.selectedTextScale);
+    this.setSnapshot({
+      ...snapshot,
+      themeProfile: scenario.id === 'themeError' ? { ...themeProfile, status: 'error' } : themeProfile
+    });
   }
 }

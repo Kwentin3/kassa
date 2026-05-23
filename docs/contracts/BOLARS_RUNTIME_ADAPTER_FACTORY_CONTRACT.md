@@ -33,6 +33,7 @@ Query params:
 - `debug=1`
 - `preview=1`
 - `adapter=mock|preview|onec` only if explicitly allowed in dev/debug context
+- `theme` / `themeProfile` for safe initial theme profile override; this does not select adapter
 
 Environment:
 
@@ -115,3 +116,4 @@ Implementation can choose a different internal shape, but the same facts must be
 - Debug shows selected adapter kind and selection warnings.
 - Invalid adapter query does not crash customer flow.
 - `debug=1&runId=onec-smoke-001` can be used for 1C mini-smoke without changing customer route behavior.
+- `theme` / `themeProfile` may change initial `snapshot.themeProfile`, but must not create a separate UI path or adapter path.
