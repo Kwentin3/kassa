@@ -13,8 +13,13 @@ import { PaymentScreen } from '../screens/PaymentScreen';
 import { ProductSearchScreen } from '../screens/ProductSearchScreen';
 import { ReceiptScreen } from '../screens/ReceiptScreen';
 import { SessionTimeoutScreen } from '../screens/SessionTimeoutScreen';
+import { BolarsSelfCheckoutApp, isBolarsRoute } from '../bolars/BolarsSelfCheckoutApp';
 
 export default function App() {
+  if (isBolarsRoute(window.location.pathname)) {
+    return <BolarsSelfCheckoutApp />;
+  }
+
   const { state, activeBrand, dispatch } = useTerminalStore();
 
   useEffect(() => {

@@ -1,0 +1,382 @@
+﻿# Screen Composition Spec: BOLARS Self-Checkout
+
+Статус: draft 0.1
+Дата: 2026-05-23
+Назначение: подробная композиционная спецификация MVP-экранов по эскизам БОЛАРС.
+
+Базовый viewport: `1080x1920`, portrait.
+Визуальный источник: пять PNG-эскизов из `D:\Users\Roman\Desktop\Эскизы для терминала кассы самообслуживания\тема боларс`.
+Связанные документы:
+
+- `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`
+- `docs/product/PRD_BOLARS_SELF_CHECKOUT_MVP_v0.1.md`
+- `docs/AGENT_START_HERE.md`
+- `docs/README.md`
+- `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md`
+- `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md`
+- `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`
+- `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md`
+
+## 1. Общие Правила Экранов
+
+- UI собирается из `SelfCheckoutStateSnapshot`, `themeProfile`, `uiConfig` и tokens.
+- Screen component не вызывает backend/1C/payment/scanner/search напрямую.
+- Основной сценарий: scan-first, cart-first после первого товара.
+- Search и quantity numpad являются состояниями рабочего экрана, не отдельным каталогом.
+- Старый showcase/catalog подход не переносится: product catalog не является главным экраном BOLARS MVP.
+- `1080x1920` является базовым target, но screen layout не прибивается к абсолютным пикселям; stage/tokens/layout contract должны выдерживать отличающийся HTML-shell/WebView viewport.
+- Sticky CTA не должен пропадать без явной scroll-зоны.
+- Help доступна на ключевых экранах.
+- Cancel purchase destructive action требует confirmation modal, если cart не пустая.
+- Честный знак / маркированный товар допускается только как unresolved runtime branch/state marker; UI не угадывает маркировку и не реализует реальный сценарий без отдельного решения.
+
+## 2. Стартовый Экран
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Встретить покупателя и направить к первому scan. |
+| Пользовательский контекст | Покупатель подошёл к терминалу, cart пустая. |
+| Входные сценарии | `currentScreen=start`, `cart.isEmpty=true`; reset after final; inactivity reset. |
+| Выходные сценарии | `startPurchase()` -> empty cart; `scanCode(code)` -> cart/payment-relevant state; manual search action -> cart with search active; help. |
+| Обязательные зоны | `brandHeader`, hero instruction, scanner visual, scan action card, manual search card, text scale card, help card. |
+| Optional зоны | Product/promotional images, date/time. |
+| Sticky зоны | Help может быть bottom-sticky на compact viewport. |
+| Главная CTA | Scan instruction, не обычная кнопка. Scan card визуально первая. |
+| Вторичные действия | Manual search, text scale, help. |
+| Runtime state | `currentScreen`, `scannerState`, `textScale`, `themeProfile`, `uiConfig.showClock`. |
+| Tokens | `color.bg.header`, `color.brand.primary`, `scanner.*`, `radius.card`, `shadow.card`. |
+| uiConfig | `showClock`, `manualSearchEnabled`, `finalAutoResetSeconds`, `motionProfile`. |
+
+Visual states:
+
+- idle: barcode/cyan scan visual visible;
+- scanning: короткий scan-line или pulse;
+- unknown/not found after scan: alert, then stay start or move cart depending runtime;
+- help requested: runtime modal/alert state.
+
+Acceptance criteria:
+
+- Главный текст `Поднесите штрих-код товара к сканеру` читается первым.
+- Касание стартового экрана открывает cart screen без добавленной строки.
+- Brand zone БОЛАРС узнаваема, но не перекрывает scan instruction.
+- Manual search не выглядит главным сценарием.
+- Text scale controls имеют visible selected/focus/pressed states.
+
+## 3. Корзина / Ваши Покупки
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Основной рабочий экран покупки: видеть состав, продолжать scan, менять количество, перейти к оплате. |
+| Пользовательский контекст | Первый товар уже добавлен или cart открыта после manual search. |
+| Входные сценарии | scan product; select search candidate; return from payment setup; timeout warning return. |
+| Выходные сценарии | goToPaymentSetup; cancelPurchaseRequest; help; payment setup. |
+| Обязательные зоны | `workHeader`, search bar, scan continuation hint, cart list, summary card, payment CTA, help. |
+| Optional зоны | Manager badge, recent alert chip, image fallback. |
+| Sticky зоны | Summary/payment CTA; help may sit below summary or sticky bottom. |
+| Главная CTA | `Перейти к оплате`, green, disabled only when runtime says `canGoToPayment=false`. |
+| Вторичные действия | Search, plus/minus, quantity numpad, delete, cancel purchase, help. |
+| Runtime state | `cart`, `cartLines`, `totals`, `searchState`, `scannerState`, `manager`, `alerts`, `modalState`. |
+| Tokens | `color.cta.pay.*`, `state.highlight.*`, `color.delete.fg`, `color.scan.*`, `manager.badge.*`. |
+| uiConfig | `searchMinLength`, `productImageMode`, `showManagerBadge`, `showHelpAction`. |
+
+Visual states:
+
+- empty cart: no product rows; clear scan/manual search instruction; payment CTA disabled or hidden by runtime.
+- product added: row visible and highlighted.
+- repeated product: same row quantity updated; `lastChange.kind='quantityIncreased'`.
+- product removed: row removed after runtime snapshot; optional alert/undo only if runtime supplies action.
+- quantity changed: row highlighted with `Количество изменено`.
+- barcode not found: alert plus search fallback.
+- unknown code: warning alert; no UI business inference.
+
+Acceptance criteria:
+
+- Наименование товара крупное, максимум две строки.
+- В строке товара виден номер позиции из runtime snapshot или из упорядоченного `cartLines`.
+- `+`, `-`, quantity field доступны пальцем.
+- Quantity в MVP целочисленное, если весовые/дробные товары не утверждены отдельно.
+- Сумма и CTA читаются быстрее деталей.
+- Ошибка scan не очищает cart.
+- Повторное сканирование не создаёт дубликат строки, если runtime вернул increment.
+
+## 4. Поиск и Кандидаты Поиска как Состояние Корзины
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Fallback для товара без scan или при плохом barcode. |
+| Пользовательский контекст | Покупатель вводит название/артикул на cart screen. |
+| Входные сценарии | Tap search bar; manual search from start; barcode not found alert action. |
+| Выходные сценарии | selectSearchCandidate; clear search; return to cart; help. |
+| Обязательные зоны | Search input, min length hint, candidates area, current cart summary still visible or recoverable. |
+| Optional зоны | On-screen keyboard, loading indicator, not-found fallback. |
+| Sticky зоны | Cart summary/payment CTA remains available if cart has items. |
+| Главная CTA | Candidate row/card action: tap candidate to add. |
+| Вторичные действия | Clear query, close search, help. |
+| Runtime state | `searchState.status`, `searchState.query`, `searchState.candidates`, `cart`, `totals`. |
+| Tokens | `color.scan.primary`, `color.bg.surface`, `state.focus.*`, `shadow.card`. |
+| uiConfig | `searchMinLength=4`, `productImageMode`, `manualSearchEnabled`. |
+
+Visual states:
+
+- below min length: hint `Поиск начнется после 4+ символов`.
+- searching: visible spinner/progress in candidates area.
+- found: large candidate rows/cards, no product detail modal.
+- candidate row may show name, article, barcode/identifier and price if runtime supplied them.
+- not found: clear message, suggest scan again/help.
+- error: user-readable alert, query preserved.
+
+Acceptance criteria:
+
+- Search starts only after `4+` characters.
+- Search fields are name, article and barcode digits through runtime/search adapter.
+- Selecting candidate dispatches `selectSearchCandidate(candidateId)` and immediately returns to cart state after snapshot.
+- Candidate card does not open product details.
+- Search results do not replace cart source of truth.
+
+## 5. Нумпад Количества как Overlay-Состояние
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Быстро ввести точное количество товара. |
+| Пользовательский контекст | Покупатель нажал quantity field в строке товара. |
+| Входные сценарии | `openQuantityNumpad(lineId)`. |
+| Выходные сценарии | `confirmQuantityInput(lineId, quantity)`, close/cancel through runtime modal state. |
+| Обязательные зоны | Dim overlay, modal/card, product short label, draft quantity, numeric keys, confirm, cancel/backspace. |
+| Optional зоны | Unit label, max/min hints if runtime supplies. |
+| Sticky зоны | None; overlay owns focus. |
+| Главная CTA | Confirm quantity. |
+| Вторичные действия | Backspace, clear, cancel. |
+| Runtime state | `modalState.type='quantityNumpad'`, `cartLine.quantityControls`. |
+| Tokens | `color.bg.overlay`, `radius.modal`, `shadow.modal`, `state.focus.*`. |
+| uiConfig | `quantityNumpadEnabled`, `motionProfile`. |
+
+Visual states:
+
+- open: background visible but inactive.
+- invalid quantity: runtime validation error displayed near draft field.
+- busy confirm: confirm disabled/busy until snapshot.
+
+Acceptance criteria:
+
+- Overlay is keyboard and touch operable.
+- Confirm sends quantity intent only; UI does not recalculate totals.
+- Focus is trapped inside modal while open.
+- Reduced motion uses opacity transition only.
+
+## 6. Подтверждение Отмены Покупки как Modal-Состояние
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Защитить покупателя от случайной потери корзины. |
+| Пользовательский контекст | Cart not empty, user tapped `Отменить покупку`. |
+| Входные сценарии | `cancelPurchaseRequest()` with non-empty cart. |
+| Выходные сценарии | `confirmCancelPurchase()` or `returnToPurchase()`. |
+| Обязательные зоны | Modal title `Отменить покупку и очистить корзину?`, explanation, destructive confirm `Да, отменить`, safe return `Вернуться к покупке`. |
+| Optional зоны | Summary: item count/total. |
+| Sticky зоны | None; modal owns focus. |
+| Главная CTA | Safe action `Вернуться к покупке`; destructive action visually secondary but clear. |
+| Вторичные действия | Confirm cancel. |
+| Runtime state | `modalState.type='cancelPurchaseConfirm'`, `cart.isEmpty=false`. |
+| Tokens | `color.error.*`, `color.cta.cancel.*`, `color.bg.overlay`, `radius.modal`. |
+| uiConfig | `motionProfile`. |
+
+Visual states:
+
+- open: dim overlay;
+- busy confirm: destructive action busy;
+- cancelled: runtime resets to start.
+
+Acceptance criteria:
+
+- Empty cart cancel returns directly to start.
+- Non-empty cart never resets without confirmation.
+- Destructive action is not the default focused action.
+
+## 7. Подготовка к Оплате
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Проверить заказ, добавить пакет, применить скидку/телефон, начать оплату. |
+| Пользовательский контекст | Покупатель закончил scan/cart editing. |
+| Входные сценарии | `goToPaymentSetup()`. |
+| Выходные сценарии | `startPayment()`, `returnToPurchase()`, `cancelPurchaseRequest()`, help. |
+| Обязательные зоны | Header, order review card, packages card, discount/phone card, final total band, payment CTA, help. |
+| Optional зоны | Manager badge, applied discount badge, package selected state. |
+| Sticky зоны | Bottom `Оплатить` CTA. |
+| Главная CTA | `Оплатить`, full-width green. |
+| Вторичные действия | Add package, apply discount phone, scan discount, bind manager, return/cancel/help. |
+| Runtime state | `cartLines`, `totals`, `discount`, `manager`, `paymentState.status='idle|preparing'`, `featureFlags`. |
+| Tokens | `discount.*`, `color.cta.pay.*`, `manager.badge.*`, `radius.card`, `shadow.card`. |
+| uiConfig | `packagesEnabled`, `discountByPhoneEnabled`, `managerBindingEnabled`, `showHelpAction`. |
+
+Visual states:
+
+- no discount: instruction and phone input.
+- checking discount: visible busy state.
+- discount applied: green confirmation with amount.
+- discount not found: warning/error inline, payment remains available unless runtime disables.
+- package added: order review/totals update after snapshot.
+- manager bound: badge visible in header.
+
+Acceptance criteria:
+
+- Customer can review items without returning to cart for every detail.
+- Package cards are clear actions, not decorative.
+- Discount status does not obscure total.
+- `Оплатить` is disabled/busy only from runtime state.
+
+## 8. Применение Скидки по Телефону
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Ввести phone fallback для скидки/бонусов. |
+| Пользовательский контекст | Покупатель не сканирует карту скидки или карта не читается. |
+| Входные сценарии | Focus phone input; tap keypad icon; scan discount not available. |
+| Выходные сценарии | `applyDiscountByPhone(phone)`, clear/return. |
+| Обязательные зоны | Phone input, keypad/numeric input, status area. |
+| Optional зоны | Masked phone, validation message. |
+| Sticky зоны | Payment CTA remains below. |
+| Главная CTA | Apply/confirm phone if separate button exists; otherwise input submit. |
+| Вторичные действия | Clear phone, scan card hint. |
+| Runtime state | `discount.status`, `discount.phoneMasked`, `alerts`, `totals`. |
+| Tokens | `discount.input.*`, `discount.applied.*`, `discount.notFound.*`, `state.focus.*`. |
+| uiConfig | `discountByPhoneEnabled`, `language`. |
+
+Visual states:
+
+- input empty;
+- invalid phone local draft formatting allowed, validation from runtime;
+- checking;
+- applied;
+- not found;
+- error.
+
+Acceptance criteria:
+
+- Phone entry never computes discount locally.
+- Not found state is understandable and recoverable.
+- Applied discount changes totals only after snapshot.
+
+## 9. Ожидание Оплаты
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Дать ясную инструкцию приложить карту и показать payment progress. |
+| Пользовательский контекст | Покупатель нажал `Оплатить`; эквайринг ожидает карту. |
+| Входные сценарии | `startPayment()` -> `paymentState.status='waitingForCard'`. |
+| Выходные сценарии | payment success -> final; failed/timeout -> error screen; cancel/return if runtime allows. |
+| Обязательные зоны | Brand header, title/order number, amount card, central payment visual, status line, compact order preview. |
+| Optional зоны | Provider label, secondary details, collapsed item count. |
+| Sticky зоны | Secondary actions area only if runtime exposes actions. |
+| Главная CTA | Нет customer CTA в чистом waiting state; основной action физически на payment terminal. |
+| Вторичные действия | Retry/return only for failed/timeout or explicit runtime availability. |
+| Runtime state | `paymentState`, `totals`, `cartLines`, `uiConfig.paymentProviderLabel`. |
+| Tokens | `scanner.corner.*`, `color.scan.*`, `color.brand.primary`, `shadow.card`. |
+| uiConfig | `motionProfile`, `productImageMode`, `paymentProviderLabel`. |
+
+Visual states:
+
+- preparing: amount visible, busy status.
+- waitingForCard: instruction `Приложите карту к терминалу оплаты`.
+- processing: status changes, no duplicate payment button.
+- timeout/unknown: transition to payment error state.
+- inactivity timeout must not break payment after acquiring transaction was sent.
+
+Acceptance criteria:
+
+- Сумма к оплате крупная и совпадает со snapshot.
+- Waiting state не предлагает повторно нажать `Оплатить`.
+- Cart remains preserved until runtime finalizes.
+
+## 10. Ошибка Оплаты
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Объяснить, что оплата не прошла, и дать безопасные recovery actions. |
+| Пользовательский контекст | Payment declined, timeout, connection error or unknown. |
+| Входные сценарии | `paymentState.status='failed|timeout|cancelled|unknown'`. |
+| Выходные сценарии | `retryPayment()`, `returnToPaymentSetup()`, help, cancel request if allowed. |
+| Обязательные зоны | Error title/message, amount/order context, retry action, return action, help. |
+| Optional зоны | Provider-readable reason, order preview. |
+| Sticky зоны | Recovery actions. |
+| Главная CTA | `Попробовать ещё раз` when `canRetry=true`. |
+| Вторичные действия | `Вернуться к оплате`, help. |
+| Runtime state | `paymentState.failureReason`, `paymentState.canRetry`, `cart`, `totals`. |
+| Tokens | `color.error.*`, `color.warning.*`, `color.scan.*`, `color.cta.pay.*`. |
+| uiConfig | `paymentRetryEnabled`, `showHelpAction`. |
+
+Visual states:
+
+- declined;
+- timeout;
+- connection error;
+- cancelled;
+- unknown.
+
+Acceptance criteria:
+
+- Ошибка не очищает корзину.
+- Технические коды не показываются без пользовательского текста.
+- Retry disabled/hidden if runtime does not allow retry.
+- Return to setup keeps order context.
+
+## 11. Успешная Оплата / Финальный Экран
+
+| Пункт | Спецификация |
+| --- | --- |
+| Назначение | Подтвердить успех, показать receipt preview, вернуть терминал к старту. |
+| Пользовательский контекст | Payment completed. |
+| Входные сценарии | `paymentState.status='success'`, `currentScreen='finalSuccess'`. |
+| Выходные сценарии | automatic reset after countdown; optional `resetToStart(reason='finalCountdown')`. |
+| Обязательные зоны | Brand header, success mark, thank-you text, receipt preview, countdown card. |
+| Optional зоны | Payment masked card, order number, small confetti. |
+| Sticky зоны | None; countdown card should remain visible. |
+| Главная CTA | Нет обязательной CTA; automatic reset is primary outcome. |
+| Вторичные действия | Staff/help only if runtime requires receipt error handling, not on success. |
+| Runtime state | `paymentState`, `totals`, `cartLines`, `uiConfig.finalAutoResetSeconds`. |
+| Tokens | `final.*`, `color.success.*`, `color.brand.primary`, `shadow.card`. |
+| uiConfig | `finalAutoResetSeconds`, `finalReceiptPreviewEnabled`, `motionProfile`. |
+
+Visual states:
+
+- success stable;
+- countdown decreasing;
+- reduced motion: static check, progress updates without decorative animation.
+
+Acceptance criteria:
+
+- Success state is unmistakable.
+- Countdown is visible and concrete.
+- UI does not clear cart independently; reset comes from runtime.
+- Receipt preview is clearly visual/demo-safe in mock mode.
+
+## 12. Cross-Screen Acceptance Criteria
+
+- Все экраны помещаются в portrait `1080x1920` без horizontal scroll.
+- `1080x1920` проверяется визуальным smoke, но implementation обязан сохранять читаемость и sticky zones при `portraitCompact` или WebView fallback.
+- Scroll зоны явные: list/content scroll не ломает header и CTA.
+- Все actionable элементы имеют visible focus/pressed/disabled/busy states.
+- `normal`, `large`, `extraLarge` не ломают layout.
+- Тексты и labels приходят из config/dictionary layer.
+- Цвета, тени, radii и spacing берутся из theme tokens.
+- UI rendering is deterministic for mock snapshots.
+- Нет product detail modal, catalog browsing или internet-shop behavior.
+
+## 13. Default RU Copy
+
+Default copy должен приходить из config/dictionary layer и быть overrideable:
+
+- `Поднесите штрих-код товара к сканеру`
+- `Для применения скидки отсканируйте карту или введите номер телефона`
+- `Скидка не найдена`
+- `Код не распознан. Обратитесь к сотруднику.`
+- `Приложите карту к терминалу оплаты`
+- `Ожидаем оплату...`
+- `Оплата прошла успешно`
+- `Оплата не прошла`
+- `Попробуйте ещё раз или обратитесь к сотруднику`
+- `Спасибо за покупку!`
+- `До новых встреч`
+- `Отменить покупку и очистить корзину?`
+- `Да, отменить`
+- `Вернуться к покупке`

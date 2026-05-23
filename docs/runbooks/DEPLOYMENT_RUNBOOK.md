@@ -70,6 +70,10 @@ Do not restart or modify existing Traefik.
 ## HTTPS Smoke
 
 - Open `https://kassa.speechbattle.com`.
+- Open `https://kassa.speechbattle.com/bolars/self-checkout-mvp`.
+- Open `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1`.
+- Open `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&preview=1`.
+- Verify old showcase/diagnostics routes remain separate from the BOLARS route.
 - Verify valid TLS certificate.
 - Verify no mixed content warnings in DevTools.
 - Verify `index.html` uses no-cache/short cache.

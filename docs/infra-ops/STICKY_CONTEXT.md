@@ -15,6 +15,11 @@
 ## Текущий статус
 
 - MVP реализован на React + TypeScript + Vite + Tailwind + Zustand.
+- BOLARS Self-Checkout MVP добавлен как отдельный portrait scan-first route: `/bolars/self-checkout-mvp`.
+- BOLARS debug route: `/bolars/self-checkout-mvp?debug=1`.
+- BOLARS preview route: `/bolars/self-checkout-mvp?debug=1&preview=1`.
+- BOLARS route использует `SelfCheckoutRuntimePort`, `RuntimeAdapterFactory`, `MockAdapter`, `PreviewAdapter`, `OneCInterfaceAdapter` shell и `window.BolarsSelfCheckout`.
+- Старый showcase/catalog flow остаётся отдельным контуром и не является source of truth для BOLARS flow.
 - Core Demo реализован: idle -> add product -> cart -> payment success -> receipt -> reset.
 - Extended Demo gap fixes реализованы: staff actions, receipt-error resolution, edge-case toggle, idle timeout, SBP mock QR, Quick Branding field edits.
 - Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build` прошли.

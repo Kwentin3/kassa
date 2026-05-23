@@ -1,0 +1,375 @@
+﻿# BOLARS Theme and Tokens Contract
+
+Статус: draft 0.1
+Дата: 2026-05-23
+Назначение: контракт тем, цветовых профилей и дизайн-токенов для portrait-first кассы самообслуживания БОЛАРС.
+
+## 1. Принцип
+
+Компоненты не должны хардкодить цвета, размеры, тени, радиусы и brand-specific значения. Компоненты используют semantic tokens. Тема БОЛАРС является управляемым набором токенов, который runtime/config выбирает через `themeProfile`.
+
+Если появится официальный брендбук БОЛАРС, значения меняются в конфигурации темы, а не в UI-компонентах.
+
+## Related Documents
+
+- `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md` - каноническое upstream ТЗ.
+- `docs/product/PRD_BOLARS_SELF_CHECKOUT_MVP_v0.1.md` - продуктовая рамка MVP.
+- `docs/AGENT_START_HERE.md` - implementation handoff и первый срез.
+- `docs/README.md` - индекс документации и порядок чтения.
+- `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` - визуальные инварианты.
+- `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` - active `themeProfile` и `uiConfig` в state snapshot.
+- `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md` - token/theme acceptance criteria.
+
+## 2. Theme Profiles
+
+Минимально предусмотреть по опорному ТЗ:
+
+| Profile | Назначение |
+| --- | --- |
+| `bolars-light-default` | `Bolars Light / БОЛАРС Светлая`; базовая тема MVP. |
+| `bolars-light-contrast` | `Bolars Contrast / БОЛАРС Контрастная`; будущий профиль для повышенной читаемости. |
+| `custom` | `Custom / Пользовательская`; будущий профиль для ручной настройки цветов. |
+| `bolars-dark-optional` | Архитектурная возможность тёмной темы, не обязательна для MVP. |
+
+Для первого prototype MVP обязательно реализовать только `bolars-light-default`. `bolars-light-contrast`, `custom` и `bolars-dark-optional` являются reserved architecture, а не обязательным объёмом первого среза.
+
+Implementation agent не должен тратить первый срез на dark/custom theme UI или production theme editor. Нужно только token-driven foundation, где HEX живут в theme/profile config, а компоненты обращаются к semantic tokens.
+
+## 3. Рабочая Палитра БОЛАРС
+
+Эти HEX-значения допустимы только внутри theme/profile config. Компоненты не обращаются к ним напрямую.
+
+| Palette key | Value |
+| --- | --- |
+| `bolarsMagenta` | `#E6007E` |
+| `bolarsDarkMagenta` | `#A9005F` |
+| `logoBlack` | `#111111` |
+| `white` | `#FFFFFF` |
+| `lightBackground` | `#F6F6F6` |
+| `surfaceWhite` | `#FFFFFF` |
+| `borderGray` | `#DADADA` |
+| `textPrimary` | `#1A1A1A` |
+| `textSecondary` | `#666666` |
+| `bolarsCyan` | `#00A6C8` |
+| `successGreen` | `#25A64A` |
+| `promoLime` | `#C9E600` |
+| `warningOrange` | `#F5A623` |
+| `errorRed` | `#D93025` |
+
+## 4. Обязательные Цветовые Токены
+
+Semantic tokens:
+
+- `color.bg.app`
+- `color.bg.texture`
+- `color.bg.header`
+- `color.bg.surface`
+- `color.bg.surfaceMuted`
+- `color.bg.overlay`
+- `color.text.primary`
+- `color.text.secondary`
+- `color.text.inverse`
+- `color.text.brand`
+- `color.text.success`
+- `color.text.warning`
+- `color.text.error`
+- `color.border.default`
+- `color.border.strong`
+- `color.border.focus`
+- `color.brand.primary`
+- `color.brand.primaryStrong`
+- `color.brand.onPrimary`
+- `color.scan.primary`
+- `color.scan.background`
+- `color.cta.pay.bg`
+- `color.cta.pay.fg`
+- `color.cta.pay.pressedBg`
+- `color.cta.cancel.border`
+- `color.cta.cancel.fg`
+- `color.delete.fg`
+- `color.success.bg`
+- `color.success.fg`
+- `color.warning.bg`
+- `color.warning.fg`
+- `color.error.bg`
+- `color.error.fg`
+- `color.discount.bg`
+- `color.discount.fg`
+- `color.manager.bg`
+- `color.manager.fg`
+- `color.final.countdownTrack`
+- `color.final.countdownFill`
+
+## 5. Типографические Токены
+
+- `font.family.base`
+- `font.weight.regular`
+- `font.weight.medium`
+- `font.weight.semibold`
+- `font.weight.bold`
+- `font.size.caption`
+- `font.size.body`
+- `font.size.bodyLarge`
+- `font.size.productName`
+- `font.size.sectionTitle`
+- `font.size.screenTitle`
+- `font.size.hero`
+- `font.size.total`
+- `font.size.button`
+- `font.lineHeight.tight`
+- `font.lineHeight.normal`
+- `font.lineHeight.relaxed`
+- `font.textScale.normal.multiplier`
+- `font.textScale.large.multiplier`
+- `font.textScale.extraLarge.multiplier`
+
+Правило: `A/A+/A++` меняют scale multiplier, но не ломают grid, row height и CTA height. Если текст не помещается, компонент обязан иметь overflow/wrap contract.
+
+## 6. Spacing Tokens
+
+- `space.0`
+- `space.1`
+- `space.2`
+- `space.3`
+- `space.4`
+- `space.5`
+- `space.6`
+- `space.8`
+- `space.10`
+- `space.12`
+- `space.16`
+- `space.20`
+- `space.screen.gutter`
+- `space.screen.sectionGap`
+- `space.card.padding`
+- `space.row.gap`
+- `space.sticky.bottom`
+- `space.touch.gap`
+
+Recommended base for `1080x1920`: gutters `32-48px`, section gap `24-32px`, card padding `24-32px`.
+
+## 7. Radius Tokens
+
+- `radius.none`
+- `radius.xs`
+- `radius.sm`
+- `radius.md`
+- `radius.lg`
+- `radius.xl`
+- `radius.card`
+- `radius.header`
+- `radius.button`
+- `radius.input`
+- `radius.modal`
+- `radius.pill`
+
+Эскизы используют крупные radii, но token должен позволять сделать будущие клиентские профили более строгими без переписывания компонентов.
+
+## 8. Shadow / Elevation Tokens
+
+- `shadow.none`
+- `shadow.surface`
+- `shadow.card`
+- `shadow.cardStrong`
+- `shadow.header`
+- `shadow.sticky`
+- `shadow.modal`
+- `shadow.focus`
+- `shadow.successGlow`
+- `shadow.scanGlow`
+- `shadow.pressed`
+
+Fallback для слабого WebView: заменить heavy shadows на `border + light shadow`.
+
+## 9. Токены Состояний
+
+- `state.focus.ringColor`
+- `state.focus.ringWidth`
+- `state.focus.offset`
+- `state.disabled.opacity`
+- `state.busy.opacity`
+- `state.pressed.transform`
+- `state.pressed.durationMs`
+- `state.highlight.durationMs`
+- `state.highlight.bg`
+- `state.highlight.border`
+- `state.error.bg`
+- `state.error.border`
+- `state.warning.bg`
+- `state.warning.border`
+- `state.success.bg`
+- `state.success.border`
+
+## 10. Scanner Hint Tokens
+
+- `scanner.corner.color`
+- `scanner.corner.width`
+- `scanner.corner.length`
+- `scanner.glow.color`
+- `scanner.line.color`
+- `scanner.line.height`
+- `scanner.icon.color`
+- `scanner.hint.bg`
+- `scanner.hint.border`
+- `scanner.hint.text`
+
+Cyan должен считываться как scanner/search/payment guidance, а не как primary CTA.
+
+## 11. Manager Badge Tokens
+
+- `manager.badge.bg`
+- `manager.badge.fg`
+- `manager.badge.icon`
+- `manager.badge.border`
+- `manager.badge.radius`
+- `manager.badge.height`
+
+Manager badge отображается только из `managerState`, не из локального UI-флага.
+
+## 12. Discount Tokens
+
+- `discount.icon.color`
+- `discount.input.border`
+- `discount.input.focusBorder`
+- `discount.applied.bg`
+- `discount.applied.fg`
+- `discount.applied.icon`
+- `discount.notFound.bg`
+- `discount.notFound.fg`
+- `discount.amount.fg`
+
+Скидка не должна визуально спорить с итоговой суммой и payment CTA.
+
+## 13. Final Screen Tokens
+
+- `final.successMark.bg`
+- `final.successMark.fg`
+- `final.successMark.glow`
+- `final.receipt.bg`
+- `final.receipt.shadow`
+- `final.countdown.bg`
+- `final.countdown.track`
+- `final.countdown.fill`
+- `final.confetti.colorPrimary`
+- `final.confetti.colorMuted`
+
+Конфетти должно быть статичным или очень коротким; при reduced motion отключается.
+
+## 14. High Contrast Profile
+
+`bolars-light-contrast` обязан:
+
+- усилить contrast text/surface/header;
+- усилить border для cards/inputs/buttons;
+- убрать слишком слабые pale backgrounds;
+- сохранить brand recognition через magenta;
+- не использовать цвет как единственный носитель состояния;
+- иметь видимый focus ring на black, white, green и magenta surfaces.
+
+## 15. Theme Config Contract
+
+Пример JSON-структуры. В реальной реализации это может быть TypeScript object, JSON или YAML, но форма должна быть валидируемой.
+
+```json
+{
+  "id": "bolars-light-default",
+  "brand": "bolars",
+  "version": "0.1",
+  "palette": {
+    "bolarsMagenta": "#E6007E",
+    "bolarsDarkMagenta": "#A9005F",
+    "logoBlack": "#111111",
+    "white": "#FFFFFF",
+    "lightBackground": "#F6F6F6",
+    "surfaceWhite": "#FFFFFF",
+    "borderGray": "#DADADA",
+    "textPrimary": "#1A1A1A",
+    "textSecondary": "#666666",
+    "bolarsCyan": "#00A6C8",
+    "successGreen": "#25A64A",
+    "promoLime": "#C9E600",
+    "warningOrange": "#F5A623",
+    "errorRed": "#D93025"
+  },
+  "tokens": {
+    "color": {
+      "bg": {
+        "app": "{palette.lightBackground}",
+        "header": "{palette.logoBlack}",
+        "surface": "{palette.surfaceWhite}",
+        "overlay": "rgba(17,17,17,0.48)"
+      },
+      "text": {
+        "primary": "{palette.textPrimary}",
+        "secondary": "{palette.textSecondary}",
+        "inverse": "{palette.white}",
+        "brand": "{palette.bolarsMagenta}"
+      },
+      "brand": {
+        "primary": "{palette.bolarsMagenta}",
+        "primaryStrong": "{palette.bolarsDarkMagenta}",
+        "onPrimary": "{palette.white}"
+      },
+      "scan": {
+        "primary": "{palette.bolarsCyan}",
+        "background": "rgba(0,166,200,0.08)"
+      },
+      "cta": {
+        "pay": {
+          "bg": "{palette.successGreen}",
+          "fg": "{palette.white}",
+          "pressedBg": "#1f8f3f"
+        }
+      }
+    },
+    "font": {
+      "family": {
+        "base": "system-ui, -apple-system, Segoe UI, sans-serif"
+      },
+      "textScale": {
+        "normal": { "multiplier": 1 },
+        "large": { "multiplier": 1.12 },
+        "extraLarge": { "multiplier": 1.24 }
+      }
+    },
+    "space": {
+      "screen": { "gutter": 40, "sectionGap": 28 },
+      "card": { "padding": 28 },
+      "touch": { "gap": 12 }
+    },
+    "radius": {
+      "card": 28,
+      "header": 24,
+      "button": 20,
+      "input": 20,
+      "modal": 32
+    },
+    "shadow": {
+      "card": "0 12px 32px rgba(17,17,17,0.10)",
+      "sticky": "0 -8px 24px rgba(17,17,17,0.08)",
+      "focus": "0 0 0 4px rgba(0,166,200,0.30)"
+    }
+  }
+}
+```
+
+Важно: `#1f8f3f` в примере тоже находится внутри theme config. В компонентах допускается только `token('color.cta.pay.pressedBg')` или эквивалент.
+
+## 16. Validation Rules
+
+- Theme config должен проходить schema validation.
+- Primary text contrast на surface не ниже WCAG AA для крупного текста.
+- CTA text contrast должен быть устойчивым при `normal/large/extraLarge`.
+- Focus ring должен быть виден на всех interactive surfaces.
+- Missing token должен падать в development/test, а не молча заменяться случайным цветом.
+- Custom profile не может скрывать help, cancel confirmation, payment error и final success.
+
+## 17. Запреты
+
+- Не писать `#E6007E` или другие HEX в JSX/TSX/CSS компонентов.
+- Не использовать brand palette напрямую вместо semantic tokens.
+- Не создавать component-local color maps.
+- Не менять тему через inline style без token mapping layer.
+- Не давать quick branding произвольный CSS.
+- Не делать production theme editor или custom theme UI обязательной частью MVP.
+- Не делать dark theme обязательной для MVP, но не закрывать путь для `bolars-dark-optional`.
