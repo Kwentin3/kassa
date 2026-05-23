@@ -30,6 +30,17 @@ describe('BOLARS Self-Checkout App', () => {
     expect(screen.getByText(/Клей плиточный БОЛАРС/i)).toBeInTheDocument();
   });
 
+  it('shows an explicit add product action in cart that still dispatches scanCode through runtime', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Начать покупку/i }));
+    const addProduct = await screen.findByRole('button', { name: /Добавить товар/i });
+    fireEvent.click(addProduct);
+
+    await waitFor(() => expect(screen.getByText(/Грунтовка глубокого проникновения БОЛАРС/i)).toBeInTheDocument());
+  });
+
   it('opens preview controls only with debug preview route', () => {
     setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentError');
     render(<BolarsSelfCheckoutApp />);

@@ -148,6 +148,14 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
             <Search size={28} />
             <input value={query} onChange={(event) => onSearch(event.target.value)} placeholder={copy(snapshot, 'searchPlaceholder')} aria-label="Поиск товара" />
           </label>
+          <button className="bolars-scan-action-card" type="button" onClick={() => send('scanCode', { code: MOCK_PRODUCTS[1].barcode }, 'scanner')}>
+            <ScanLine size={42} />
+            <span>
+              <strong>{copy(snapshot, 'addProduct')}</strong>
+              <small>{copy(snapshot, 'addProductHint')}</small>
+            </span>
+            <Plus size={28} />
+          </button>
           <SearchCandidates snapshot={snapshot} query={query} send={send} />
           <div className="bolars-cart-list" aria-label="Список товаров">
             {snapshot.cartLines.length === 0 ? (

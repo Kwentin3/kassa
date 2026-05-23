@@ -749,6 +749,48 @@ select:focus-visible {
   box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
 }
 
+.bolars-scan-action-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) 56px;
+  align-items: center;
+  gap: 18px;
+  min-height: 96px;
+  border: 2px solid color-mix(in srgb, var(--bolars-info) 42%, transparent);
+  border-radius: 8px;
+  padding: 16px 20px;
+  background: var(--bolars-surface);
+  color: var(--bolars-text-primary);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--bolars-logo-black) 8%, transparent);
+}
+
+.bolars-scan-action-card svg:first-child {
+  color: var(--bolars-info);
+}
+
+.bolars-scan-action-card svg:last-child {
+  justify-self: center;
+  color: var(--bolars-brand-primary);
+}
+
+.bolars-scan-action-card strong,
+.bolars-scan-action-card small {
+  display: block;
+}
+
+.bolars-scan-action-card strong {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.bolars-scan-action-card small {
+  margin-top: 4px;
+  color: var(--bolars-text-secondary);
+  font-size: 18px;
+  font-weight: 750;
+}
+
 .bolars-search-box input,
 .bolars-phone-row input {
   width: 100%;
