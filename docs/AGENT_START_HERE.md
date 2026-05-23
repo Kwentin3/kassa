@@ -33,9 +33,10 @@ Theme override examples:
 ```text
 https://kassa.speechbattle.com/bolars/self-checkout-mvp?theme=bolars-light-contrast
 https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&preview=1&theme=bolars-light-promo
+https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&preview=1&theme=bolars-light-magenta-soft
 ```
 
-Selectable MVP profiles: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`. `custom` and `bolars-dark-optional` remain reserved and must not become production theme editor scope.
+Selectable MVP profiles: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`. `custom` and `bolars-dark-optional` remain reserved and must not become production theme editor scope.
 
 Старый showcase остаётся отдельным контуром и не переносится на этот URL.
 

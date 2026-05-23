@@ -75,14 +75,15 @@ describe('BOLARS Self-Checkout App', () => {
   });
 
   it('opens preview controls only with debug preview route', () => {
-    setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentError&theme=bolars-light-promo');
+    setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentError&theme=bolars-light-magenta-soft');
     const { container } = render(<BolarsSelfCheckoutApp />);
 
     expect(screen.getByLabelText('Preview controls')).toBeInTheDocument();
-    expect(screen.getByLabelText('Preview theme profile')).toHaveValue('bolars-light-promo');
+    expect(screen.getByLabelText('Preview theme profile')).toHaveValue('bolars-light-magenta-soft');
     expect(screen.getByLabelText('Debug panel')).toBeInTheDocument();
-    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-theme-bolars-light-promo');
-    expect((container.querySelector('.bolars-root') as HTMLElement).style.getPropertyValue('--bolars-background')).toBe('#F8FAEE');
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-theme-bolars-light-magenta-soft');
+    expect((container.querySelector('.bolars-root') as HTMLElement).style.getPropertyValue('--bolars-background')).toBe('#FFFFFF');
+    expect((container.querySelector('.bolars-root') as HTMLElement).style.getPropertyValue('--bolars-button-surface')).toBe('#FFE1F0');
     expect(screen.getByText('Оплата не прошла')).toBeInTheDocument();
   });
 

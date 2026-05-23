@@ -46,4 +46,13 @@ describe('visual contract css', () => {
     expect(css).toContain('.bolars-scale-option-extraLarge');
     expect(css).toContain('font-size: var(--bolars-hero-font)');
   });
+
+  it('keeps BOLARS theme surfaces tokenized for profile-specific controls', () => {
+    expect(css).toContain('--bolars-container-bg');
+    expect(css).toContain('--bolars-field-bg');
+    expect(css).toContain('--bolars-button-bg');
+    expect(css).toContain('--bolars-primary-bg');
+    expect(css).toContain('background: var(--bolars-button-bg)');
+    expect(css).toContain('background: var(--bolars-container-bg)');
+  });
 });

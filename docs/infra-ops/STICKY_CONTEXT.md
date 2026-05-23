@@ -37,7 +37,7 @@
 - Latest BOLARS customer UI tweak: transient alert overlay labels and cart-row last-change pills such as `Товар добавлен` are no longer rendered over the stage; row highlight, inline search/discount/payment states, modals and debug snapshot alerts remain.
 - Latest BOLARS accessibility tweak: text-size control is header-only on start/work/status screens, rendered as three contrast `A` glyphs of different sizes; `normal/large/extraLarge` now affects start hero/supporting text as well as cart/payment/status/modal copy through semantic CSS scale variables.
 - Latest BOLARS mock scanner tweak: mock product set now has 10 base products; the cart `Добавить товар` scanner simulation picks the next missing mock barcode until the cart has 10 distinct lines, then cycles back to quantity increment for repeat-scan behavior.
-- Latest BOLARS theme tweak: URL params `theme=` / `themeProfile=` select the initial `snapshot.themeProfile` for `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`; preview mode also has a route-driven theme selector, while `custom`/`bolars-dark-optional` remain reserved.
+- Latest BOLARS theme tweak: URL params `theme=` / `themeProfile=` select the initial `snapshot.themeProfile` for `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`; preview mode also has a route-driven theme selector, while `custom`/`bolars-dark-optional` remain reserved. `bolars-light-magenta-soft` keeps white app background and uses light magenta tint for buttons, fields and containers.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

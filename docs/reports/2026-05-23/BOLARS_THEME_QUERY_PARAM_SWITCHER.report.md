@@ -10,7 +10,8 @@
   - `bolars-light-default`;
   - `bolars-light-contrast`;
   - `bolars-light-clean`;
-  - `bolars-light-promo`.
+  - `bolars-light-promo`;
+  - `bolars-light-magenta-soft`.
 - `custom` и `bolars-dark-optional` оставлены reserved: при выборе через URL runtime делает safe fallback на `bolars-light-default` и показывает debug warning.
 - `RuntimeRouteContext` теперь хранит `themeProfileId`, источник выбора и warning.
 - `MockAdapter`, `PreviewAdapter` и `OneCInterfaceAdapter` получают initial theme через тот же `SelfCheckoutRuntimePort` snapshot model.
@@ -36,6 +37,7 @@ Preview selector сделан route-driven: это подходит для visua
   - `?debug=1&preview=1&scenario=cartManyItems&theme=bolars-light-contrast`
   - `?debug=1&preview=1&scenario=cartManyItems&theme=bolars-light-clean`
   - `?debug=1&preview=1&scenario=cartManyItems&theme=bolars-light-promo`
+  - `?debug=1&preview=1&scenario=cartManyItems&theme=bolars-light-magenta-soft`
   - `?debug=1&preview=1&theme=bolars-dark-optional` fallback warning
   - customer route `?theme=bolars-light-contrast` without debug/preview overlays
 

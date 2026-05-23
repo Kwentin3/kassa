@@ -114,7 +114,7 @@ BOLARS MVP не является старой showcase-витриной или m
 - payment error;
 - final success + countdown reset;
 - inactivity timeout default `5 минут` in mock runtime;
-- selectable light theme tokens: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`;
+- selectable light theme tokens: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`;
 - route theme override via `theme` / `themeProfile` for demo/preview/acceptance without production theme editor scope;
 - canonical route `/bolars/self-checkout-mvp`;
 - `window.BolarsSelfCheckout` Web API;

@@ -24,12 +24,14 @@ describe('BOLARS RuntimeAdapterFactory', () => {
   });
 
   it('resolves theme query into runtime context without changing adapter selection', () => {
-    const result = createRuntimeAdapterFactory(route('?debug=1&preview=1&theme=bolars-light-contrast'));
+    const result = createRuntimeAdapterFactory(route('?debug=1&preview=1&theme=bolars-light-magenta-soft'));
     expect(result.adapterKind).toBe('preview');
-    expect(result.routeContext.themeProfileId).toBe('bolars-light-contrast');
-    expect(result.runtime.getState().themeProfile.id).toBe('bolars-light-contrast');
-    expect((result.runtime as PreviewAdapter).getDebugState().themeProfile.id).toBe('bolars-light-contrast');
+    expect(result.routeContext.themeProfileId).toBe('bolars-light-magenta-soft');
+    expect(result.runtime.getState().themeProfile.id).toBe('bolars-light-magenta-soft');
+    expect((result.runtime as PreviewAdapter).getDebugState().themeProfile.id).toBe('bolars-light-magenta-soft');
     expect(getBolarsThemeTokens(result.runtime.getState().themeProfile.id)['--bolars-background']).toBe('#FFFFFF');
+    expect(getBolarsThemeTokens(result.runtime.getState().themeProfile.id)['--bolars-button-surface']).toBe('#FFE1F0');
+    expect(getBolarsThemeTokens(result.runtime.getState().themeProfile.id)['--bolars-primary-action-text']).toBe('#3D0928');
   });
 
   it('falls back to default theme for reserved or unknown route values', () => {

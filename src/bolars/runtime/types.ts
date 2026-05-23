@@ -272,7 +272,14 @@ export type UiConfigState = {
 };
 
 export type ThemeProfileState = {
-  id: 'bolars-light-default' | 'bolars-light-contrast' | 'bolars-light-clean' | 'bolars-light-promo' | 'bolars-dark-optional' | 'custom';
+  id:
+    | 'bolars-light-default'
+    | 'bolars-light-contrast'
+    | 'bolars-light-clean'
+    | 'bolars-light-promo'
+    | 'bolars-light-magenta-soft'
+    | 'bolars-dark-optional'
+    | 'custom';
   status: 'loaded' | 'defaultProfile' | 'error';
   version: string;
   tokenSetId: string;

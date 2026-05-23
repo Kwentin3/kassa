@@ -29,8 +29,8 @@ Optional query params:
 - `screen=start|cart|paymentSetup|paymentWaiting|paymentError|finalSuccess`
 - `scenario=emptyCart|fullCart|searchFound|searchNotFound|quantityNumpad|paymentFailed|successCountdown`
 - `textScale=normal|large|extraLarge`
-- `theme=bolars-light-default|bolars-light-contrast|bolars-light-clean|bolars-light-promo`
-- `themeProfile=bolars-light-default|bolars-light-contrast|bolars-light-clean|bolars-light-promo`
+- `theme=bolars-light-default|bolars-light-contrast|bolars-light-clean|bolars-light-promo|bolars-light-magenta-soft`
+- `themeProfile=bolars-light-default|bolars-light-contrast|bolars-light-clean|bolars-light-promo|bolars-light-magenta-soft`
 
 Rules:
 

@@ -520,6 +520,13 @@ select:focus-visible {
   --bolars-type-scale-body: 1;
   --bolars-type-scale-display: 1;
   --bolars-type-scale-control: 1;
+  --bolars-container-bg: var(--bolars-container-surface, var(--bolars-surface));
+  --bolars-field-bg: var(--bolars-field-surface, var(--bolars-surface));
+  --bolars-button-bg: var(--bolars-button-surface, var(--bolars-surface));
+  --bolars-button-fg: var(--bolars-button-text, var(--bolars-text-primary));
+  --bolars-primary-bg: var(--bolars-primary-action-bg, var(--bolars-success));
+  --bolars-primary-fg: var(--bolars-primary-action-text, var(--bolars-white));
+  --bolars-primary-border: var(--bolars-primary-action-border, var(--bolars-success));
   min-height: 100dvh;
   width: 100%;
   overflow: hidden;
@@ -758,7 +765,7 @@ select:focus-visible {
   padding: 24px;
   border-radius: 8px;
   color: var(--bolars-text-primary);
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   text-align: center;
 }
 
@@ -780,8 +787,8 @@ select:focus-visible {
   border-bottom: 10px solid var(--bolars-brand-primary);
   border-radius: 28px;
   padding: var(--bolars-start-card-pad);
-  background: var(--bolars-white);
-  color: var(--bolars-text-primary);
+  background: var(--bolars-button-bg);
+  color: var(--bolars-button-fg);
   text-align: center;
   cursor: pointer;
   box-shadow: 0 20px 54px color-mix(in srgb, var(--bolars-logo-black) 13%, transparent);
@@ -822,7 +829,7 @@ select:focus-visible {
   gap: 22px;
   border-radius: 24px;
   padding: 24px 28px;
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   box-shadow: 0 14px 42px color-mix(in srgb, var(--bolars-logo-black) 10%, transparent);
 }
 
@@ -889,13 +896,14 @@ select:focus-visible {
 }
 
 .bolars-primary-action {
-  color: var(--bolars-white);
-  background: var(--bolars-success);
+  color: var(--bolars-primary-fg);
+  background: var(--bolars-primary-bg);
+  border: 2px solid var(--bolars-primary-border);
 }
 
 .bolars-info-action {
-  color: var(--bolars-logo-black);
-  background: var(--bolars-white);
+  color: var(--bolars-button-fg);
+  background: var(--bolars-button-bg);
   border: 2px solid var(--bolars-info);
 }
 
@@ -973,7 +981,7 @@ select:focus-visible {
   border: 1px solid var(--bolars-border);
   border-radius: 999px;
   padding: 6px 8px;
-  background: var(--bolars-white);
+  background: var(--bolars-button-bg);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bolars-info) 14%, transparent);
 }
 
@@ -1040,7 +1048,7 @@ select:focus-visible {
   border: 2px solid var(--bolars-info);
   border-radius: 8px;
   padding: 0 20px;
-  background: var(--bolars-surface);
+  background: var(--bolars-field-bg);
   box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
 }
 
@@ -1053,8 +1061,8 @@ select:focus-visible {
   border: 2px solid color-mix(in srgb, var(--bolars-info) 42%, transparent);
   border-radius: 8px;
   padding: 16px 20px;
-  background: var(--bolars-surface);
-  color: var(--bolars-text-primary);
+  background: var(--bolars-button-bg);
+  color: var(--bolars-button-fg);
   text-align: left;
   cursor: pointer;
   box-shadow: 0 12px 30px color-mix(in srgb, var(--bolars-logo-black) 8%, transparent);
@@ -1101,7 +1109,7 @@ select:focus-visible {
 .bolars-inline-status {
   border-radius: 8px;
   padding: 16px 20px;
-  background: var(--bolars-surface);
+  background: var(--bolars-container-bg);
   color: var(--bolars-text-secondary);
   font-size: calc(21px * var(--bolars-type-scale-body));
   font-weight: 750;
@@ -1127,8 +1135,8 @@ select:focus-visible {
   border: 1px solid var(--bolars-border);
   border-radius: 8px;
   padding: 14px 18px;
-  background: var(--bolars-surface);
-  color: var(--bolars-text-primary);
+  background: var(--bolars-button-bg);
+  color: var(--bolars-button-fg);
   text-align: left;
   cursor: pointer;
 }
@@ -1166,7 +1174,7 @@ select:focus-visible {
 .bolars-modal {
   border: 1px solid var(--bolars-border);
   border-radius: 8px;
-  background: var(--bolars-surface);
+  background: var(--bolars-container-bg);
   box-shadow: 0 18px 44px rgba(17, 17, 17, 0.10);
 }
 
@@ -1195,12 +1203,12 @@ select:focus-visible {
   border: 2px solid transparent;
   border-radius: 8px;
   padding: 18px;
-  background: var(--bolars-surface);
+  background: var(--bolars-container-bg);
 }
 
 .bolars-cart-line.changed {
   border-color: var(--bolars-info);
-  background: color-mix(in srgb, var(--bolars-info) 8%, var(--bolars-surface));
+  background: color-mix(in srgb, var(--bolars-info) 8%, var(--bolars-container-bg));
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--bolars-info) 14%, transparent);
 }
 
@@ -1267,8 +1275,8 @@ select:focus-visible {
   min-height: 56px;
   border: 1px solid var(--bolars-border);
   border-radius: 8px;
-  background: var(--bolars-white);
-  color: var(--bolars-text-primary);
+  background: var(--bolars-button-bg);
+  color: var(--bolars-button-fg);
   font-weight: 900;
   cursor: pointer;
 }
@@ -1311,7 +1319,7 @@ select:focus-visible {
   border: 1px solid var(--bolars-border);
   border-radius: 24px;
   padding: 22px 24px;
-  background: var(--bolars-surface);
+  background: var(--bolars-container-bg);
   box-shadow: 0 18px 44px color-mix(in srgb, var(--bolars-logo-black) 10%, transparent);
 }
 
@@ -1525,15 +1533,15 @@ select:focus-visible {
   border: 1px solid var(--bolars-border);
   border-radius: 8px;
   padding: 0 18px;
-  background: var(--bolars-white);
+  background: var(--bolars-field-bg);
 }
 
 .bolars-phone-row button {
-  border: 0;
+  border: 2px solid var(--bolars-primary-border);
   border-radius: 8px;
   padding: 0 22px;
-  color: var(--bolars-white);
-  background: var(--bolars-success);
+  color: var(--bolars-primary-fg);
+  background: var(--bolars-primary-bg);
   font-weight: 850;
 }
 
@@ -1650,7 +1658,7 @@ select:focus-visible {
   width: 100%;
   border-radius: 24px;
   padding: 34px 42px;
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   box-shadow: 0 18px 52px color-mix(in srgb, var(--bolars-logo-black) 12%, transparent);
 }
 
@@ -1802,7 +1810,7 @@ select:focus-visible {
   border: 1px solid var(--bolars-border);
   border-radius: 8px;
   padding: 16px;
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   text-align: left;
 }
 
@@ -1903,7 +1911,7 @@ select:focus-visible {
   width: min(100%, var(--bolars-receipt-width));
   border-radius: 18px 18px 8px 8px;
   padding: 38px 44px 44px;
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   box-shadow: 0 22px 64px color-mix(in srgb, var(--bolars-logo-black) 14%, transparent);
   text-align: left;
 }
@@ -1972,7 +1980,7 @@ select:focus-visible {
   width: min(100%, 780px);
   border-radius: 24px;
   padding: 24px 34px;
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   box-shadow: 0 18px 50px color-mix(in srgb, var(--bolars-logo-black) 12%, transparent);
   text-align: left;
 }
@@ -2094,7 +2102,7 @@ select:focus-visible {
   right: 18px;
   border: 1px solid var(--bolars-border);
   border-radius: 8px;
-  background: var(--bolars-white);
+  background: var(--bolars-container-bg);
   box-shadow: 0 20px 60px rgba(17, 17, 17, 0.16);
 }
 

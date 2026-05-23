@@ -545,6 +545,7 @@ interface ThemeProfileState {
     | 'bolars-light-contrast'
     | 'bolars-light-clean'
     | 'bolars-light-promo'
+    | 'bolars-light-magenta-soft'
     | 'bolars-dark-optional'
     | 'custom';
   status: 'loaded' | 'defaultProfile' | 'error';

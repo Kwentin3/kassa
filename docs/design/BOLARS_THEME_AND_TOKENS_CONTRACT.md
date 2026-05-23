@@ -30,10 +30,11 @@
 | `bolars-light-contrast` | `Bolars Contrast / БОЛАРС Контрастная`; профиль повышенной читаемости. |
 | `bolars-light-clean` | `Bolars Clean / БОЛАРС Чистая`; спокойный рабочий профиль с меньшей промо-насыщенностью. |
 | `bolars-light-promo` | `Bolars Promo / БОЛАРС Промо`; профиль с более активным промо-фоном и brand accents. |
+| `bolars-light-magenta-soft` | `Bolars Magenta Soft / БОЛАРС Мягкая магента`; белый фон, лёгкий magenta tint для кнопок, полей и контейнеров, тёмно-сливовый контрастный текст. |
 | `custom` | `Custom / Пользовательская`; будущий профиль для ручной настройки цветов. |
 | `bolars-dark-optional` | Архитектурная возможность тёмной темы, не обязательна для MVP. |
 
-Для текущего prototype MVP реализованы selectable light-профили: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`. `custom` и `bolars-dark-optional` остаются reserved architecture, а не обязательным customer scope.
+Для текущего prototype MVP реализованы selectable light-профили: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`. `custom` и `bolars-dark-optional` остаются reserved architecture, а не обязательным customer scope.
 
 Implementation agent не должен тратить первый срез на dark/custom theme UI или production theme editor. Нужно только token-driven foundation, где HEX живут в theme/profile config, а компоненты обращаются к semantic tokens.
 
@@ -45,12 +46,13 @@ Implementation agent не должен тратить первый срез на
 /bolars/self-checkout-mvp?theme=bolars-light-contrast
 /bolars/self-checkout-mvp?debug=1&preview=1&theme=bolars-light-promo
 /bolars/self-checkout-mvp?debug=1&preview=1&themeProfile=bolars-light-clean
+/bolars/self-checkout-mvp?debug=1&preview=1&theme=bolars-light-magenta-soft
 ```
 
 Правила:
 
 - `theme` и `themeProfile` являются alias-параметрами; если указаны оба, `themeProfile` имеет приоритет.
-- Разрешены только selectable profiles: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`.
+- Разрешены только selectable profiles: `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`.
 - Reserved значения (`custom`, `bolars-dark-optional`) и неизвестные значения должны безопасно fallback-иться на `bolars-light-default` с debug warning.
 - URL override задаёт initial `themeProfile` в runtime context и snapshot. UI всё равно применяет только tokens из snapshot, а не читает query params напрямую.
 - Production theme admin, dark theme UI и ручной custom editor не входят в MVP.
