@@ -52,6 +52,8 @@ const searchProducts = (query: string) => {
 
 export class MockAdapter extends BaseRuntimeAdapter {
   private finalTimer: number | undefined;
+  private inactivityWarningTimer: number | undefined;
+  private inactivityResetTimer: number | undefined;
 
   constructor(routeContext: RuntimeRouteContext) {
     super('mock', routeContext);
@@ -63,6 +65,7 @@ export class MockAdapter extends BaseRuntimeAdapter {
       window.clearTimeout(this.finalTimer);
       this.finalTimer = undefined;
     }
+    this.clearInactivityTimers();
 
     let next = this.snapshot;
 
@@ -306,10 +309,23 @@ export class MockAdapter extends BaseRuntimeAdapter {
       }
 
       case 'bindManager': {
+        if (command.payload.code === 'bad-manager') {
+          const manager: ManagerState = {
+            status: 'rejected',
+            message: DEFAULT_TEXTS.managerRejected
+          };
+          next = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, {
+            screen: this.snapshot.currentScreen === 'start' ? 'cart' : this.snapshot.currentScreen,
+            manager,
+            alerts: [{ id: `alert-${command.commandId}`, kind: 'warning', title: DEFAULT_TEXTS.managerRejected }]
+          });
+          break;
+        }
+
         const manager: ManagerState = {
           status: 'bound',
           managerId: 'manager-demo',
-          displayName: command.payload.code === 'bad-manager' ? undefined : 'Петров Алексей',
+          displayName: 'Петров Алексей',
           boundAt: new Date().toISOString()
         };
         next = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, {
@@ -325,6 +341,16 @@ export class MockAdapter extends BaseRuntimeAdapter {
         if (this.snapshot.cart.isEmpty) return this.fail(command, 'notAllowedInCurrentState', 'Корзина пустая');
         next = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, { screen: 'paymentWaiting', paymentStatus: 'waitingForCard' });
         this.finalTimer = window.setTimeout(() => {
+          if (this.routeContext.url.searchParams.get('mockPayment') === 'failed') {
+            const failed = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, {
+              screen: 'paymentError',
+              paymentStatus: 'failed',
+              alerts: [{ id: `alert-${command.commandId}`, kind: 'error', title: DEFAULT_TEXTS.paymentFailed, message: DEFAULT_TEXTS.paymentFailureHint }]
+            });
+            this.setSnapshot(failed, { type: 'paymentFailed', reason: 'declined' });
+            return;
+          }
+
           const success = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, { screen: 'finalSuccess', paymentStatus: 'success' });
           this.setSnapshot(success, { type: 'paymentSucceeded', paymentId: 'mock-payment-success' });
         }, 1200);
@@ -356,6 +382,42 @@ export class MockAdapter extends BaseRuntimeAdapter {
       lastCommandResult: { ok: true, commandId: command.commandId, processedAt: new Date().toISOString() }
     };
     this.setSnapshot(next, { type: 'commandAccepted', commandId: command.commandId, commandType: command.type });
+    this.armInactivityTimers();
     return { ok: true as const, commandId: command.commandId, snapshotVersion: next.snapshotVersion };
+  }
+
+  private clearInactivityTimers() {
+    if (this.inactivityWarningTimer) window.clearTimeout(this.inactivityWarningTimer);
+    if (this.inactivityResetTimer) window.clearTimeout(this.inactivityResetTimer);
+    this.inactivityWarningTimer = undefined;
+    this.inactivityResetTimer = undefined;
+  }
+
+  private armInactivityTimers() {
+    if (this.snapshot.currentScreen === 'start' || this.snapshot.currentScreen === 'paymentWaiting' || this.snapshot.currentScreen === 'finalSuccess') return;
+    const timeoutMs = this.snapshot.uiConfig.inactivityTimeoutSeconds * 1000;
+    const warningMs = Math.max(0, timeoutMs - this.snapshot.uiConfig.inactivityWarningSeconds * 1000);
+
+    this.inactivityWarningTimer = window.setTimeout(() => {
+      if (this.snapshot.currentScreen === 'start' || this.snapshot.currentScreen === 'paymentWaiting' || this.snapshot.currentScreen === 'finalSuccess') return;
+      const warned = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, {
+        screen: this.snapshot.currentScreen,
+        modalState: { type: 'timeoutWarning', secondsLeft: this.snapshot.uiConfig.inactivityWarningSeconds, returnTo: this.snapshot.currentScreen }
+      });
+      this.setSnapshot(warned, { type: 'stateChanged', snapshotVersion: warned.snapshotVersion });
+    }, warningMs);
+
+    this.inactivityResetTimer = window.setTimeout(() => {
+      if (this.snapshot.currentScreen === 'paymentWaiting') return;
+      this.setSnapshot(
+        createEmptySnapshot('mock', {
+          snapshotVersion: this.snapshot.snapshotVersion + 1,
+          terminalStatus: 'inactivityTimedOut',
+          alerts: [{ id: 'inactivity-timeout', kind: 'warning', title: 'Сработал таймаут неактивности' }]
+        }),
+        { type: 'sessionReset', reason: 'inactivityTimeout' }
+      );
+      this.clearInactivityTimers();
+    }, timeoutMs);
   }
 }

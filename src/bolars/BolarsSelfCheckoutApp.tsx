@@ -4,7 +4,7 @@ import { createRuntimeAdapterFactory, type RuntimeAdapterFactoryResult } from '.
 import { createCommand, type CommandPayloadByType } from './runtime/commands';
 import { BOLARS_ROUTE, DEFAULT_TEXTS, MOCK_PRODUCTS } from './runtime/defaults';
 import { exposeBolarsSelfCheckoutApi } from './runtime/webApi';
-import type { CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
+import type { AlertNotification, CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
 import { bolarsLightDefaultTokens } from './theme/bolarsTheme';
 
 const useRuntimeSnapshot = (runtime: SelfCheckoutRuntimePort) =>
@@ -17,6 +17,10 @@ const useRuntimeSnapshot = (runtime: SelfCheckoutRuntimePort) =>
 type RuntimeActions = {
   send: <T extends CommandType>(type: T, payload: CommandPayloadByType[T], source?: CommandSource) => void;
 };
+
+type TextKey = keyof typeof DEFAULT_TEXTS;
+
+const copy = (snapshot: SelfCheckoutStateSnapshot, key: TextKey): string => snapshot.uiConfig.texts[key] ?? DEFAULT_TEXTS[key];
 
 export const BolarsSelfCheckoutApp = () => {
   const factory = useMemo(() => createRuntimeAdapterFactory(window.location.href), []);
@@ -43,6 +47,7 @@ export const BolarsSelfCheckoutApp = () => {
     <main className={`bolars-root bolars-scale-${snapshot.textScale}`} style={bolarsLightDefaultTokens as CSSProperties}>
       <div className="bolars-stage">
         {renderScreen(snapshot, { send })}
+        {snapshot.alerts.length > 0 && <AlertStack alerts={snapshot.alerts} />}
         {snapshot.modalState.type !== 'none' && <BolarsModal snapshot={snapshot} send={send} />}
       </div>
       {factory.debugMode && <DebugPanel runtime={factory.runtime} factory={factory} />}
@@ -65,7 +70,7 @@ const renderScreen = (snapshot: SelfCheckoutStateSnapshot, actions: RuntimeActio
       return <FinalSuccessScreen snapshot={snapshot} />;
     case 'start':
     default:
-      return <StartScreen send={actions.send} />;
+      return <StartScreen snapshot={snapshot} send={actions.send} />;
   }
 };
 
@@ -89,13 +94,13 @@ const WorkHeader = ({ title, snapshot, send }: { title: string; snapshot: SelfCh
         ))}
       </div>
       <button className="bolars-secondary-action" type="button" onClick={() => send('cancelPurchaseRequest', undefined)}>
-        <X size={22} /> {DEFAULT_TEXTS.cancelPurchase}
+        <X size={22} /> {copy(snapshot, 'cancelPurchase')}
       </button>
     </div>
   </header>
 );
 
-const StartScreen = ({ send }: { send: RuntimeActions['send'] }) => (
+const StartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
   <section className="bolars-start-screen" aria-label="Стартовый экран">
     <div className="bolars-start-brand">
       <div className="bolars-logo-large">БОЛАРС</div>
@@ -105,18 +110,18 @@ const StartScreen = ({ send }: { send: RuntimeActions['send'] }) => (
       <div className="bolars-scanner-visual" aria-hidden="true">
         <ScanLine size={132} />
       </div>
-      <h1>{DEFAULT_TEXTS.startInstruction}</h1>
-      <p>Сканируйте товар. После первого товара откроется корзина.</p>
+      <h1>{copy(snapshot, 'startInstruction')}</h1>
+      <p>{copy(snapshot, 'startSubtitle')}</p>
       <div className="bolars-start-actions">
         <button className="bolars-primary-action" type="button" onClick={() => send('startPurchase', undefined)}>
-          <ShoppingBasket size={34} /> {DEFAULT_TEXTS.startAction}
+          <ShoppingBasket size={34} /> {copy(snapshot, 'startAction')}
         </button>
         <button className="bolars-info-action" type="button" onClick={() => send('scanCode', { code: MOCK_PRODUCTS[0].barcode }, 'scanner')}>
-          <ScanLine size={32} /> {DEFAULT_TEXTS.mockScan}
+          <ScanLine size={32} /> {copy(snapshot, 'mockScan')}
         </button>
       </div>
     </div>
-    <div className="bolars-help-strip">Помощь сотрудника доступна на рабочих экранах</div>
+    <div className="bolars-help-strip">{copy(snapshot, 'helpAvailable')}</div>
   </section>
 );
 
@@ -129,25 +134,27 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
 
   const onSearch = (value: string) => {
     setQuery(value);
-    send('searchProducts', { query: value }, 'keyboard');
+    if (value.trim().length >= snapshot.uiConfig.searchMinLength) {
+      send('searchProducts', { query: value }, 'keyboard');
+    }
   };
 
   return (
     <section className="bolars-work-screen">
-      <WorkHeader title={DEFAULT_TEXTS.cartTitle} snapshot={snapshot} send={send} />
+      <WorkHeader title={copy(snapshot, 'cartTitle')} snapshot={snapshot} send={send} />
       <div className="bolars-cart-layout">
         <div className="bolars-main-column">
           <label className="bolars-search-box">
             <Search size={28} />
-            <input value={query} onChange={(event) => onSearch(event.target.value)} placeholder={DEFAULT_TEXTS.searchPlaceholder} aria-label="Поиск товара" />
+            <input value={query} onChange={(event) => onSearch(event.target.value)} placeholder={copy(snapshot, 'searchPlaceholder')} aria-label="Поиск товара" />
           </label>
-          <SearchCandidates snapshot={snapshot} send={send} />
+          <SearchCandidates snapshot={snapshot} query={query} send={send} />
           <div className="bolars-cart-list" aria-label="Список товаров">
             {snapshot.cartLines.length === 0 ? (
               <div className="bolars-empty-cart">
                 <ScanLine size={54} />
-                <h2>Корзина пока пустая</h2>
-                <p>Сканируйте штрих-код товара или найдите товар вручную.</p>
+                <h2>{copy(snapshot, 'emptyCartTitle')}</h2>
+                <p>{copy(snapshot, 'emptyCartHint')}</p>
               </div>
             ) : (
               snapshot.cartLines.map((line) => <CartLineRow key={line.lineId} line={line} send={send} />)
@@ -155,16 +162,16 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
           </div>
         </div>
         <aside className="bolars-summary-panel">
-          <div className="bolars-summary-label">Итого</div>
+          <div className="bolars-summary-label">{copy(snapshot, 'total')}</div>
           <div className="bolars-total">{snapshot.totals.payableTotal.formatted}</div>
           <div className="bolars-summary-meta">
-            {snapshot.cart.lineCount} позиций · {snapshot.cart.itemCount} шт
+            {snapshot.cart.lineCount} {copy(snapshot, 'positions')} · {snapshot.cart.itemCount} {copy(snapshot, 'pieces')}
           </div>
           <button className="bolars-primary-action sticky" type="button" disabled={!snapshot.cart.canGoToPayment} onClick={() => send('goToPaymentSetup', undefined)}>
-            {DEFAULT_TEXTS.goToPayment}
+            {copy(snapshot, 'goToPayment')}
           </button>
           <button className="bolars-info-action full" type="button" onClick={() => send('scanCode', { code: MOCK_PRODUCTS[1].barcode }, 'scanner')}>
-            <ScanLine size={26} /> Ещё тестовый scan
+            <ScanLine size={26} /> {copy(snapshot, 'scanMore')}
           </button>
         </aside>
       </div>
@@ -172,11 +179,15 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
   );
 };
 
-const SearchCandidates = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
+const SearchCandidates = ({ snapshot, query, send }: { snapshot: SelfCheckoutStateSnapshot; query: string; send: RuntimeActions['send'] }) => {
+  const normalizedQuery = query.trim();
+  if (normalizedQuery.length > 0 && normalizedQuery.length < snapshot.uiConfig.searchMinLength) return <div className="bolars-inline-status">{copy(snapshot, 'searchBelowMin')}</div>;
+  if (normalizedQuery === '') return null;
+  if (normalizedQuery !== snapshot.searchState.query.trim()) return null;
   if (snapshot.searchState.status === 'idle') return null;
   if (snapshot.searchState.status === 'belowMinLength') return <div className="bolars-inline-status">{snapshot.searchState.message}</div>;
   if (snapshot.searchState.status === 'notFound') return <div className="bolars-inline-status warning">{snapshot.searchState.message}</div>;
-  if (snapshot.searchState.status !== 'found') return <div className="bolars-inline-status">Поиск выполняется...</div>;
+  if (snapshot.searchState.status !== 'found') return <div className="bolars-inline-status">{copy(snapshot, 'searchInProgress')}</div>;
   return (
     <div className="bolars-candidates" aria-label="Кандидаты поиска">
       {snapshot.searchState.candidates.map((candidate) => (
@@ -223,11 +234,11 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
 
   return (
     <section className="bolars-work-screen">
-      <WorkHeader title={DEFAULT_TEXTS.paymentTitle} snapshot={snapshot} send={send} />
+      <WorkHeader title={copy(snapshot, 'paymentTitle')} snapshot={snapshot} send={send} />
       <div className="bolars-payment-layout">
         <div className="bolars-main-column">
           <section className="bolars-review-panel">
-            <h2>Состав покупки</h2>
+            <h2>{copy(snapshot, 'reviewTitle')}</h2>
             {snapshot.cartLines.map((line) => (
               <div className="bolars-review-line" key={line.lineId}>
                 <span>{line.name}</span>
@@ -236,7 +247,7 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
             ))}
           </section>
           <section className="bolars-package-panel">
-            <h2>Добавить пакет</h2>
+            <h2>{copy(snapshot, 'addPackageTitle')}</h2>
             <div className="bolars-package-grid">
               {snapshot.uiConfig.packageButtons.map((item) => (
                 <button type="button" key={item.packageCode} onClick={() => send('addPackage', { packageCode: item.packageCode })}>
@@ -246,12 +257,12 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
             </div>
           </section>
           <section className="bolars-discount-panel">
-            <h2>Скидка</h2>
-            <p>{DEFAULT_TEXTS.discountHint}</p>
+            <h2>{copy(snapshot, 'discountTitle')}</h2>
+            <p>{copy(snapshot, 'discountHint')}</p>
             <div className="bolars-phone-row">
               <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+7 900 000 00 00" aria-label="Телефон для скидки" />
               <button type="button" onClick={() => send('applyDiscountByPhone', { phone }, 'keyboard')}>
-                Применить
+                {copy(snapshot, 'apply')}
               </button>
             </div>
             {snapshot.discount.status === 'applied' && <div className="bolars-success-note">{snapshot.discount.message}</div>}
@@ -259,7 +270,7 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
           </section>
         </div>
         <aside className="bolars-summary-panel">
-          <div className="bolars-summary-label">Итого к оплате</div>
+          <div className="bolars-summary-label">{copy(snapshot, 'totalToPay')}</div>
           <div className="bolars-total">{snapshot.totals.payableTotal.formatted}</div>
           <div className="bolars-totals-list">
             {snapshot.totals.lines.map((line) => (
@@ -270,10 +281,10 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
             ))}
           </div>
           <button className="bolars-primary-action sticky" type="button" onClick={() => send('startPayment', undefined)}>
-            <CreditCard size={30} /> {DEFAULT_TEXTS.pay}
+            <CreditCard size={30} /> {copy(snapshot, 'pay')}
           </button>
           <button className="bolars-info-action full" type="button" onClick={() => send('bindManager', { code: '900000000001' }, 'scanner')}>
-            <UserCheck size={24} /> Карта менеджера
+            <UserCheck size={24} /> {copy(snapshot, 'managerCard')}
           </button>
         </aside>
       </div>
@@ -285,10 +296,12 @@ const PaymentWaitingScreen = ({ snapshot }: { snapshot: SelfCheckoutStateSnapsho
   <section className="bolars-status-screen">
     <div className="bolars-status-card">
       <CreditCard size={96} />
-      <div className="bolars-summary-label">Сумма к оплате</div>
+      <div className="bolars-status-brand">БОЛАРС</div>
+      <div className="bolars-summary-label">{copy(snapshot, 'paymentWaitingAmount')}</div>
       <div className="bolars-total huge">{snapshot.totals.payableTotal.formatted}</div>
-      <h1>{DEFAULT_TEXTS.paymentWaitingInstruction}</h1>
-      <p>{DEFAULT_TEXTS.paymentWaitingStatus}</p>
+      <h1>{copy(snapshot, 'paymentWaitingInstruction')}</h1>
+      <p>{copy(snapshot, 'paymentWaitingStatus')}</p>
+      <CompactOrderPreview snapshot={snapshot} />
       <div className="bolars-spinner" aria-label="Ожидание оплаты" />
     </div>
   </section>
@@ -298,15 +311,15 @@ const PaymentErrorScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
   <section className="bolars-status-screen error">
     <div className="bolars-status-card">
       <AlertTriangle size={96} />
-      <h1>{DEFAULT_TEXTS.paymentFailed}</h1>
-      <p>{DEFAULT_TEXTS.paymentFailureHint}</p>
+      <h1>{copy(snapshot, 'paymentFailed')}</h1>
+      <p>{copy(snapshot, 'paymentFailureHint')}</p>
       <div className="bolars-total">{snapshot.totals.payableTotal.formatted}</div>
       <div className="bolars-start-actions">
         <button className="bolars-primary-action" type="button" onClick={() => send('retryPayment', undefined)}>
-          Попробовать ещё раз
+          {copy(snapshot, 'retryPayment')}
         </button>
         <button className="bolars-info-action" type="button" onClick={() => send('returnToPaymentSetup', undefined)}>
-          Вернуться к оплате
+          {copy(snapshot, 'returnToPayment')}
         </button>
       </div>
     </div>
@@ -317,9 +330,11 @@ const FinalSuccessScreen = ({ snapshot }: { snapshot: SelfCheckoutStateSnapshot 
   <section className="bolars-status-screen success">
     <div className="bolars-status-card">
       <CheckCircle2 size={112} />
-      <h1>{DEFAULT_TEXTS.finalTitle}</h1>
-      <p>{DEFAULT_TEXTS.finalSubtitle}</p>
-      <div className="bolars-summary-label">Возврат на старт через {snapshot.uiConfig.finalAutoResetSeconds} сек.</div>
+      <div className="bolars-status-brand">БОЛАРС</div>
+      <h1>{copy(snapshot, 'finalTitle')}</h1>
+      <p>{copy(snapshot, 'finalSubtitle')}</p>
+      <CompactOrderPreview snapshot={snapshot} receipt />
+      <div className="bolars-summary-label">{copy(snapshot, 'finalCountdown')} {snapshot.uiConfig.finalAutoResetSeconds} {copy(snapshot, 'secondsShort')}</div>
     </div>
   </section>
 );
@@ -352,9 +367,9 @@ const BolarsModal = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; 
     return (
       <div className="bolars-modal-backdrop" role="dialog" aria-modal="true" aria-label="Таймаут неактивности">
         <div className="bolars-modal">
-          <h2>Покупка будет отменена</h2>
-          <p>До сброса осталось {snapshot.modalState.secondsLeft} сек.</p>
-          <button className="bolars-primary-action" type="button" onClick={() => send('returnToPurchase', undefined)}>Вернуться к покупке</button>
+          <h2>{copy(snapshot, 'purchaseWillBeCancelled')}</h2>
+          <p>{copy(snapshot, 'resetSecondsLeft')} {snapshot.modalState.secondsLeft} {copy(snapshot, 'secondsShort')}</p>
+          <button className="bolars-primary-action" type="button" onClick={() => send('returnToPurchase', undefined)}>{copy(snapshot, 'cancelReturn')}</button>
         </div>
       </div>
     );
@@ -371,19 +386,42 @@ const QuantityNumpad = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapsho
   return (
     <div className="bolars-modal-backdrop" role="dialog" aria-modal="true" aria-label="Ввод количества">
       <div className="bolars-modal numpad">
-        <h2>Количество</h2>
+        <h2>{copy(snapshot, 'quantity')}</h2>
         <div className="bolars-numpad-display">{draft} {modal.unitLabel}</div>
         <div className="bolars-numpad-grid">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((digit) => (
             <button key={digit} type="button" onClick={() => append(digit)}>{digit}</button>
           ))}
-          <button type="button" onClick={() => setDraft('')}>C</button>
-          <button type="button" onClick={() => send('confirmQuantityInput', { lineId: modal.lineId, quantity: Number(draft || '1') })}>OK</button>
+          <button type="button" onClick={() => setDraft('')}>{copy(snapshot, 'clear')}</button>
+          <button type="button" onClick={() => send('confirmQuantityInput', { lineId: modal.lineId, quantity: Number(draft || '1') })}>{copy(snapshot, 'ok')}</button>
         </div>
       </div>
     </div>
   );
 };
+
+const AlertStack = ({ alerts }: { alerts: AlertNotification[] }) => (
+  <div className="bolars-alert-stack" aria-live="polite" aria-label="Статусы операции">
+    {alerts.slice(-3).map((alert) => (
+      <div className={`bolars-alert ${alert.kind}`} key={alert.id}>
+        <strong>{alert.title}</strong>
+        {alert.message && <span>{alert.message}</span>}
+      </div>
+    ))}
+  </div>
+);
+
+const CompactOrderPreview = ({ snapshot, receipt = false }: { snapshot: SelfCheckoutStateSnapshot; receipt?: boolean }) => (
+  <div className="bolars-compact-order" aria-label={receipt ? copy(snapshot, 'receiptPreview') : copy(snapshot, 'compactOrderPreview')}>
+    <strong>{receipt ? copy(snapshot, 'receiptPreview') : copy(snapshot, 'compactOrderPreview')}</strong>
+    {snapshot.cartLines.slice(0, 3).map((line) => (
+      <span key={line.lineId}>
+        {line.name} · {line.quantity} {line.unitLabel} · {line.lineTotal.formatted}
+      </span>
+    ))}
+    {snapshot.cartLines.length > 3 && <em>{snapshot.cartLines.length - 3} {copy(snapshot, 'moreItems')}</em>}
+  </div>
+);
 
 const PreviewPanel = ({ factory, currentScenario, textScale }: { factory: RuntimeAdapterFactoryResult; currentScenario?: string; textScale: TextScale }) => {
   if (!factory.preview) return null;

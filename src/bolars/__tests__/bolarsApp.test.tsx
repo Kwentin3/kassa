@@ -1,6 +1,7 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { BolarsSelfCheckoutApp } from '../BolarsSelfCheckoutApp';
+import { createEmptySnapshot } from '../runtime/defaults';
 
 const setRoute = (path: string) => {
   window.history.pushState({}, '', path);
@@ -46,5 +47,25 @@ describe('BOLARS Self-Checkout App', () => {
     fireEvent.click(screen.getByRole('button', { name: /Начать покупку/i }));
     expect(window.BolarsSelfCheckout?.peekOutboundStatusJson()).toContain('pendingCount');
     expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('startPurchase');
+  });
+
+  it('does not enqueue external search commands before configured 4 character threshold', async () => {
+    setRoute('/bolars/self-checkout-mvp?debug=1&adapter=onec');
+    render(<BolarsSelfCheckoutApp />);
+
+    act(() => {
+      window.BolarsSelfCheckout?.receiveStateSnapshot(
+        JSON.stringify(createEmptySnapshot('onec', { snapshotVersion: 2, currentScreen: 'cart', sessionId: 'session-onec' }))
+      );
+    });
+
+    const input = await screen.findByLabelText('Поиск товара');
+    fireEvent.change(input, { target: { value: 'кле' } });
+    expect(JSON.parse(window.BolarsSelfCheckout?.peekOutboundStatusJson() ?? '{}').pendingCount).toBe(0);
+    expect(screen.getByText('Введите минимум 4 символа')).toBeInTheDocument();
+
+    fireEvent.change(input, { target: { value: 'клей' } });
+    expect(JSON.parse(window.BolarsSelfCheckout?.peekOutboundStatusJson() ?? '{}').pendingCount).toBe(1);
+    expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('searchProducts');
   });
 });

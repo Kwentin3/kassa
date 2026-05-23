@@ -1091,6 +1091,13 @@ select:focus-visible {
   text-align: center;
 }
 
+.bolars-status-brand {
+  color: var(--bolars-brand-primary);
+  font-size: 34px;
+  font-weight: 950;
+  letter-spacing: 0;
+}
+
 .bolars-status-card h1 {
   margin: 0;
   font-size: 58px;
@@ -1111,6 +1118,74 @@ select:focus-visible {
   border-top-color: var(--bolars-info);
   border-radius: 50%;
   animation: bolars-spin 1s linear infinite;
+}
+
+.bolars-compact-order {
+  display: grid;
+  width: 100%;
+  gap: 8px;
+  border: 1px solid var(--bolars-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--bolars-white);
+  text-align: left;
+}
+
+.bolars-compact-order strong {
+  color: var(--bolars-text-primary);
+  font-size: 20px;
+}
+
+.bolars-compact-order span,
+.bolars-compact-order em {
+  color: var(--bolars-text-secondary);
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 750;
+}
+
+.bolars-alert-stack {
+  position: fixed;
+  z-index: 35;
+  left: max(18px, calc((100vw - 1080px) / 2 + 18px));
+  bottom: 18px;
+  display: grid;
+  width: min(520px, calc(100vw - 36px));
+  gap: 10px;
+}
+
+.bolars-alert {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--bolars-border);
+  border-left: 8px solid var(--bolars-info);
+  border-radius: 8px;
+  padding: 14px 16px;
+  background: var(--bolars-white);
+  box-shadow: 0 16px 44px rgba(17, 17, 17, 0.14);
+}
+
+.bolars-alert strong {
+  color: var(--bolars-text-primary);
+  font-size: 18px;
+}
+
+.bolars-alert span {
+  color: var(--bolars-text-secondary);
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.bolars-alert.success {
+  border-left-color: var(--bolars-success);
+}
+
+.bolars-alert.warning {
+  border-left-color: var(--bolars-warning);
+}
+
+.bolars-alert.error {
+  border-left-color: var(--bolars-error);
 }
 
 @keyframes bolars-spin {

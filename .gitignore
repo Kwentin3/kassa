@@ -16,6 +16,9 @@ coverage/
 docker-compose.override.yml
 .deploy/
 
+# Local documentation exchange buffer; canonical docs live under docs/*, not docs/out.
+docs/out/
+
 # Secret material and private keys
 .secrets/
 ops/secrets/*

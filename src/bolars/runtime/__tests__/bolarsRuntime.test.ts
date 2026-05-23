@@ -56,6 +56,41 @@ describe('BOLARS MockAdapter', () => {
     await adapter.dispatch(createCommand('selectSearchCandidate', { candidateId }));
     expect(adapter.getState().cartLines).toHaveLength(1);
   });
+
+  it('supports manager rejection and deterministic mock payment error', async () => {
+    vi.useFakeTimers();
+    const adapter = new MockAdapter(createRuntimeAdapterFactory(route('?debug=1&mockPayment=failed')).routeContext);
+
+    await adapter.dispatch(createCommand('startPurchase', undefined));
+    await adapter.dispatch(createCommand('bindManager', { code: 'bad-manager' }, 'scanner'));
+    expect(adapter.getState().manager.status).toBe('rejected');
+
+    await adapter.dispatch(createCommand('scanCode', { code: '4600001000011' }, 'scanner'));
+    await adapter.dispatch(createCommand('goToPaymentSetup', undefined));
+    await adapter.dispatch(createCommand('startPayment', undefined));
+    expect(adapter.getState().currentScreen).toBe('paymentWaiting');
+
+    await vi.advanceTimersByTimeAsync(1200);
+    expect(adapter.getState().currentScreen).toBe('paymentError');
+    expect(adapter.getState().paymentState.status).toBe('failed');
+    vi.useRealTimers();
+  });
+
+  it('shows inactivity warning and resets mock session after default timeout', async () => {
+    vi.useFakeTimers();
+    const adapter = new MockAdapter(createRuntimeAdapterFactory(route()).routeContext);
+
+    await adapter.dispatch(createCommand('startPurchase', undefined));
+    expect(adapter.getState().currentScreen).toBe('cart');
+
+    await vi.advanceTimersByTimeAsync(270000);
+    expect(adapter.getState().modalState.type).toBe('timeoutWarning');
+
+    await vi.advanceTimersByTimeAsync(30000);
+    expect(adapter.getState().currentScreen).toBe('start');
+    expect(adapter.getState().terminalStatus).toBe('inactivityTimedOut');
+    vi.useRealTimers();
+  });
 });
 
 describe('BOLARS PreviewAdapter', () => {
