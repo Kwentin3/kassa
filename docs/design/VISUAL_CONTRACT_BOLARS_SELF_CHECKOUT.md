@@ -1,8 +1,8 @@
 ﻿# Visual Contract: BOLARS Self-Checkout
 
-Статус: draft 0.2
+Статус: draft 0.3
 Дата: 2026-05-23
-Назначение: визуальный контракт будущего portrait-first интерфейса кассы самообслуживания в теме БОЛАРС.
+Назначение: визуальный контракт адаптивного scan-first интерфейса кассы самообслуживания в теме БОЛАРС.
 Основание: эскизы БОЛАРС, `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`, этап prototype MVP, runtime/adapter boundary и visual delta audit текущей реализации.
 
 ## 1. Назначение
@@ -48,6 +48,54 @@ Refactor rule: перед визуальным refactor реализации с�
 - Root viewport должен поддерживать `100dvh` с fallback на `100vh`.
 - Горизонтальный scroll в customer flow запрещён.
 - Основная scroll-зона находится внутри body screen area; sticky CTA и sticky help не должны исчезать без явного scroll contract.
+
+### 3.1 Adaptive Viewport Contract
+
+Контракт адаптивности является обязательной частью визуальной системы. Интерфейс не должен просто брать portrait-размеры из `1080x1920` и давать body page scroll в landscape. Layout обязан вычислять viewport profile и применять height-aware density rules до рендера ключевых зон.
+
+Базовая модель расчёта:
+
+- `baseWidth = 1080`, `baseHeight = 1920`.
+- `viewportWidth` и `viewportHeight` берутся из фактического visual viewport / WebView viewport.
+- `scaleX = viewportWidth / baseWidth`.
+- `scaleY = viewportHeight / baseHeight`.
+- `viewportScale = clamp(min(scaleX, scaleY), minUsableScale, maxUsableScale)`.
+- `densityScale = clamp(scaleY, densityMin, 1)`.
+- `componentScale` может отличаться для typography, spacing, media и touch targets, но должен выводиться из этих tokens, а не из component-local px.
+
+Важно: адаптивность не означает слепое уменьшение всего до нечитаемого состояния. Пропорциональное масштабирование является исходной моделью, но touch targets, читаемость и primary actions имеют минимальные значения. Если полный reference-набор зон не помещается в landscape при минимально допустимой читаемости, низкоприоритетные декоративные/детальные зоны должны reflow/collapse, а не выталкивать primary action за viewport.
+
+### 3.2 Viewport Profiles
+
+Implementation должен поддерживать минимум следующие profiles. Runtime может отдавать `uiConfig.viewportProfile`; если runtime не отдаёт профиль, application/layout layer вычисляет его локально как presentation concern.
+
+| Profile | Условие | Цель |
+| --- | --- | --- |
+| `portrait1080` | Portrait, близко к `1080x1920` или выше | Полная reference-композиция. |
+| `portraitCompact` | Portrait с меньшей высотой/шириной | Та же иерархия, меньше gaps/media, controlled internal scroll. |
+| `landscapeKiosk` | Landscape с высотой около `900-1080px+` | Двухколоночная или широкая композиция без потери primary action. |
+| `landscapeCompact` | Landscape с высотой около `720-899px` (`1366x768`, `1280x800`) | Height-compressed kiosk mode: ключевые действия и статус помещаются в первый viewport. |
+| `microFallback` | Высота ниже `720px` или нестабильный embedded viewport | Только critical path guaranteed; декоративные зоны collapsed, details may use explicit internal scroll. |
+
+`landscapeCompact` является обязательным для текущей рабочей среды, потому что исходный проектный контекст включает Android tablet `10-13"` landscape.
+
+### 3.3 Adaptive Scaling Rules
+
+- Header, hero, cards, media, spacing, radii, shadows and typography use semantic size tokens with viewport/density multipliers.
+- No component may rely on fixed portrait `min-height` if that value can push primary action below the viewport in `landscapeCompact`.
+- `min-height: 100dvh` is allowed for stage, but child content must be able to fit/reflow inside the available height.
+- `page scroll` is not the adaptive strategy for customer-critical actions. Page scroll is acceptable only for secondary details or explicit internal content lists.
+- `overflow:hidden` must not silently hide interactive controls.
+- Debug/preview overlays are excluded from customer layout measurements.
+
+Minimum customer guarantees for `landscapeCompact`:
+
+- Start: scan instruction, scanner cue, scan action, manual search fallback, text scale and help access are visible or collapsed into explicit visible controls without page scroll.
+- Cart: search, add/scan product, at least one product row or empty state, payable total and `Перейти к оплате` are visible without page scroll.
+- Payment setup: order review summary, package access, discount access, final total and `Оплатить` are visible without page scroll; long order details may scroll inside review.
+- Payment waiting: payable amount, instruction `Приложите карту к терминалу оплаты`, waiting status and payment visual cue are visible without page scroll.
+- Payment error: error message, amount/order context, retry/return actions are visible without page scroll.
+- Final success: success mark, thank-you text and countdown reset are visible without page scroll; receipt details may become compact/collapsed.
 
 ## 4. Kiosk-First Принципы
 

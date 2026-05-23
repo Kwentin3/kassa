@@ -489,6 +489,34 @@ select:focus-visible {
 }
 
 .bolars-root {
+  --bolars-stage-max: 1080px;
+  --bolars-brand-header-min: 190px;
+  --bolars-brand-header-pad-y: 42px;
+  --bolars-brand-header-pad-x: 58px;
+  --bolars-work-header-min: 142px;
+  --bolars-screen-pad: 28px;
+  --bolars-body-pad-y: 48px;
+  --bolars-body-pad-x: 40px;
+  --bolars-section-gap: 24px;
+  --bolars-card-gap: 18px;
+  --bolars-hero-font: clamp(52px, 6vw, 72px);
+  --bolars-logo-large-font: 62px;
+  --bolars-scanner-width: 360px;
+  --bolars-scanner-height: 220px;
+  --bolars-start-card-height: 260px;
+  --bolars-start-card-pad: 32px;
+  --bolars-search-height: 76px;
+  --bolars-scan-card-height: 96px;
+  --bolars-cart-row-height: 118px;
+  --bolars-summary-total-font: 54px;
+  --bolars-payment-visual-height: 520px;
+  --bolars-payment-terminal-width: 220px;
+  --bolars-payment-terminal-height: 330px;
+  --bolars-payment-phone-width: 130px;
+  --bolars-payment-phone-height: 245px;
+  --bolars-success-mark-size: 198px;
+  --bolars-receipt-width: 580px;
+  --bolars-countdown-ring-size: 132px;
   min-height: 100dvh;
   width: 100%;
   overflow: hidden;
@@ -513,7 +541,7 @@ select:focus-visible {
 
 .bolars-stage {
   min-height: 100dvh;
-  width: min(100%, 1080px);
+  width: min(100%, var(--bolars-stage-max));
   margin: 0 auto;
   background: var(--bolars-background);
   box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.08);
@@ -540,8 +568,8 @@ select:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  min-height: 190px;
-  padding: 42px 58px;
+  min-height: var(--bolars-brand-header-min);
+  padding: var(--bolars-brand-header-pad-y) var(--bolars-brand-header-pad-x);
   color: var(--bolars-white);
   background: var(--bolars-logo-black);
   border-radius: 0 0 24px 24px;
@@ -596,7 +624,7 @@ select:focus-visible {
 }
 
 .bolars-logo-large {
-  font-size: 62px;
+  font-size: var(--bolars-logo-large-font);
 }
 
 .bolars-logo {
@@ -608,9 +636,9 @@ select:focus-visible {
   position: relative;
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto auto;
-  gap: 24px;
+  gap: var(--bolars-section-gap);
   min-height: 0;
-  padding: 48px 40px 32px;
+  padding: var(--bolars-body-pad-y) var(--bolars-body-pad-x) 32px;
   overflow: hidden;
 }
 
@@ -665,8 +693,8 @@ select:focus-visible {
   position: relative;
   display: grid;
   place-items: center;
-  width: 360px;
-  height: 220px;
+  width: var(--bolars-scanner-width);
+  height: var(--bolars-scanner-height);
   margin-top: 34px;
   border: 8px solid color-mix(in srgb, var(--bolars-info) 72%, transparent);
   border-left-color: transparent;
@@ -690,7 +718,7 @@ select:focus-visible {
   max-width: 760px;
   margin: 0;
   color: var(--bolars-logo-black);
-  font-size: clamp(52px, 6vw, 72px);
+  font-size: var(--bolars-hero-font);
   line-height: 1.04;
 }
 
@@ -712,7 +740,7 @@ select:focus-visible {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 18px;
+  gap: var(--bolars-card-gap);
   margin-top: 34px;
 }
 
@@ -721,11 +749,11 @@ select:focus-visible {
   grid-template-rows: auto auto 1fr auto;
   place-items: center;
   width: min(100%, 420px);
-  min-height: 260px;
+  min-height: var(--bolars-start-card-height);
   border: 0;
   border-bottom: 10px solid var(--bolars-brand-primary);
   border-radius: 28px;
-  padding: 32px;
+  padding: var(--bolars-start-card-pad);
   background: var(--bolars-white);
   color: var(--bolars-text-primary);
   text-align: center;
@@ -881,7 +909,7 @@ select:focus-visible {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  min-height: 142px;
+  min-height: var(--bolars-work-header-min);
   padding: 24px 34px;
   color: var(--bolars-white);
   background: var(--bolars-logo-black);
@@ -937,9 +965,9 @@ select:focus-visible {
 .bolars-payment-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 24px;
+  gap: var(--bolars-section-gap);
   min-height: 0;
-  padding: 28px;
+  padding: var(--bolars-screen-pad);
 }
 
 .bolars-main-column {
@@ -947,14 +975,14 @@ select:focus-visible {
   min-width: 0;
   min-height: 0;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--bolars-card-gap);
 }
 
 .bolars-search-box {
   display: flex;
   align-items: center;
   gap: 14px;
-  min-height: 76px;
+  min-height: var(--bolars-search-height);
   border: 2px solid var(--bolars-info);
   border-radius: 8px;
   padding: 0 20px;
@@ -967,7 +995,7 @@ select:focus-visible {
   grid-template-columns: 64px minmax(0, 1fr) 56px;
   align-items: center;
   gap: 18px;
-  min-height: 96px;
+  min-height: var(--bolars-scan-card-height);
   border: 2px solid color-mix(in srgb, var(--bolars-info) 42%, transparent);
   border-radius: 8px;
   padding: 16px 20px;
@@ -1109,7 +1137,7 @@ select:focus-visible {
   grid-template-columns: 150px minmax(0, 1fr) 230px 150px 64px;
   align-items: center;
   gap: 14px;
-  min-height: 118px;
+  min-height: var(--bolars-cart-row-height);
   border: 2px solid transparent;
   border-radius: 8px;
   padding: 18px;
@@ -1276,7 +1304,7 @@ select:focus-visible {
 
 .bolars-summary-payable strong {
   color: var(--bolars-brand-primary);
-  font-size: 54px;
+  font-size: var(--bolars-summary-total-font);
   font-weight: 950;
   line-height: 1;
 }
@@ -1614,7 +1642,7 @@ select:focus-visible {
   display: grid;
   place-items: center;
   width: min(100%, 780px);
-  height: 520px;
+  height: var(--bolars-payment-visual-height);
   border: 8px solid color-mix(in srgb, var(--bolars-info) 74%, transparent);
   border-left-color: transparent;
   border-right-color: transparent;
@@ -1631,8 +1659,8 @@ select:focus-visible {
 .bolars-terminal-illustration {
   display: grid;
   place-items: center;
-  width: 220px;
-  height: 330px;
+  width: var(--bolars-payment-terminal-width);
+  height: var(--bolars-payment-terminal-height);
   border-radius: 30px;
   background: var(--bolars-white);
   color: var(--bolars-logo-black);
@@ -1649,8 +1677,8 @@ select:focus-visible {
 .bolars-phone-illustration {
   display: grid;
   place-items: center;
-  width: 130px;
-  height: 245px;
+  width: var(--bolars-payment-phone-width);
+  height: var(--bolars-payment-phone-height);
   border: 10px solid var(--bolars-logo-black);
   border-radius: 24px;
   background: var(--bolars-white);
@@ -1796,8 +1824,8 @@ select:focus-visible {
 .bolars-success-mark {
   display: grid;
   place-items: center;
-  width: 198px;
-  height: 198px;
+  width: var(--bolars-success-mark-size);
+  height: var(--bolars-success-mark-size);
   border-radius: 50%;
   color: var(--bolars-white);
   background: var(--bolars-success);
@@ -1822,7 +1850,7 @@ select:focus-visible {
   position: relative;
   display: grid;
   gap: 18px;
-  width: min(100%, 580px);
+  width: min(100%, var(--bolars-receipt-width));
   border-radius: 18px 18px 8px 8px;
   padding: 38px 44px 44px;
   background: var(--bolars-white);
@@ -1902,8 +1930,8 @@ select:focus-visible {
 .bolars-countdown-ring {
   display: grid;
   place-items: center;
-  width: 132px;
-  height: 132px;
+  width: var(--bolars-countdown-ring-size);
+  height: var(--bolars-countdown-ring-size);
   border: 8px solid color-mix(in srgb, var(--bolars-brand-primary) 28%, var(--bolars-border));
   border-top-color: var(--bolars-brand-primary);
   border-radius: 50%;
@@ -2142,6 +2170,691 @@ select:focus-visible {
 .bolars-scale-extraLarge .bolars-review-line,
 .bolars-scale-extraLarge .bolars-discount-panel p {
   font-size: 1.28em;
+}
+
+@media (orientation: landscape) and (max-height: 1100px) {
+  .bolars-root {
+    --bolars-stage-max: 1366px;
+    --bolars-brand-header-min: clamp(88px, 13.5dvh, 126px);
+    --bolars-brand-header-pad-y: clamp(14px, 2.1dvh, 22px);
+    --bolars-brand-header-pad-x: clamp(24px, 3vw, 44px);
+    --bolars-work-header-min: clamp(78px, 11.5dvh, 104px);
+    --bolars-screen-pad: clamp(12px, 1.45dvw, 20px);
+    --bolars-body-pad-y: clamp(12px, 1.9dvh, 20px);
+    --bolars-body-pad-x: clamp(22px, 2.6dvw, 36px);
+    --bolars-section-gap: clamp(8px, 1.45dvh, 14px);
+    --bolars-card-gap: clamp(8px, 1.35dvh, 12px);
+    --bolars-hero-font: clamp(34px, 5.4dvh, 50px);
+    --bolars-logo-large-font: clamp(36px, 6dvh, 50px);
+    --bolars-scanner-width: clamp(220px, 28dvw, 320px);
+    --bolars-scanner-height: clamp(106px, 18dvh, 160px);
+    --bolars-start-card-height: clamp(86px, 14.5dvh, 118px);
+    --bolars-start-card-pad: clamp(12px, 1.8dvh, 18px);
+    --bolars-search-height: clamp(52px, 8dvh, 64px);
+    --bolars-scan-card-height: clamp(58px, 9dvh, 74px);
+    --bolars-cart-row-height: clamp(92px, 15dvh, 118px);
+    --bolars-summary-total-font: clamp(36px, 6.2dvh, 48px);
+    --bolars-payment-visual-height: clamp(170px, 29dvh, 260px);
+    --bolars-payment-terminal-width: clamp(98px, 13dvw, 150px);
+    --bolars-payment-terminal-height: clamp(142px, 23dvh, 205px);
+    --bolars-payment-phone-width: clamp(66px, 7.8dvw, 92px);
+    --bolars-payment-phone-height: clamp(126px, 20dvh, 170px);
+    --bolars-success-mark-size: clamp(96px, 17dvh, 140px);
+    --bolars-receipt-width: 520px;
+    --bolars-countdown-ring-size: clamp(72px, 12dvh, 98px);
+  }
+
+  .bolars-root,
+  .bolars-stage,
+  .bolars-start-screen,
+  .bolars-work-screen,
+  .bolars-status-screen {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .bolars-brand-header {
+    min-height: var(--bolars-brand-header-min);
+    border-radius: 0 0 18px 18px;
+  }
+
+  .bolars-brand-lockup {
+    gap: 3px;
+  }
+
+  .bolars-brand-lockup span {
+    font-size: clamp(13px, 2.2dvh, 18px);
+    letter-spacing: 0.18em;
+  }
+
+  .bolars-clock-block {
+    gap: 12px;
+    padding-left: 24px;
+  }
+
+  .bolars-clock-block svg {
+    width: clamp(32px, 5dvh, 46px);
+    height: clamp(32px, 5dvh, 46px);
+  }
+
+  .bolars-clock-block strong {
+    font-size: clamp(22px, 4dvh, 30px);
+  }
+
+  .bolars-clock-block span {
+    margin-top: 4px;
+    font-size: clamp(14px, 2.4dvh, 18px);
+  }
+
+  .bolars-start-body {
+    height: calc(100dvh - var(--bolars-brand-header-min));
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    padding: var(--bolars-body-pad-y) var(--bolars-body-pad-x);
+    overflow: hidden;
+  }
+
+  .bolars-start-product {
+    width: clamp(120px, 12dvw, 170px);
+    height: clamp(230px, 42dvh, 340px);
+    opacity: 0.52;
+    font-size: clamp(18px, 3dvh, 24px);
+  }
+
+  .bolars-start-product.left {
+    left: -46px;
+    top: 42%;
+  }
+
+  .bolars-start-product.right {
+    right: -50px;
+    top: 38%;
+  }
+
+  .bolars-scan-hero {
+    justify-content: center;
+  }
+
+  .bolars-welcome {
+    margin-bottom: 6px;
+    font-size: clamp(20px, 3.2dvh, 27px);
+  }
+
+  .bolars-scan-hero h1 {
+    max-width: 740px;
+  }
+
+  .bolars-scan-hero p,
+  .bolars-help-strip {
+    font-size: clamp(17px, 2.6dvh, 22px);
+  }
+
+  .bolars-scanner-visual {
+    margin-top: clamp(10px, 1.8dvh, 16px);
+    border-width: 5px;
+    border-radius: 22px;
+  }
+
+  .bolars-scanner-visual svg {
+    width: clamp(58px, 9dvh, 84px);
+    height: clamp(58px, 9dvh, 84px);
+  }
+
+  .bolars-scanner-visual span {
+    width: min(112%, calc(var(--bolars-scanner-width) + 42px));
+    height: 5px;
+  }
+
+  .bolars-scan-hero .bolars-start-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: min(100%, 760px);
+    margin-top: clamp(10px, 1.7dvh, 16px);
+  }
+
+  .bolars-start-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    justify-items: start;
+    align-items: center;
+    border-bottom-width: 6px;
+    border-radius: 18px;
+    text-align: left;
+  }
+
+  .bolars-start-card svg:first-child {
+    grid-row: 1 / span 2;
+    width: clamp(28px, 4.7dvh, 38px);
+    height: clamp(28px, 4.7dvh, 38px);
+  }
+
+  .bolars-start-card svg:last-child {
+    grid-row: 1 / span 2;
+    grid-column: 3;
+    width: clamp(22px, 3.7dvh, 30px);
+    height: clamp(22px, 3.7dvh, 30px);
+  }
+
+  .bolars-start-card strong {
+    margin-top: 0;
+    font-size: clamp(20px, 3.2dvh, 27px);
+  }
+
+  .bolars-start-card span {
+    margin-top: 2px;
+    font-size: clamp(14px, 2.2dvh, 18px);
+  }
+
+  .bolars-start-scale-card,
+  .bolars-help-card {
+    min-height: clamp(54px, 8.4dvh, 72px);
+    gap: 12px;
+    border-radius: 16px;
+    padding: clamp(10px, 1.6dvh, 14px) clamp(14px, 2dvw, 22px);
+  }
+
+  .bolars-start-scale-card strong,
+  .bolars-help-card strong {
+    font-size: clamp(19px, 3dvh, 24px);
+  }
+
+  .bolars-start-scale-card span,
+  .bolars-help-card span {
+    display: none;
+  }
+
+  .bolars-scale-icon,
+  .bolars-help-icon {
+    width: clamp(42px, 7dvh, 56px);
+    height: clamp(42px, 7dvh, 56px);
+  }
+
+  .bolars-work-header {
+    min-height: var(--bolars-work-header-min);
+    padding: clamp(12px, 1.7dvh, 18px) clamp(20px, 2.5dvw, 34px);
+  }
+
+  .bolars-logo {
+    font-size: clamp(22px, 3.6dvh, 30px);
+  }
+
+  .bolars-work-header h1 {
+    font-size: clamp(30px, 5.4dvh, 42px);
+  }
+
+  .bolars-header-actions {
+    gap: 10px;
+  }
+
+  .bolars-secondary-action {
+    min-height: 50px;
+    padding-inline: 18px;
+    font-size: 18px;
+  }
+
+  .bolars-scale-control,
+  .bolars-manager-badge {
+    min-height: 42px;
+    padding-inline: 10px;
+  }
+
+  .bolars-scale-control button {
+    min-width: 40px;
+    min-height: 36px;
+  }
+
+  .bolars-cart-layout,
+  .bolars-payment-layout {
+    height: calc(100dvh - var(--bolars-work-header-min));
+    overflow: hidden;
+  }
+
+  .bolars-main-column {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .bolars-search-box {
+    padding-inline: 16px;
+    box-shadow: 0 8px 20px rgba(17, 17, 17, 0.07);
+  }
+
+  .bolars-search-box input,
+  .bolars-phone-row input {
+    font-size: clamp(18px, 3dvh, 23px);
+  }
+
+  .bolars-scan-action-card {
+    grid-template-columns: 44px minmax(0, 1fr) 42px;
+    gap: 12px;
+    padding: 10px 16px;
+  }
+
+  .bolars-scan-action-card svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .bolars-scan-action-card strong {
+    font-size: clamp(19px, 3.1dvh, 24px);
+  }
+
+  .bolars-scan-action-card small {
+    font-size: clamp(13px, 2.2dvh, 17px);
+  }
+
+  .bolars-cart-list {
+    flex: 1 1 auto;
+    max-height: none;
+    padding-bottom: 0;
+  }
+
+  .bolars-cart-line {
+    grid-template-columns: 112px minmax(0, 1fr) 190px 118px 56px;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .bolars-product-thumb {
+    width: clamp(82px, 9dvw, 104px);
+    height: clamp(64px, 10dvh, 82px);
+    font-size: clamp(24px, 4dvh, 30px);
+  }
+
+  .bolars-line-name strong {
+    font-size: clamp(21px, 3.5dvh, 25px);
+  }
+
+  .bolars-line-name span,
+  .bolars-line-name em {
+    margin-top: 3px;
+    font-size: clamp(13px, 2dvh, 16px);
+  }
+
+  .bolars-quantity-control {
+    grid-template-columns: 48px 1fr 48px;
+    gap: 6px;
+  }
+
+  .bolars-quantity-control button,
+  .bolars-delete,
+  .bolars-numpad-grid button {
+    min-height: 48px;
+  }
+
+  .bolars-line-total {
+    font-size: clamp(21px, 3.4dvh, 25px);
+  }
+
+  .bolars-cart-summary-band {
+    grid-template-columns: minmax(160px, 0.8fr) auto minmax(160px, 0.7fr) minmax(250px, 1fr);
+    gap: 16px;
+    border-radius: 18px;
+    padding: 14px 18px;
+  }
+
+  .bolars-summary-count span,
+  .bolars-summary-payable span {
+    font-size: 15px;
+  }
+
+  .bolars-summary-count strong {
+    font-size: clamp(24px, 4dvh, 30px);
+  }
+
+  .bolars-summary-divider {
+    height: 56px;
+  }
+
+  .bolars-primary-action,
+  .bolars-info-action,
+  .bolars-danger-action {
+    min-height: clamp(54px, 8.6dvh, 68px);
+    padding-inline: 20px;
+    font-size: clamp(18px, 3dvh, 23px);
+  }
+
+  .bolars-payment-layout .bolars-main-column {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.86fr);
+    grid-template-rows: auto auto auto auto auto minmax(0, 1fr);
+    align-content: start;
+    gap: var(--bolars-card-gap);
+  }
+
+  .bolars-payment-layout .bolars-review-panel {
+    grid-column: 1;
+    grid-row: 1 / span 6;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .bolars-payment-layout .bolars-package-panel,
+  .bolars-payment-layout .bolars-discount-panel,
+  .bolars-payment-layout .bolars-final-total-band,
+  .bolars-payment-layout .bolars-pay-bottom,
+  .bolars-payment-layout .bolars-info-action.full,
+  .bolars-payment-layout .bolars-help-card {
+    grid-column: 2;
+  }
+
+  .bolars-review-panel,
+  .bolars-package-panel,
+  .bolars-discount-panel {
+    padding: clamp(12px, 1.8dvh, 18px);
+  }
+
+  .bolars-section-heading {
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .bolars-section-heading > svg {
+    width: clamp(24px, 4dvh, 34px);
+    height: clamp(24px, 4dvh, 34px);
+  }
+
+  .bolars-section-heading h2 {
+    font-size: clamp(22px, 3.5dvh, 28px);
+  }
+
+  .bolars-section-heading span {
+    font-size: clamp(14px, 2.2dvh, 18px);
+  }
+
+  .bolars-review-line,
+  .bolars-totals-list div {
+    padding: 8px 0;
+    font-size: clamp(15px, 2.3dvh, 18px);
+  }
+
+  .bolars-review-line {
+    grid-template-columns: 70px minmax(0, 1fr) auto;
+    min-height: clamp(64px, 10dvh, 84px);
+  }
+
+  .bolars-review-line .bolars-product-thumb {
+    width: 56px;
+    height: 48px;
+  }
+
+  .bolars-review-totals {
+    gap: 5px;
+    margin-top: 8px;
+    padding-top: 10px;
+  }
+
+  .bolars-review-totals div {
+    font-size: clamp(16px, 2.5dvh, 19px);
+  }
+
+  .bolars-review-totals div.total {
+    font-size: clamp(20px, 3.3dvh, 26px);
+  }
+
+  .bolars-review-totals div.total b {
+    font-size: clamp(32px, 5.4dvh, 42px);
+  }
+
+  .bolars-package-grid {
+    gap: 8px;
+  }
+
+  .bolars-package-grid button {
+    min-height: clamp(50px, 7.2dvh, 66px);
+    padding: 8px;
+    font-size: clamp(15px, 2.4dvh, 18px);
+  }
+
+  .bolars-package-grid button svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bolars-phone-row {
+    min-height: clamp(50px, 7.5dvh, 60px);
+  }
+
+  .bolars-phone-row input {
+    padding-inline: 12px;
+  }
+
+  .bolars-final-total-band {
+    border-radius: 12px;
+    padding: clamp(12px, 1.8dvh, 16px) 18px;
+  }
+
+  .bolars-final-total-band span {
+    font-size: clamp(18px, 3dvh, 24px);
+  }
+
+  .bolars-final-total-band strong {
+    font-size: clamp(38px, 6dvh, 52px);
+  }
+
+  .bolars-pay-bottom {
+    min-height: clamp(58px, 8.6dvh, 72px);
+    font-size: clamp(22px, 3.6dvh, 30px);
+  }
+
+  .bolars-status-screen {
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .bolars-status-body,
+  .bolars-final-body {
+    height: calc(100dvh - var(--bolars-brand-header-min));
+    gap: clamp(8px, 1.4dvh, 14px);
+    padding: clamp(12px, 1.8dvh, 20px) clamp(24px, 3dvw, 40px);
+    overflow: hidden;
+  }
+
+  .bolars-payment-title-block h1 {
+    font-size: clamp(30px, 5dvh, 42px);
+  }
+
+  .bolars-payment-title-block span {
+    margin-top: 2px;
+    font-size: clamp(16px, 2.8dvh, 22px);
+  }
+
+  .bolars-payment-amount-card {
+    gap: 22px;
+    border-radius: 18px;
+    padding: clamp(16px, 2.6dvh, 24px) clamp(24px, 3dvw, 36px);
+  }
+
+  .bolars-payment-amount-card span {
+    font-size: clamp(17px, 2.8dvh, 22px);
+  }
+
+  .bolars-payment-amount-card strong {
+    font-size: clamp(44px, 8dvh, 64px);
+  }
+
+  .bolars-payment-amount-card b {
+    font-size: clamp(20px, 3.4dvh, 26px);
+  }
+
+  .bolars-payment-amount-card div:last-child {
+    padding-left: 28px;
+  }
+
+  .bolars-payment-visual {
+    border-width: 5px;
+    border-radius: 26px;
+  }
+
+  .bolars-terminal-illustration {
+    border-radius: 20px;
+  }
+
+  .bolars-card-illustration {
+    width: clamp(120px, 16dvw, 180px);
+    height: clamp(70px, 11dvh, 108px);
+    transform: translate(95px, -10px) rotate(13deg);
+  }
+
+  .bolars-phone-illustration {
+    border-width: 6px;
+    border-radius: 18px;
+    transform: translate(175px, 42px) rotate(-10deg);
+  }
+
+  .bolars-status-body h2 {
+    font-size: clamp(32px, 5.2dvh, 46px);
+  }
+
+  .bolars-payment-waiting-line {
+    font-size: clamp(22px, 3.8dvh, 30px);
+  }
+
+  .bolars-spinner.compact {
+    width: clamp(30px, 5dvh, 42px);
+    height: clamp(30px, 5dvh, 42px);
+    border-width: 5px;
+  }
+
+  .bolars-compact-order {
+    max-height: clamp(74px, 13dvh, 110px);
+    overflow: hidden;
+    padding: 10px 12px;
+  }
+
+  .bolars-compact-order-items {
+    display: flex;
+    gap: 10px;
+    overflow: hidden;
+  }
+
+  .bolars-compact-order-items > span {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-width: 160px;
+    align-items: center;
+    gap: 8px;
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .bolars-compact-order-items .bolars-product-thumb {
+    width: 48px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .bolars-status-card {
+    align-self: center;
+    gap: clamp(10px, 1.8dvh, 16px);
+    width: min(100%, 760px);
+    padding: clamp(22px, 3dvh, 36px);
+  }
+
+  .bolars-status-card h1 {
+    font-size: clamp(36px, 6dvh, 52px);
+  }
+
+  .bolars-status-card p {
+    font-size: clamp(20px, 3.2dvh, 26px);
+  }
+
+  .error-card .bolars-start-actions {
+    margin-top: 0;
+  }
+
+  .bolars-final-body h1 {
+    font-size: clamp(42px, 7dvh, 60px);
+  }
+
+  .bolars-final-body > p {
+    font-size: clamp(20px, 3.4dvh, 28px);
+  }
+
+  .bolars-success-mark svg {
+    width: clamp(58px, 10dvh, 88px);
+    height: clamp(58px, 10dvh, 88px);
+  }
+
+  .bolars-receipt-preview {
+    max-height: clamp(160px, 27dvh, 240px);
+    gap: 8px;
+    overflow: hidden;
+    padding: clamp(16px, 2.4dvh, 24px) clamp(22px, 3dvw, 32px);
+  }
+
+  .bolars-receipt-logo {
+    font-size: clamp(24px, 4dvh, 34px);
+  }
+
+  .bolars-receipt-lines {
+    gap: 6px;
+  }
+
+  .bolars-receipt-lines span,
+  .bolars-receipt-meta span,
+  .bolars-receipt-lines b,
+  .bolars-receipt-lines strong {
+    font-size: clamp(13px, 2.2dvh, 16px);
+  }
+
+  .bolars-receipt-total {
+    padding-top: 10px;
+  }
+
+  .bolars-receipt-total span {
+    font-size: clamp(20px, 3.4dvh, 26px);
+  }
+
+  .bolars-receipt-total strong {
+    font-size: clamp(28px, 5dvh, 36px);
+  }
+
+  .bolars-countdown-card {
+    min-height: clamp(82px, 13.5dvh, 112px);
+    gap: 18px;
+    border-radius: 18px;
+    padding: clamp(12px, 2dvh, 18px) 24px;
+  }
+
+  .bolars-countdown-ring {
+    border-width: 6px;
+  }
+
+  .bolars-countdown-ring strong {
+    font-size: clamp(26px, 4.8dvh, 36px);
+  }
+
+  .bolars-countdown-card > div:last-child > strong {
+    font-size: clamp(20px, 3.2dvh, 26px);
+  }
+
+  .bolars-countdown-card p {
+    margin-top: 6px;
+    font-size: clamp(14px, 2.2dvh, 18px);
+  }
+
+  .bolars-countdown-track {
+    height: 8px;
+    margin-top: 10px;
+  }
+
+  .bolars-alert-stack {
+    left: max(12px, calc((100vw - var(--bolars-stage-max)) / 2 + 12px));
+    bottom: 10px;
+    width: min(420px, calc(100vw - 24px));
+  }
+
+  .bolars-screen-paymentWaiting .bolars-alert-stack,
+  .bolars-screen-finalSuccess .bolars-alert-stack {
+    top: calc(var(--bolars-brand-header-min) + 10px);
+    right: max(12px, calc((100vw - var(--bolars-stage-max)) / 2 + 12px));
+    bottom: auto;
+    left: auto;
+    width: min(340px, calc(100vw - 24px));
+  }
+
+  .bolars-alert {
+    padding: 10px 12px;
+  }
 }
 
 @media (max-width: 900px) {

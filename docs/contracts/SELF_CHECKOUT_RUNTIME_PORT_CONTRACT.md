@@ -1,6 +1,6 @@
 ﻿# SelfCheckoutRuntimePort Contract
 
-Статус: draft 0.1
+Статус: draft 0.2
 Дата: 2026-05-23
 Назначение: единый контракт общения frontend с backend/1C/runtime для scan-first кассы самообслуживания.
 Основание: `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`; прототип MVP должен быть готов к runtime/adapter boundary, UI не вызывает внешние контуры напрямую.
@@ -484,7 +484,7 @@ Alerts must be user-readable. Technical provider errors should be mapped by runt
 
 ```ts
 interface UiConfigState {
-  viewportProfile: 'portrait1080' | 'portraitCompact' | 'landscapeFallback';
+  viewportProfile: ViewportProfile;
   language: 'ru';
   showClock: boolean;
   showManagerBadge: boolean;
@@ -504,6 +504,18 @@ interface UiConfigState {
   packageButtons: Array<{ packageCode: string; label: string }>;
 }
 ```
+
+```ts
+type ViewportProfile =
+  | 'portrait1080'
+  | 'portraitCompact'
+  | 'landscapeKiosk'
+  | 'landscapeCompact'
+  | 'landscapeFallback'
+  | 'microFallback';
+```
+
+`landscapeFallback` remains accepted as a backward-compatible broad value. New implementation should prefer `landscapeKiosk` and `landscapeCompact` when the actual viewport is known. If runtime does not provide `viewportProfile`, the presentation/application layer may derive it from the visual viewport as layout-only state; this must not affect cart, price, discount, scan or payment business logic.
 
 UI layout choices should come from config/tokens, not scattered constants.
 

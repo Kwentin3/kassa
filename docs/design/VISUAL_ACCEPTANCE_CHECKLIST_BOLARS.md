@@ -1,8 +1,8 @@
 ﻿# Visual Acceptance Checklist: BOLARS Self-Checkout
 
-Статус: draft 0.2
+Статус: draft 0.3
 Дата: 2026-05-23
-Назначение: чек-лист приёмки реализации portrait-first интерфейса кассы самообслуживания БОЛАРС.
+Назначение: чек-лист приёмки реализации адаптивного интерфейса кассы самообслуживания БОЛАРС.
 
 Использовать вместе с:
 
@@ -25,6 +25,8 @@
 - [ ] Экран соответствует портретному терминалу `1080x1920`.
 - [ ] `1080x1920` используется как design target, а не как жёсткий screenshot/pixel lock.
 - [ ] Stage/tokens/layout contract сохраняет читаемость при отличающемся HTML-shell/WebView viewport.
+- [ ] Layout выбирает/вычисляет viewport profile до рендера customer-critical zones.
+- [ ] `landscapeCompact` поддержан для `1366x768` и `1280x800`.
 - [ ] Эскизы БОЛАРС использованы как visual reference, а не как случайные картинки.
 - [ ] Header, content, sticky CTA и help имеют явный layout contract.
 - [ ] Нет горизонтального scroll в customer flow.
@@ -58,6 +60,24 @@
 - [ ] Final success is not accepted as a solid magenta page with only a centered message card.
 - [ ] Preview screenshots can support scenario coverage, but clean customer screenshots are required for visual acceptance.
 
+## 1.2 Adaptive Viewport Gate
+
+Этот gate обязателен перед UI-refactor acceptance. Он проверяет, что адаптивность не является только декларацией.
+
+- [ ] Visual smoke покрывает `1080x1920`, `1920x1080`, `1366x768`, `1280x800`.
+- [ ] Для `1366x768` start показывает без page scroll: brand identity, scan instruction, scanner cue, scan action, manual search fallback and visible text-scale/help access.
+- [ ] Для `1366x768` cart показывает без page scroll: search/add scan controls, product/empty state, payable total and `Перейти к оплате`.
+- [ ] Для `1366x768` payment setup показывает без page scroll: order summary, package access, discount access, final total and `Оплатить`.
+- [ ] Для `1366x768` payment waiting показывает без page scroll: amount, `Приложите карту к терминалу оплаты`, waiting status and payment visual cue.
+- [ ] Для `1366x768` payment error показывает без page scroll: error message, amount/order context, retry and return actions.
+- [ ] Для `1366x768` final success показывает без page scroll: success mark, thank-you copy and countdown reset.
+- [ ] Long product/order details use internal scroll or compact/collapsed variants instead of pushing primary action below viewport.
+- [ ] Decorative product/media zones collapse before primary action, totals, payment instruction or countdown.
+- [ ] Header heights, media heights, action card heights, gaps and font sizes are resolved from adaptive tokens/profile, not portrait constants.
+- [ ] No customer screen relies on full-page scroll to reach the primary next action in `landscapeCompact`.
+- [ ] Horizontal scroll remains absent in all checked viewports.
+- [ ] Debug evidence includes measured `viewport`, `scrollHeight/clientHeight`, and off-bottom metrics for critical zones.
+
 ## 2. Theme и Tokens
 
 - [ ] Нет хардкода цветов в компонентах.
@@ -71,6 +91,9 @@
 - [ ] Размеры текста поддерживают `normal`, `large`, `extraLarge`.
 - [ ] Spacing, radius, shadow/elevation не размазаны по компонентам.
 - [ ] Focus, disabled, pressed, busy и highlight states используют tokens.
+- [ ] Adaptive layout tokens exist for viewport/profile/header/media/touch sizing.
+- [ ] `brandHeader` and `workHeader` have compact height tokens for landscape.
+- [ ] Scanner/payment/final media zones have compact height tokens and do not keep portrait fixed heights in landscape.
 
 ## 3. Тексты и Конфигурация
 
@@ -231,6 +254,8 @@
 - [ ] Тесты runtime/mock transitions для scan/search/cart/payment/discount/manager/cancel/timeout.
 - [ ] Visual smoke screenshots `1080x1920` для start/cart/payment setup/payment waiting/payment error/final.
 - [ ] Clean customer visual screenshots `1080x1920` for start/cart/payment setup/payment waiting/payment error/final without debug/preview overlays.
+- [ ] Clean customer visual screenshots `1366x768` and `1280x800` for start/cart/payment setup/payment waiting/payment error/final.
+- [ ] Viewport metrics report for `1366x768` proving critical zones have `offBottom=0`.
 - [ ] Reference delta closure notes mapping implementation changes to `VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` section 18 and `SCREEN_COMPOSITION_SPEC_BOLARS.md` section 14.
 - [ ] Runtime/mock transition evidence для scan product, repeated scan, search found/not found, quantity change, remove line, discount applied/not found, manager bound, payment success/error, inactivity timeout.
 - [ ] Проверку отсутствия hardcoded HEX в components/screens.

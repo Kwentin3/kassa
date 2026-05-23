@@ -6,7 +6,7 @@
 
 ## 1. Что Строим
 
-BOLARS Self-Checkout MVP: portrait-first, scan-first касса самообслуживания для сенсорного терминала магазина строительных материалов.
+BOLARS Self-Checkout MVP: adaptive, scan-first касса самообслуживания для сенсорного терминала магазина строительных материалов. Portrait `1080x1920` остаётся reference viewport из эскизов, но рабочий UI обязан поддерживать landscape tablet/WebView через `landscapeCompact` правила.
 
 Это не интернет-магазин, не каталог товаров, не админка и не перенос старой showcase-витрины. Frontend является визуальным слоем: он отправляет typed commands в `SelfCheckoutRuntimePort` и отображает authoritative state snapshot.
 
@@ -104,7 +104,7 @@ Preview mode работает только через `PreviewAdapter` и state 
 - preview scenarios for main screens/states;
 - `bolars-light-default` theme tokens;
 - text scale `normal`, `large`, `extraLarge`;
-- visual acceptance screenshots `1080x1920`.
+- visual acceptance screenshots `1080x1920`, `1920x1080`, `1366x768`, `1280x800`.
 
 ## 6. vNext / Out of First Slice
 
@@ -192,6 +192,7 @@ Implementation handoff должен включать:
 - Web API namespace: `src/bolars/runtime/webApi.ts`;
 - BOLARS theme tokens: `src/bolars/theme/bolarsTheme.ts`;
 - BOLARS styles: `src/styles/index.css`.
+- adaptive BOLARS layout variables and landscapeCompact rules: `src/styles/index.css`.
 
 RuntimeAdapterFactory в первом implementation slice использует такие правила:
 
@@ -218,3 +219,5 @@ Implementation evidence:
 
 - report: `docs/reports/2026-05-23/BOLARS_MVP_IMPLEMENTATION.report.md`;
 - screenshots: `docs/reports/2026-05-23/bolars-implementation-evidence/`.
+- adaptive contract refine: `docs/reports/2026-05-23/BOLARS_ADAPTIVE_VISUAL_CONTRACT_REFINE.report.md`;
+- adaptive implementation/refactor evidence: `docs/reports/2026-05-23/BOLARS_ADAPTIVE_LAYOUT_REFACTOR.report.md`.

@@ -1,10 +1,10 @@
 ﻿# Screen Composition Spec: BOLARS Self-Checkout
 
-Статус: draft 0.2
+Статус: draft 0.3
 Дата: 2026-05-23
-Назначение: подробная композиционная спецификация MVP-экранов по эскизам БОЛАРС.
+Назначение: подробная композиционная спецификация MVP-экранов по эскизам БОЛАРС и адаптивным viewport profiles.
 
-Базовый viewport: `1080x1920`, portrait.
+Базовый reference viewport: `1080x1920`, portrait. Обязательный рабочий fallback: landscape tablet/WebView.
 Визуальный источник: пять PNG-эскизов из `D:\Users\Roman\Desktop\Эскизы для терминала кассы самообслуживания\тема боларс`.
 Связанные документы:
 
@@ -25,6 +25,7 @@
 - Search и quantity numpad являются состояниями рабочего экрана, не отдельным каталогом.
 - Старый showcase/catalog подход не переносится: product catalog не является главным экраном BOLARS MVP.
 - `1080x1920` является базовым target, но screen layout не прибивается к абсолютным пикселям; stage/tokens/layout contract должны выдерживать отличающийся HTML-shell/WebView viewport.
+- Layout должен выбирать viewport profile (`portrait1080`, `portraitCompact`, `landscapeKiosk`, `landscapeCompact`, `microFallback`) и менять плотность/композицию до того, как primary actions уйдут ниже viewport.
 - Sticky CTA не должен пропадать без явной scroll-зоны.
 - Help доступна на ключевых экранах.
 - Cancel purchase destructive action требует confirmation modal, если cart не пустая.
@@ -496,3 +497,81 @@ Acceptance additions:
 - Final screen must not be accepted as a solid magenta page with only a centered card.
 - Receipt preview is visual/demo-safe and does not imply legal fiscalization in mock mode.
 - Countdown is visible, concrete and driven by `uiConfig.finalAutoResetSeconds`.
+
+## 15. Adaptive Composition Profiles
+
+Этот раздел является обязательным уточнением к screen anatomy. Portrait sketches остаются visual source of truth, но implementation должен иметь self-scaling layout contract для landscape и low-height WebView.
+
+### 15.1 Общая модель
+
+- Screen body получает `availableHeight = viewportHeight - headerHeight - safeAreaInsets`.
+- Header, spacing, media, cards and typography use adaptive tokens from `BOLARS_THEME_AND_TOKENS_CONTRACT.md`.
+- `critical zones` должны помещаться в initial viewport без page scroll.
+- `detail zones` могут иметь explicit internal scroll, compact variant или collapsed summary.
+- Decorative product/media zones collapse first; primary instruction, totals and payment CTA collapse last.
+- Если профиль неизвестен, implementation обязан выбрать nearest safe profile and expose it in debug state.
+
+Critical zones:
+
+| Screen | Critical zones |
+| --- | --- |
+| Start | brand identity, scan instruction, scanner cue, scan action, manual search fallback, visible help/text-scale access. |
+| Cart | title, search/add scan controls, product/empty state, payable total, `Перейти к оплате`. |
+| Payment setup | order summary, packages access, discount access, final total, `Оплатить`. |
+| Payment waiting | amount, apply-card instruction, waiting status, payment visual cue. |
+| Payment error | error message, amount/order context, retry and return actions. |
+| Final success | success mark, thanks text, countdown reset. |
+
+### 15.2 Start Landscape Compact
+
+For `landscapeCompact` (`1366x768`, `1280x800` class):
+
+- `brandHeader` becomes compact height; logo/date stay readable but do not consume portrait header height.
+- Body becomes two-column or compressed grid:
+  - left/main: instruction + scanner visual;
+  - right/bottom: scan card, manual search card, text scale and help access.
+- Scanner visual width/height use adaptive media tokens and must not push actions below viewport.
+- Side product imagery becomes cropped background/faint edge decoration or hidden if it competes with actions.
+- Text scale/help may become compact horizontal controls, but must remain discoverable.
+- Page scroll is a failure if scan action or manual search is below viewport.
+
+### 15.3 Cart Landscape Compact
+
+- `workHeader` becomes compact; title and cancel/text-scale remain visible.
+- Search and add/scan card may sit in a single row or two compact rows.
+- Product list uses remaining height and internal scroll.
+- Summary band/CTA remains visible in the initial viewport, either bottom-sticky or right-side summary column.
+- Help collapses to compact row/icon if needed; it must not push `Перейти к оплате` down.
+- At least one cart row or empty state is visible without page scroll.
+
+### 15.4 Payment Setup Landscape Compact
+
+- Use two-column composition when width allows:
+  - left: order review with internal scroll;
+  - right: packages, discount, final total and `Оплатить`.
+- `Оплатить` and payable total are always visible without page scroll.
+- Package and discount cards may become compact rows; they must not disappear behind review details.
+- Long order details scroll inside review card, not by pushing payment CTA below the viewport.
+- Help collapses below/aside only if primary payment path remains visible.
+
+### 15.5 Payment Waiting/Error Landscape Compact
+
+- `brandHeader` compresses.
+- Amount card and instruction are above the fold.
+- Payment visual reduces/crops proportionally; it must be a cue, not a fixed 520px block.
+- Compact order preview may collapse to item count + total in landscapeCompact.
+- Error state keeps retry/return actions visible without page scroll.
+
+### 15.6 Final Success Landscape Compact
+
+- Success mark, thank-you copy and countdown are visible in the initial viewport.
+- Receipt preview switches to compact receipt summary or side card.
+- Countdown card may become horizontal and shorter, but seconds/progress remain visible.
+- Decorative receipt details collapse before countdown.
+
+### 15.7 Adaptive Acceptance
+
+- `1366x768`, `1280x800`, `1920x1080` and `1080x1920` must be part of visual smoke.
+- For `landscapeCompact`, customer-critical zones listed above must have `offBottom=0` in viewport metrics.
+- Horizontal scroll remains forbidden.
+- Page scroll may exist only when documented detail zones overflow; it must not be required for the primary next action.

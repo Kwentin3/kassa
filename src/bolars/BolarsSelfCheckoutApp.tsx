@@ -123,7 +123,7 @@ export const BolarsSelfCheckoutApp = () => {
   }, [send, snapshot.adapterKind, snapshot.currentScreen, snapshot.uiConfig.finalAutoResetSeconds]);
 
   return (
-    <main className={`bolars-root bolars-scale-${snapshot.textScale}`} style={bolarsLightDefaultTokens as CSSProperties}>
+    <main className={`bolars-root bolars-scale-${snapshot.textScale} bolars-screen-${snapshot.currentScreen}`} style={bolarsLightDefaultTokens as CSSProperties}>
       <div className="bolars-stage">
         {renderScreen(snapshot, { send })}
         {snapshot.alerts.length > 0 && <AlertStack alerts={snapshot.alerts} />}

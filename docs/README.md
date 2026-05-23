@@ -11,7 +11,7 @@ BOLARS MVP не является старой каталоговой showcase-в
 
 Новый BOLARS flow:
 
-- portrait-first;
+- adaptive scan-first UI: portrait `1080x1920` is the reference viewport, landscape tablet/WebView is handled through compact profiles;
 - scan-first;
 - cart-first после первого товара;
 - manual search только fallback;
@@ -39,8 +39,8 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 | Документ | Роль |
 | --- | --- |
 | `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` | Визуальная система, kiosk/scan-first инварианты, композиция, visual language. |
-| `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md` | Theme profiles, semantic tokens, правила отсутствия hardcoded colors. |
-| `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md` | Покадровая спецификация экранов и overlay/state compositions. |
+| `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md` | Theme profiles, semantic/adaptive tokens, правила отсутствия hardcoded colors/sizes в UI. |
+| `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md` | Покадровая спецификация экранов, overlay/state compositions и landscapeCompact profile. |
 | `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md` | Чек-лист визуальной и runtime-boundary приёмки реализации. |
 
 ## 3. Contracts Layer
@@ -71,6 +71,8 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 | --- | --- |
 | `docs/reports/2026-05-23/BOLARS_MVP_IMPLEMENTATION.report.md` | Фактический implementation report: выполненные slices, проверки, Web API, adapters, debug/preview, evidence и deployment notes. |
 | `docs/reports/2026-05-23/bolars-implementation-evidence/` | Visual smoke screenshots для start/cart/payment/debug/preview состояний. |
+| `docs/reports/2026-05-23/BOLARS_ADAPTIVE_VISUAL_CONTRACT_REFINE.report.md` | Уточнение adaptive viewport contract после landscape audit. |
+| `docs/reports/2026-05-23/BOLARS_ADAPTIVE_LAYOUT_REFACTOR.report.md` | Фактический отчёт по landscapeCompact CSS/layout refactor и viewport metrics. |
 
 ## 6. Recommended Reading Order
 
@@ -123,7 +125,7 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 - Реальный 1С-контур идёт через `OneCInterfaceAdapter`.
 - HTML гарантирует namespace `window.BolarsSelfCheckout`; `window.Showcase` для BOLARS MVP не используется.
 - Manual JSON import, textarea paste и file upload для runtime data запрещены.
-- Цвета, тексты, размеры, профили и workflow-параметры не хардкодятся в компонентах.
+- Цвета, тексты, размеры, профили и workflow-параметры не хардкодятся в компонентах; BOLARS layout sizes должны идти через adaptive tokens/CSS variables.
 - Честный знак и ККТ/фискализация не закрыты этим MVP без отдельного решения.
 - 1С/search, лояльность и эквайринг являются внешними runtime/adapter контурами; UI-компоненты не вызывают их напрямую.
 

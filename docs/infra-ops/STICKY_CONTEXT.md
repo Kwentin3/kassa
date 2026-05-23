@@ -15,15 +15,16 @@
 ## Текущий статус
 
 - MVP реализован на React + TypeScript + Vite + Tailwind + Zustand.
-- BOLARS Self-Checkout MVP добавлен как отдельный portrait scan-first route: `/bolars/self-checkout-mvp`.
+- BOLARS Self-Checkout MVP добавлен как отдельный adaptive scan-first route: `/bolars/self-checkout-mvp`.
 - BOLARS debug route: `/bolars/self-checkout-mvp?debug=1`.
 - BOLARS preview route: `/bolars/self-checkout-mvp?debug=1&preview=1`.
 - BOLARS route использует `SelfCheckoutRuntimePort`, `RuntimeAdapterFactory`, `MockAdapter`, `PreviewAdapter`, `OneCInterfaceAdapter` shell и `window.BolarsSelfCheckout`.
+- BOLARS visual layer теперь имеет adaptive viewport contract: portrait `1080x1920` reference + `landscapeCompact` для `1366x768`/`1280x800`; ключевые размеры вынесены в CSS variables/profile rules в `src/styles/index.css`.
 - Старый showcase/catalog flow остаётся отдельным контуром и не является source of truth для BOLARS flow.
 - Core Demo реализован: idle -> add product -> cart -> payment success -> receipt -> reset.
 - Extended Demo gap fixes реализованы: staff actions, receipt-error resolution, edge-case toggle, idle timeout, SBP mock QR, Quick Branding field edits.
-- Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build` прошли.
-- Тесты: 9 files / 26 tests.
+- Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build`, `npm run visual:cards`, `npm run smoke:showcase-catalog` прошли.
+- Тесты: 11 files / 43 tests.
 - Product cards use demo HTTPS image URLs from `src/services/productImages.ts` with fallback initials if external images fail.
 - Visual layout contract lives in `docs/product-ux/VISUAL_CONTRACTS.md`; avoid new fixed-width screen layouts without an explicit scroll/overflow contract.
 - Desktop landscape uses a tablet-like centered stage via `--tablet-stage-max`; do not let customer flow stretch across the full monitor width.
@@ -31,6 +32,7 @@
 - Catalog left panel uses floating category buttons with depth shadow, active-state and pressed feedback.
 - Playwright external visual smoke is available: `npm run visual:cards`; it checks size, no unwanted body/content scroll, card/nav shadows and pressed transforms.
 - Latest deployed visual change: `Add floating catalog nav interactions`; use current branch head after deploy.
+- Latest BOLARS local visual change before deploy: adaptive landscapeCompact refactor for start/cart/payment/final; local Playwright metrics passed for `1366x768`, `1280x800`, `1920x1080`, `1080x1920`.
 - Деплой на сервер выполнен, контейнер `kassa-web` running.
 
 ## Инфраструктура

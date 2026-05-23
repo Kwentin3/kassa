@@ -1,8 +1,8 @@
 ﻿# BOLARS Theme and Tokens Contract
 
-Статус: draft 0.2
+Статус: draft 0.3
 Дата: 2026-05-23
-Назначение: контракт тем, цветовых профилей и дизайн-токенов для portrait-first кассы самообслуживания БОЛАРС.
+Назначение: контракт тем, цветовых профилей и адаптивных дизайн-токенов для кассы самообслуживания БОЛАРС.
 
 ## 1. Принцип
 
@@ -367,7 +367,113 @@ Scan action card используется на start и cart as continuation hin
 
 Help card является отдельной zone и не конкурирует с payment CTA.
 
-## 15. High Contrast Profile
+## 15. Adaptive Layout and Scale Tokens
+
+Размеры интерфейса не должны жить как fixed portrait constants внутри компонентов. Базовые значения темы задаются для `1080x1920`, а фактические values вычисляются через viewport profile and density multipliers.
+
+### 15.1 Required Adaptive Token Groups
+
+- `viewport.base.width`
+- `viewport.base.height`
+- `viewport.profile`
+- `viewport.scale.x`
+- `viewport.scale.y`
+- `viewport.scale.ui`
+- `viewport.scale.density`
+- `viewport.safeArea.top`
+- `viewport.safeArea.right`
+- `viewport.safeArea.bottom`
+- `viewport.safeArea.left`
+- `density.profile`
+- `density.minUsableScale`
+- `density.maxUsableScale`
+- `density.compactSpacingMultiplier`
+- `density.compactMediaMultiplier`
+- `density.compactTypographyMultiplier`
+- `density.landscapeHeaderMultiplier`
+- `density.landscapeCardMultiplier`
+- `density.landscapeMediaMultiplier`
+
+### 15.2 Component Size Tokens
+
+The implementation should express component dimensions through tokens that can be scaled per profile:
+
+- `layout.stage.maxWidth`
+- `layout.stage.minHeight`
+- `layout.header.brand.height`
+- `layout.header.work.height`
+- `layout.header.compactHeight`
+- `layout.body.gutter`
+- `layout.body.sectionGap`
+- `layout.card.padding`
+- `layout.card.compactPadding`
+- `layout.touch.primaryMinHeight`
+- `layout.touch.secondaryMinHeight`
+- `layout.touch.quantityButtonSize`
+- `layout.start.scanner.width`
+- `layout.start.scanner.height`
+- `layout.start.actionCard.height`
+- `layout.cart.row.height`
+- `layout.cart.summary.height`
+- `layout.payment.visual.height`
+- `layout.final.successMark.size`
+- `layout.final.receipt.maxHeight`
+- `layout.final.countdown.height`
+
+`layout.touch.*` values may shrink less aggressively than media/spacing tokens. A small landscape viewport must not produce unusable `+`, `-`, quantity, package or payment buttons.
+
+### 15.3 Scaling Rules
+
+- Typography uses `font.size.* * font.textScale.*.multiplier * viewport.scale.typography`, with min/max clamps per semantic role.
+- Spacing uses `space.* * viewport.scale.density`, with stronger compression in `landscapeCompact`.
+- Media/illustration zones use `layout.* * viewport.scale.media`, and collapse before touch targets.
+- Primary CTA height is clamped: base target `96-112px`, compact minimum `64-72px`.
+- Secondary touch target compact minimum is `48-56px`.
+- `brandHeader` compact height should be tokenized separately; it must not keep portrait `180-210px` height in `landscapeCompact`.
+- Shadow and radius can reduce in compact profiles to preserve density and performance.
+
+### 15.4 Profile-Specific Behavior
+
+| Profile | Token behavior |
+| --- | --- |
+| `portrait1080` | Base tokens, full reference anatomy. |
+| `portraitCompact` | Reduced gutters/gaps/media; primary CTA and header preserved. |
+| `landscapeKiosk` | Wide/two-column layout, moderate vertical compression. |
+| `landscapeCompact` | Strong header/media/spacing compression, two-column where useful, primary action visible without page scroll. |
+| `microFallback` | Critical-path tokens only; decorative/details collapse. |
+
+### 15.5 Example Adaptive Token Shape
+
+```json
+{
+  "viewport": {
+    "base": { "width": 1080, "height": 1920 },
+    "profiles": {
+      "portrait1080": { "density": 1, "media": 1, "typography": 1 },
+      "landscapeCompact": { "density": 0.56, "media": 0.46, "typography": 0.82 }
+    }
+  },
+  "layout": {
+    "header": {
+      "brand": { "height": 200, "compactHeight": 104 },
+      "work": { "height": 144, "compactHeight": 88 }
+    },
+    "touch": {
+      "primaryMinHeight": 72,
+      "secondaryMinHeight": 52,
+      "quantityButtonSize": 52
+    },
+    "payment": {
+      "visualHeight": 520,
+      "visualCompactHeight": 220
+    }
+  }
+}
+```
+
+Example numbers are contract guidance, not component-local constants. Real implementation may express them as CSS custom properties, TypeScript theme object or validated JSON, but components consume resolved semantic tokens only.
+
+## 16. High Contrast Profile
 
 `bolars-light-contrast` обязан:
 
@@ -378,7 +484,7 @@ Help card является отдельной zone и не конкурируе�
 - не использовать цвет как единственный носитель состояния;
 - иметь видимый focus ring на black, white, green и magenta surfaces.
 
-## 16. Theme Config Contract
+## 17. Theme Config Contract
 
 Пример JSON-структуры. В реальной реализации это может быть TypeScript object, JSON или YAML, но форма должна быть валидируемой.
 
@@ -467,7 +573,7 @@ Help card является отдельной zone и не конкурируе�
 
 Важно: `#1f8f3f` в примере тоже находится внутри theme config. В компонентах допускается только `token('color.cta.pay.pressedBg')` или эквивалент.
 
-## 17. Validation Rules
+## 18. Validation Rules
 
 - Theme config должен проходить schema validation.
 - Primary text contrast на surface не ниже WCAG AA для крупного текста.
@@ -476,12 +582,14 @@ Help card является отдельной zone и не конкурируе�
 - Missing token должен падать в development/test, а не молча заменяться случайным цветом.
 - Custom profile не может скрывать help, cancel confirmation, payment error и final success.
 - Missing reference-fidelity tokens для header/product image/summary/payment visual/receipt/countdown должны обнаруживаться visual/token tests до refactor acceptance.
+- Missing adaptive layout tokens for viewport/profile/header/media/touch sizing must fail development/test before landscape acceptance.
 
-## 18. Запреты
+## 19. Запреты
 
 - Не писать `#E6007E` или другие HEX в JSX/TSX/CSS компонентов.
 - Не использовать brand palette напрямую вместо semantic tokens.
 - Не создавать component-local color maps.
+- Не хранить portrait-only `min-height`, `height`, `padding` and `font-size` constants in components/screens when they affect customer layout.
 - Не менять тему через inline style без token mapping layer.
 - Не давать quick branding произвольный CSS.
 - Не делать production theme editor или custom theme UI обязательной частью MVP.

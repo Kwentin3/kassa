@@ -18,4 +18,13 @@ describe('visual contract css', () => {
     expect(css).toContain('-webkit-line-clamp: 2');
     expect(css).toContain('text-overflow: ellipsis');
   });
+
+  it('defines height-aware BOLARS landscape adaptation instead of portrait-only sizing', () => {
+    expect(css).toContain('@media (orientation: landscape) and (max-height: 1100px)');
+    expect(css).toContain('--bolars-brand-header-min: clamp');
+    expect(css).toContain('--bolars-work-header-min: clamp');
+    expect(css).toContain('--bolars-payment-visual-height: clamp');
+    expect(css).toContain('height: calc(100dvh - var(--bolars-work-header-min))');
+    expect(css).toContain('.bolars-payment-layout .bolars-main-column');
+  });
 });
