@@ -24,7 +24,7 @@ import { createRuntimeAdapterFactory, type RuntimeAdapterFactoryResult } from '.
 import { createCommand, type CommandPayloadByType } from './runtime/commands';
 import { BOLARS_ROUTE, DEFAULT_TEXTS, MOCK_PRODUCTS } from './runtime/defaults';
 import { exposeBolarsSelfCheckoutApi } from './runtime/webApi';
-import type { AlertNotification, CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
+import type { CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugState, SelfCheckoutRuntimePort, SelfCheckoutStateSnapshot, TextScale } from './runtime/types';
 import { bolarsLightDefaultTokens } from './theme/bolarsTheme';
 
 const useRuntimeSnapshot = (runtime: SelfCheckoutRuntimePort) =>
@@ -126,7 +126,6 @@ export const BolarsSelfCheckoutApp = () => {
     <main className={`bolars-root bolars-scale-${snapshot.textScale} bolars-screen-${snapshot.currentScreen}`} style={bolarsLightDefaultTokens as CSSProperties}>
       <div className="bolars-stage">
         {renderScreen(snapshot, { send })}
-        {snapshot.alerts.length > 0 && <AlertStack alerts={snapshot.alerts} />}
         {snapshot.modalState.type !== 'none' && <BolarsModal snapshot={snapshot} send={send} />}
       </div>
       {factory.debugMode && <DebugPanel runtime={factory.runtime} factory={factory} />}
@@ -548,17 +547,6 @@ const QuantityNumpad = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapsho
     </div>
   );
 };
-
-const AlertStack = ({ alerts }: { alerts: AlertNotification[] }) => (
-  <div className="bolars-alert-stack" aria-live="polite" aria-label="Статусы операции">
-    {alerts.slice(-3).map((alert) => (
-      <div className={`bolars-alert ${alert.kind}`} key={alert.id}>
-        <strong>{alert.title}</strong>
-        {alert.message && <span>{alert.message}</span>}
-      </div>
-    ))}
-  </div>
-);
 
 const CompactOrderPreview = ({ snapshot, receipt = false }: { snapshot: SelfCheckoutStateSnapshot; receipt?: boolean }) => (
   <div className="bolars-compact-order" aria-label={receipt ? copy(snapshot, 'receiptPreview') : copy(snapshot, 'compactOrderPreview')}>

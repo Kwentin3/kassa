@@ -23,11 +23,12 @@ describe('BOLARS Self-Checkout App', () => {
 
   it('dispatches user actions and renders cart snapshot', async () => {
     setRoute('/bolars/self-checkout-mvp');
-    render(<BolarsSelfCheckoutApp />);
+    const { container } = render(<BolarsSelfCheckoutApp />);
 
     fireEvent.click(screen.getByRole('button', { name: /Сканировать тестовый товар/i }));
     await waitFor(() => expect(screen.getByText('Ваши покупки')).toBeInTheDocument());
     expect(screen.getByText(/Клей плиточный БОЛАРС/i)).toBeInTheDocument();
+    expect(container.querySelector('.bolars-alert-stack')).not.toBeInTheDocument();
   });
 
   it('shows an explicit add product action in cart that still dispatches scanCode through runtime', async () => {
