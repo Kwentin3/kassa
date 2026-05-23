@@ -1,7 +1,7 @@
 ﻿# BOLARS MVP Implementation Report
 
 Дата: 2026-05-23
-Статус: local implementation complete, pending commit/deploy at report creation
+Статус: implemented, pushed and deployed
 Scope: BOLARS Self-Checkout MVP route, RuntimePort, adapters, debug, preview, screens, tokens and handoff.
 
 ## 1. Что Реализовано
@@ -39,7 +39,7 @@ Scope: BOLARS Self-Checkout MVP route, RuntimePort, adapters, debug, preview, sc
 - Slice 7: Debug panel added.
 - Slice 8: Customer screens render from snapshots.
 - Slice 9: BOLARS theme/tokens and portrait visual target added.
-- Slice 10: local integration smoke completed; deployment pending until commit/push.
+- Slice 10: local integration smoke completed; public deployment smoke completed.
 - Slice 11: documentation handoff updated.
 
 ## 3. Gates
@@ -47,8 +47,8 @@ Scope: BOLARS Self-Checkout MVP route, RuntimePort, adapters, debug, preview, sc
 - Gate A Foundation: passed locally. Route exists, debug/preview flags recognized, RuntimePort typed, AdapterFactory works.
 - Gate B Runtime: passed locally. Mock, Preview and OneC shell work through RuntimePort. Command queue lifecycle, snapshot apply and stale rejection are covered by tests.
 - Gate C UI: passed locally. Screens render snapshots, actions dispatch typed commands, preview screenshots cover required states, no direct adapter imports from UI were found.
-- Gate D Deployment: pending at report creation.
-- Gate E Documentation/Handoff: updated in `docs/AGENT_START_HERE.md` and contract notes; final commit/deploy data must be recorded after deployment.
+- Gate D Deployment: passed. Public BOLARS, debug and preview routes returned 200 and rendered BOLARS UI. Old root/showcase route remained separate.
+- Gate E Documentation/Handoff: passed. Handoff, contracts, sticky context, runbook and this report reflect the implementation.
 
 ## 4. Key Files Changed
 
@@ -77,7 +77,7 @@ Implemented and locally smoke-tested:
 - `http://127.0.0.1:4173/bolars/self-checkout-mvp?debug=1`
 - `http://127.0.0.1:4173/bolars/self-checkout-mvp?debug=1&preview=1`
 
-Public production-like routes to verify after deploy:
+Public production-like routes verified after deploy:
 
 - `https://kassa.speechbattle.com/bolars/self-checkout-mvp`
 - `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1`
@@ -293,16 +293,47 @@ Sample snapshot is used only as dev/test artifact, not as customer/manual runtim
 
 ## 19. Server Verification
 
-Pending until deploy.
+Deployment target:
+
+- host: `roman@192.168.7.64`;
+- path: `/opt/stacks/kassa-web`;
+- image: `kassa-web:demo`;
+- container: `kassa-web`.
+
+Deploy command followed existing runbook and rebuilt only `kassa-web` through `docker compose --env-file .env.deploy up -d --build kassa-web`.
+
+Server status after deploy:
+
+- `kassa-web Up`;
+- image: `kassa-web:demo`.
+
+Public HTTP smoke:
+
+- `https://kassa.speechbattle.com/` -> `200`;
+- `https://kassa.speechbattle.com/demo/smoke` -> `200`;
+- `https://kassa.speechbattle.com/bolars/self-checkout-mvp` -> `200`;
+- `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1` -> `200`;
+- `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&preview=1` -> `200`.
+
+Public browser smoke:
+
+- normal route renders `.bolars-root`, no debug or preview controls;
+- debug route renders `.bolars-root` and debug panel;
+- preview route renders `.bolars-root`, debug panel and preview panel;
+- old root route does not render `.bolars-root` and does not expose `window.BolarsSelfCheckout`;
+- 1C mini-smoke route returns `adapterKind=onec` from `getRuntimeInfoJson()`.
 
 ## 20. Documentation Updated
 
 Updated:
 
 - `docs/AGENT_START_HERE.md`;
+- `docs/README.md`;
 - `docs/contracts/BOLARS_RUNTIME_ADAPTER_FACTORY_CONTRACT.md`;
 - `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`;
 - `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md`;
+- `docs/infra-ops/STICKY_CONTEXT.md`;
+- `docs/runbooks/DEPLOYMENT_RUNBOOK.md`;
 - this report.
 
 ## 21. Sticky Comments / TODO
@@ -331,8 +362,7 @@ Not implemented by design:
 
 ## 24. Commit / Push / Deployment
 
-To be recorded after commit, push and deploy:
-
-- commit hash: pending;
-- push status: pending;
-- deployment status: pending;
+- implementation commit: `08ccdb5c2cdb7faa0e5d8e1d3634930cd2a1494f`;
+- push status: pushed to `origin/mvp/self-checkout-web-ui`;
+- deployment status: deployed to `https://kassa.speechbattle.com`;
+- remote smoke status: passed for normal, debug, preview and old root/showcase routes.
