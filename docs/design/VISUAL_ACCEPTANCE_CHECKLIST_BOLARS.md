@@ -127,6 +127,10 @@
 - [ ] Disabled и busy states визуально очевидны.
 - [ ] Интерфейс можно пройти без мыши.
 - [ ] При `prefers-reduced-motion` декоративные анимации отключены.
+- [ ] Text-scale control находится в верхней чёрной шапке на start/work/status screens, а не в нижней зоне.
+- [ ] Text-scale control показывает три `A` разного размера без видимой подписи; `aria-label/title` остаются для доступности.
+- [ ] Переключение `normal/large/extraLarge` изменяет текст стартового экрана, товарные строки, totals, CTA, payment/status copy и modal/numpad copy.
+- [ ] В landscapeCompact text-scale control не вытесняет clock/cancel/manager badge и не создаёт horizontal/vertical overflow.
 
 ## 5. Start и Scan-First Flow
 

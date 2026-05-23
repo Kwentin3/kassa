@@ -35,4 +35,15 @@ describe('visual contract css', () => {
     expect(css).toContain('max-height: 100%');
     expect(css).toContain('.bolars-screen-paymentWaiting .bolars-compact-order-items');
   });
+
+  it('keeps BOLARS text scale as a header control and applies semantic scale variables', () => {
+    expect(css).toContain('.bolars-brand-tools');
+    expect(css).not.toContain('.bolars-accessibility-rail');
+    expect(css).not.toContain('.bolars-start-scale-card');
+    expect(css).toContain('--bolars-type-scale-body');
+    expect(css).toContain('--bolars-type-scale-display');
+    expect(css).toContain('--bolars-type-scale-control');
+    expect(css).toContain('.bolars-scale-option-extraLarge');
+    expect(css).toContain('font-size: var(--bolars-hero-font)');
+  });
 });

@@ -131,7 +131,7 @@ Semantic tokens:
 - `font.textScale.large.multiplier`
 - `font.textScale.extraLarge.multiplier`
 
-Правило: `A/A+/A++` меняют scale multiplier, но не ломают grid, row height и CTA height. Если текст не помещается, компонент обязан иметь overflow/wrap contract.
+Правило: header-only text-scale control показывает три контрастные буквы `A` разного размера. `normal/large/extraLarge` меняют semantic scale multipliers для start hero, товарных строк, quantity, totals, CTA, payment/status copy и modal/numpad copy, но не ломают grid, row height и CTA height. Если текст не помещается, компонент обязан иметь overflow/wrap contract.
 
 ## 6. Spacing Tokens
 

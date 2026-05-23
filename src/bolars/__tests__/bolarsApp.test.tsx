@@ -32,6 +32,18 @@ describe('BOLARS Self-Checkout App', () => {
     expect(screen.queryByText('Товар добавлен')).not.toBeInTheDocument();
   });
 
+  it('keeps text scale control in the header and applies it on the start screen', () => {
+    setRoute('/bolars/self-checkout-mvp');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    expect(container.querySelector('.bolars-start-scale-card')).not.toBeInTheDocument();
+    expect(container.querySelector('.bolars-brand-header .bolars-scale-control')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Очень крупный размер текста' }));
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-scale-extraLarge');
+    expect(screen.getByRole('button', { name: 'Очень крупный размер текста' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
   it('shows an explicit add product action in cart that still dispatches scanCode through runtime', async () => {
     setRoute('/bolars/self-checkout-mvp');
     render(<BolarsSelfCheckoutApp />);

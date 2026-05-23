@@ -49,7 +49,7 @@ const formatClock = () => {
   return { time, date };
 };
 
-const BrandHeader = ({ snapshot }: { snapshot: SelfCheckoutStateSnapshot }) => {
+const BrandHeader = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
   const clock = formatClock();
   return (
     <header className="bolars-brand-header">
@@ -57,24 +57,41 @@ const BrandHeader = ({ snapshot }: { snapshot: SelfCheckoutStateSnapshot }) => {
         <div className="bolars-logo-large">{copy(snapshot, 'brandName')}</div>
         <span>{copy(snapshot, 'brandTagline')}</span>
       </div>
-      {snapshot.uiConfig.showClock && (
-        <div className="bolars-clock-block" aria-label="Текущее время">
-          <Clock3 size={54} />
-          <div>
-            <strong>{clock.time}</strong>
-            <span>{clock.date}</span>
+      <div className="bolars-brand-tools">
+        <TextScaleControl snapshot={snapshot} send={send} />
+        {snapshot.uiConfig.showClock && (
+          <div className="bolars-clock-block" aria-label="Текущее время">
+            <Clock3 size={54} />
+            <div>
+              <strong>{clock.time}</strong>
+              <span>{clock.date}</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   );
 };
 
+const TEXT_SCALE_LABELS: Record<TextScale, string> = {
+  normal: 'Обычный размер текста',
+  large: 'Крупный размер текста',
+  extraLarge: 'Очень крупный размер текста'
+};
+
 const TextScaleControl = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
-  <div className="bolars-scale-control" aria-label="Размер текста">
+  <div className="bolars-scale-control" role="group" aria-label="Размер текста">
     {(['normal', 'large', 'extraLarge'] as TextScale[]).map((scale) => (
-      <button key={scale} className={snapshot.textScale === scale ? 'active' : ''} type="button" onClick={() => send('setTextScale', { scale })}>
-        {scale === 'normal' ? 'A' : scale === 'large' ? 'A+' : 'A++'}
+      <button
+        key={scale}
+        className={`bolars-scale-option bolars-scale-option-${scale}${snapshot.textScale === scale ? ' active' : ''}`}
+        type="button"
+        aria-label={TEXT_SCALE_LABELS[scale]}
+        aria-pressed={snapshot.textScale === scale}
+        title={TEXT_SCALE_LABELS[scale]}
+        onClick={() => send('setTextScale', { scale })}
+      >
+        A
       </button>
     ))}
   </div>
@@ -141,11 +158,11 @@ const renderScreen = (snapshot: SelfCheckoutStateSnapshot, actions: RuntimeActio
     case 'paymentSetup':
       return <PaymentSetupScreen snapshot={snapshot} send={actions.send} />;
     case 'paymentWaiting':
-      return <PaymentWaitingScreen snapshot={snapshot} />;
+      return <PaymentWaitingScreen snapshot={snapshot} send={actions.send} />;
     case 'paymentError':
       return <PaymentErrorScreen snapshot={snapshot} send={actions.send} />;
     case 'finalSuccess':
-      return <FinalSuccessScreen snapshot={snapshot} />;
+      return <FinalSuccessScreen snapshot={snapshot} send={actions.send} />;
     case 'start':
     default:
       return <StartScreen snapshot={snapshot} send={actions.send} />;
@@ -174,7 +191,7 @@ const WorkHeader = ({ title, snapshot, send }: { title: string; snapshot: SelfCh
 
 const StartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
   <section className="bolars-start-screen" aria-label="Стартовый экран">
-    <BrandHeader snapshot={snapshot} />
+    <BrandHeader snapshot={snapshot} send={send} />
     <div className="bolars-start-body">
       <div className="bolars-start-product left" aria-hidden="true">{copy(snapshot, 'brandName')}</div>
       <div className="bolars-start-product right" aria-hidden="true">{copy(snapshot, 'brandName')}</div>
@@ -200,14 +217,6 @@ const StartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; 
             <ArrowRight size={32} />
           </button>
         </div>
-      </div>
-      <div className="bolars-start-scale-card">
-        <div className="bolars-scale-icon">Aa</div>
-        <div>
-          <strong>{copy(snapshot, 'largeTextTitle')}</strong>
-          <span>{copy(snapshot, 'largeTextHint')}</span>
-        </div>
-        <TextScaleControl snapshot={snapshot} send={send} />
       </div>
       <HelpCard snapshot={snapshot} />
     </div>
@@ -411,9 +420,9 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
   );
 };
 
-const PaymentWaitingScreen = ({ snapshot }: { snapshot: SelfCheckoutStateSnapshot }) => (
+const PaymentWaitingScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
   <section className="bolars-status-screen">
-    <BrandHeader snapshot={snapshot} />
+    <BrandHeader snapshot={snapshot} send={send} />
     <div className="bolars-status-body">
       <div className="bolars-payment-title-block">
         <h1>{copy(snapshot, 'paymentTitle')}</h1>
@@ -447,7 +456,7 @@ const PaymentWaitingScreen = ({ snapshot }: { snapshot: SelfCheckoutStateSnapsho
 
 const PaymentErrorScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
   <section className="bolars-status-screen error">
-    <BrandHeader snapshot={snapshot} />
+    <BrandHeader snapshot={snapshot} send={send} />
     <div className="bolars-status-card error-card">
       <AlertTriangle size={96} />
       <h1>{copy(snapshot, 'paymentFailed')}</h1>
@@ -466,9 +475,9 @@ const PaymentErrorScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
   </section>
 );
 
-const FinalSuccessScreen = ({ snapshot }: { snapshot: SelfCheckoutStateSnapshot }) => (
+const FinalSuccessScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
   <section className="bolars-status-screen success">
-    <BrandHeader snapshot={snapshot} />
+    <BrandHeader snapshot={snapshot} send={send} />
     <div className="bolars-final-body">
       <div className="bolars-success-mark"><CheckCircle2 size={112} /></div>
       <h1>{copy(snapshot, 'finalTitle')}</h1>

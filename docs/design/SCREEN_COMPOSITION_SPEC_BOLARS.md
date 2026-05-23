@@ -61,7 +61,7 @@ Acceptance criteria:
 - Касание стартового экрана открывает cart screen без добавленной строки.
 - Brand zone БОЛАРС узнаваема, но не перекрывает scan instruction.
 - Manual search не выглядит главным сценарием.
-- Text scale controls имеют visible selected/focus/pressed states.
+- Text scale controls живут в верхней чёрной шапке, имеют visible selected/focus/pressed states и используют три `A` разного визуального размера.
 
 ## 3. Корзина / Ваши Покупки
 
@@ -403,14 +403,14 @@ Required screen zones in vertical order:
 2. Hero scan area: magenta welcome line, large black instruction, cyan scanner corners/barcode visual.
 3. Product imagery side zones: configured bitmaps or fallback placeholders.
 4. Action card row: `Сканировать товар` first, `Найти товар вручную` second.
-5. Text scale card: large text label + `A/A+/A++`.
+5. Header text-scale control: three contrast `A` glyphs in `brandHeader`, no separate bottom text-scale card.
 6. Help card.
 
 Acceptance additions:
 
 - Start must not be accepted as only a full-magenta hero with two compact buttons.
 - Manual search card is visible but visually secondary to scan.
-- Text scale control is visible on start if enabled by config.
+- Text scale control is visible in the start header if enabled by config and changes start hero/supporting copy as well as work screens.
 
 ### 14.3 Cart Refactor Target
 
@@ -529,10 +529,10 @@ For `landscapeCompact` (`1366x768`, `1280x800` class):
 - `brandHeader` becomes compact height; logo/date stay readable but do not consume portrait header height.
 - Body becomes two-column or compressed grid:
   - left/main: instruction + scanner visual;
-  - right/bottom: scan card, manual search card, text scale and help access.
+  - right/bottom: scan card, manual search card and help access.
 - Scanner visual width/height use adaptive media tokens and must not push actions below viewport.
 - Side product imagery becomes cropped background/faint edge decoration or hidden if it competes with actions.
-- Text scale/help may become compact horizontal controls, but must remain discoverable.
+- Text scale remains in the compact black header; help may become compact horizontal control but must remain discoverable.
 - Page scroll is a failure if scan action or manual search is below viewport.
 
 ### 15.3 Cart Landscape Compact

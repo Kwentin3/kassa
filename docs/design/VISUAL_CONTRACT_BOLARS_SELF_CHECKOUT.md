@@ -158,7 +158,7 @@ Header визуально чёрный, с белым текстом и magenta/
 | --- | --- |
 | Brand zone | На стартовом, ожидании оплаты и финале logo БОЛАРС крупный и узнаваемый. На рабочих экранах можно заменить title + compact controls. |
 | Clock/date | Допустимы в brandHeader; не должны оттягивать внимание от сценария. |
-| Text scale | `A`, `A+`, `A++` доступны на стартовом и рабочих экранах. Состояние приходит из `state.textScale`. |
+| Text scale | Три контрастные буквы `A` разного размера живут в верхней чёрной шапке на всех customer-экранах. Состояние приходит из `state.textScale`. Видимых подписей рядом с буквами нет; доступность обеспечивается `aria-label/title`. |
 | Help | Крупная карточка/кнопка помощи внизу или sticky area. Не смешивать с CTA оплаты. |
 | Manager badge | Показывать только если `state.manager.status === 'bound'`. UI не привязывает менеджера сам. |
 | Scanner hint | Cyan scanner/search/payment hints. Не использовать cyan для основной оплаты или ошибок. |
@@ -173,7 +173,7 @@ Header визуально чёрный, с белым текстом и magenta/
 - Scanner visual: cyan corner brackets, magenta barcode, короткий functional scan line.
 - Brand/product imagery: строительные смеси по бокам, не перекрывают инструкцию.
 - Action cards: `Сканировать товар` и `Найти товар вручную`; scan card идёт первой.
-- Text scale card: отдельный горизонтальный блок `A/A+/A++`.
+- Text scale control: три `A` разного размера в `brandHeader`, без отдельной нижней карточки.
 - Help card: отдельный нижний блок.
 
 ### 8.2 Корзина / Ваши Покупки
@@ -182,7 +182,7 @@ Header визуально чёрный, с белым текстом и magenta/
 - Search bar: крупная полоса, hint `Поиск начнется после 4+ символов`.
 - Scan continuation hint: напоминание, что можно продолжать сканировать.
 - Product rows: большие белые строки с image, name, package, article, quantity controls, line amount, delete.
-- Recently changed row: cyan border/background wash + small status label.
+- Recently changed row: cyan border/background wash only; do not render floating or inline status labels over product content.
 - Summary card: count, total, green primary CTA `Перейти к оплате`.
 - Help row: внизу, ниже summary.
 
@@ -334,14 +334,14 @@ Reference anatomy:
 - cyan scanner brackets and magenta barcode;
 - product/ строительные смеси imagery at left/right edges;
 - two large action cards: scan first, manual search second;
-- separate text scale card with `A / A+ / A++`;
+- header text scale control with three contrast `A` glyphs in different sizes;
 - separate help card at bottom.
 
 Current MVP delta to close:
 
 - start screen must stop being a single full-magenta hero; magenta remains an accent, not the whole customer surface;
 - start action buttons should become reference-style cards under the scan visual, not compact generic buttons;
-- text scale controls and help must be present on start as separate visible zones if enabled by `uiConfig`;
+- text scale controls must be present in the black header on start if enabled by `uiConfig`; do not add a separate bottom text-scale card;
 - product imagery may use configured assets or fallback silhouettes/placeholders, but the side media zones should be reserved in layout;
 - clock/date is allowed from `uiConfig.showClock`; if unavailable, header layout must not collapse.
 
@@ -349,11 +349,11 @@ Current MVP delta to close:
 
 Reference anatomy:
 
-- black `workHeader`: title, cancel outline magenta, `A/A+/A++`, manager badge;
+- black `workHeader`: title, cancel outline magenta, manager badge, and the same three-size `A` text-scale control used on start/status screens;
 - full-width search field with cyan outline and explicit `4+` hint;
 - scan continuation card with barcode/scanner visual;
 - product rows have image slot, name, package/size, article, quantity controls, line total and delete;
-- recently added row uses pale cyan wash + cyan border + small status chip;
+- recently added row uses pale cyan wash + cyan border without a status chip;
 - bottom summary band shows item count, payable total and large green `Перейти к оплате`;
 - help card sits below summary.
 

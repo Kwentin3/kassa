@@ -517,6 +517,9 @@ select:focus-visible {
   --bolars-success-mark-size: 198px;
   --bolars-receipt-width: 580px;
   --bolars-countdown-ring-size: 132px;
+  --bolars-type-scale-body: 1;
+  --bolars-type-scale-display: 1;
+  --bolars-type-scale-control: 1;
   min-height: 100dvh;
   width: 100%;
   overflow: hidden;
@@ -528,7 +531,23 @@ select:focus-visible {
 .bolars-root button,
 .bolars-root input,
 .bolars-root select {
-  font: inherit;
+  font-family: inherit;
+}
+
+.bolars-scale-large {
+  --bolars-type-scale-body: 1.12;
+  --bolars-type-scale-display: 1.1;
+  --bolars-type-scale-control: 1.08;
+  --bolars-hero-font: clamp(58px, 6.5vw, 82px);
+  --bolars-summary-total-font: 60px;
+}
+
+.bolars-scale-extraLarge {
+  --bolars-type-scale-body: 1.28;
+  --bolars-type-scale-display: 1.2;
+  --bolars-type-scale-control: 1.16;
+  --bolars-hero-font: clamp(64px, 7vw, 92px);
+  --bolars-summary-total-font: 68px;
 }
 
 .bolars-root button:focus-visible,
@@ -583,7 +602,7 @@ select:focus-visible {
 
 .bolars-brand-lockup span {
   color: var(--bolars-brand-primary);
-  font-size: 22px;
+  font-size: calc(22px * var(--bolars-type-scale-body));
   font-weight: 950;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -597,6 +616,13 @@ select:focus-visible {
   padding-left: 42px;
 }
 
+.bolars-brand-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 24px;
+}
+
 .bolars-clock-block svg {
   color: var(--bolars-brand-primary);
 }
@@ -607,13 +633,13 @@ select:focus-visible {
 }
 
 .bolars-clock-block strong {
-  font-size: 34px;
+  font-size: calc(34px * var(--bolars-type-scale-body));
   line-height: 1;
 }
 
 .bolars-clock-block span {
   margin-top: 8px;
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 750;
 }
 
@@ -628,14 +654,14 @@ select:focus-visible {
 }
 
 .bolars-logo {
-  font-size: 30px;
+  font-size: calc(30px * var(--bolars-type-scale-body));
   color: var(--bolars-brand-primary);
 }
 
 .bolars-start-body {
   position: relative;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-rows: minmax(0, 1fr) auto;
   gap: var(--bolars-section-gap);
   min-height: 0;
   padding: var(--bolars-body-pad-y) var(--bolars-body-pad-x) 32px;
@@ -685,7 +711,7 @@ select:focus-visible {
 .bolars-welcome {
   margin: 0 0 18px;
   color: var(--bolars-brand-primary);
-  font-size: 34px;
+  font-size: calc(34px * var(--bolars-type-scale-display));
   font-weight: 900;
 }
 
@@ -724,7 +750,7 @@ select:focus-visible {
 
 .bolars-scan-hero p,
 .bolars-help-strip {
-  font-size: 26px;
+  font-size: calc(26px * var(--bolars-type-scale-body));
   font-weight: 700;
 }
 
@@ -776,18 +802,17 @@ select:focus-visible {
 
 .bolars-start-card strong {
   margin-top: 22px;
-  font-size: 31px;
+  font-size: calc(31px * var(--bolars-type-scale-body));
   font-weight: 950;
 }
 
 .bolars-start-card span {
   margin-top: 8px;
   color: var(--bolars-text-secondary);
-  font-size: 22px;
+  font-size: calc(22px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
-.bolars-start-scale-card,
 .bolars-help-card {
   position: relative;
   z-index: 1;
@@ -801,25 +826,21 @@ select:focus-visible {
   box-shadow: 0 14px 42px color-mix(in srgb, var(--bolars-logo-black) 10%, transparent);
 }
 
-.bolars-start-scale-card strong,
 .bolars-help-card strong,
-.bolars-start-scale-card span,
 .bolars-help-card span {
   display: block;
 }
 
-.bolars-start-scale-card strong,
 .bolars-help-card strong {
   color: var(--bolars-logo-black);
-  font-size: 26px;
+  font-size: calc(26px * var(--bolars-type-scale-body));
   font-weight: 950;
 }
 
-.bolars-start-scale-card span,
 .bolars-help-card span {
   margin-top: 4px;
   color: var(--bolars-text-secondary);
-  font-size: 21px;
+  font-size: calc(21px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
@@ -860,7 +881,7 @@ select:focus-visible {
   border: 0;
   border-radius: 8px;
   padding: 0 28px;
-  font-size: 24px;
+  font-size: calc(24px * var(--bolars-type-scale-control));
   font-weight: 850;
   line-height: 1.1;
   cursor: pointer;
@@ -900,7 +921,10 @@ select:focus-visible {
 
 .bolars-work-screen {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
   background: var(--bolars-background);
 }
 
@@ -917,7 +941,7 @@ select:focus-visible {
 
 .bolars-work-header h1 {
   margin: 4px 0 0;
-  font-size: 46px;
+  font-size: calc(46px * var(--bolars-type-scale-display));
   line-height: 1;
 }
 
@@ -929,8 +953,7 @@ select:focus-visible {
   flex-wrap: wrap;
 }
 
-.bolars-manager-badge,
-.bolars-scale-control {
+.bolars-manager-badge {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -943,22 +966,47 @@ select:focus-visible {
 }
 
 .bolars-scale-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  border: 1px solid var(--bolars-border);
+  border-radius: 999px;
+  padding: 6px 8px;
   background: var(--bolars-white);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bolars-info) 14%, transparent);
 }
 
 .bolars-scale-control button {
-  min-width: 48px;
-  min-height: 42px;
+  display: grid;
+  place-items: center;
+  min-width: 54px;
+  min-height: 46px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 999px;
   background: transparent;
+  color: var(--bolars-logo-black);
   font-weight: 900;
+  line-height: 1;
   cursor: pointer;
 }
 
-.bolars-scale-control button.active {
+.bolars-scale-control button.active,
+.bolars-scale-control button[aria-pressed="true"] {
   color: var(--bolars-white);
   background: var(--bolars-brand-primary);
+}
+
+.bolars-scale-option-normal {
+  font-size: 17px;
+}
+
+.bolars-scale-option-large {
+  font-size: 24px;
+}
+
+.bolars-scale-option-extraLarge {
+  font-size: 36px;
 }
 
 .bolars-cart-layout,
@@ -966,7 +1014,9 @@ select:focus-visible {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--bolars-section-gap);
+  height: calc(100dvh - var(--bolars-work-header-min));
   min-height: 0;
+  overflow: hidden;
   padding: var(--bolars-screen-pad);
 }
 
@@ -976,6 +1026,10 @@ select:focus-visible {
   min-height: 0;
   flex-direction: column;
   gap: var(--bolars-card-gap);
+}
+
+.bolars-payment-layout .bolars-main-column {
+  overflow-y: auto;
 }
 
 .bolars-search-box {
@@ -1021,14 +1075,14 @@ select:focus-visible {
 }
 
 .bolars-scan-action-card strong {
-  font-size: 26px;
+  font-size: calc(26px * var(--bolars-type-scale-body));
   font-weight: 900;
 }
 
 .bolars-scan-action-card small {
   margin-top: 4px;
   color: var(--bolars-text-secondary);
-  font-size: 18px;
+  font-size: calc(18px * var(--bolars-type-scale-body));
   font-weight: 750;
 }
 
@@ -1039,7 +1093,7 @@ select:focus-visible {
   border: 0;
   background: transparent;
   color: var(--bolars-text-primary);
-  font-size: 25px;
+  font-size: calc(25px * var(--bolars-type-scale-body));
   font-weight: 750;
   outline: 0;
 }
@@ -1049,7 +1103,7 @@ select:focus-visible {
   padding: 16px 20px;
   background: var(--bolars-surface);
   color: var(--bolars-text-secondary);
-  font-size: 21px;
+  font-size: calc(21px * var(--bolars-type-scale-body));
   font-weight: 750;
 }
 
@@ -1085,12 +1139,12 @@ select:focus-visible {
 }
 
 .bolars-candidates strong {
-  font-size: 22px;
+  font-size: calc(22px * var(--bolars-type-scale-body));
 }
 
 .bolars-candidates small {
   color: var(--bolars-text-secondary);
-  font-size: 16px;
+  font-size: calc(16px * var(--bolars-type-scale-body));
 }
 
 .bolars-cart-list {
@@ -1129,7 +1183,7 @@ select:focus-visible {
 .bolars-empty-cart h2 {
   margin: 0;
   color: var(--bolars-text-primary);
-  font-size: 38px;
+  font-size: calc(38px * var(--bolars-type-scale-display));
 }
 
 .bolars-cart-line {
@@ -1190,7 +1244,7 @@ select:focus-visible {
 
 .bolars-line-name strong {
   display: block;
-  font-size: 27px;
+  font-size: calc(27px * var(--bolars-type-scale-body));
   line-height: 1.12;
 }
 
@@ -1227,12 +1281,12 @@ select:focus-visible {
 .bolars-quantity-control .quantity-value {
   border-color: var(--bolars-info);
   color: var(--bolars-logo-black);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-control));
 }
 
 .bolars-line-total {
   text-align: right;
-  font-size: 25px;
+  font-size: calc(25px * var(--bolars-type-scale-body));
   font-weight: 950;
 }
 
@@ -1280,13 +1334,13 @@ select:focus-visible {
 .bolars-summary-count span,
 .bolars-summary-payable span {
   color: var(--bolars-text-secondary);
-  font-size: 18px;
+  font-size: calc(18px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
 .bolars-summary-count strong {
   color: var(--bolars-logo-black);
-  font-size: 32px;
+  font-size: calc(32px * var(--bolars-type-scale-body));
   font-weight: 950;
 }
 
@@ -1305,25 +1359,25 @@ select:focus-visible {
 
 .bolars-summary-label {
   color: var(--bolars-text-secondary);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 800;
   text-transform: uppercase;
 }
 
 .bolars-total {
   color: var(--bolars-logo-black);
-  font-size: 46px;
+  font-size: calc(46px * var(--bolars-type-scale-display));
   font-weight: 950;
   line-height: 1;
 }
 
 .bolars-total.huge {
-  font-size: 88px;
+  font-size: calc(88px * var(--bolars-type-scale-display));
 }
 
 .bolars-summary-meta {
   color: var(--bolars-text-secondary);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 750;
 }
 
@@ -1364,14 +1418,14 @@ select:focus-visible {
 
 .bolars-section-heading h2 {
   margin: 0;
-  font-size: 31px;
+  font-size: calc(31px * var(--bolars-type-scale-body));
 }
 
 .bolars-section-heading span {
   display: block;
   margin-top: 4px;
   color: var(--bolars-text-secondary);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
@@ -1382,7 +1436,7 @@ select:focus-visible {
   gap: 18px;
   border-top: 1px solid var(--bolars-border);
   padding: 13px 0;
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 750;
 }
 
@@ -1418,18 +1472,18 @@ select:focus-visible {
   justify-content: space-between;
   gap: 20px;
   color: var(--bolars-text-secondary);
-  font-size: 21px;
+  font-size: calc(21px * var(--bolars-type-scale-body));
   font-weight: 780;
 }
 
 .bolars-review-totals div.total {
   color: var(--bolars-logo-black);
-  font-size: 29px;
+  font-size: calc(29px * var(--bolars-type-scale-body));
 }
 
 .bolars-review-totals div.total b {
   color: var(--bolars-brand-primary);
-  font-size: 44px;
+  font-size: calc(44px * var(--bolars-type-scale-display));
   line-height: 1;
 }
 
@@ -1443,7 +1497,7 @@ select:focus-visible {
   min-height: 104px;
   flex-direction: column;
   justify-content: center;
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-control));
   text-align: center;
   color: var(--bolars-brand-primary);
   border: 2px solid var(--bolars-brand-primary);
@@ -1451,7 +1505,7 @@ select:focus-visible {
 
 .bolars-discount-panel p {
   color: var(--bolars-text-secondary);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 700;
 }
 
@@ -1496,13 +1550,13 @@ select:focus-visible {
 
 .bolars-final-total-band span {
   color: var(--bolars-logo-black);
-  font-size: 28px;
+  font-size: calc(28px * var(--bolars-type-scale-body));
   font-weight: 900;
 }
 
 .bolars-final-total-band strong {
   color: var(--bolars-info);
-  font-size: 64px;
+  font-size: calc(64px * var(--bolars-type-scale-display));
   font-weight: 950;
   line-height: 1;
 }
@@ -1510,7 +1564,7 @@ select:focus-visible {
 .bolars-pay-bottom {
   width: 100%;
   min-height: 106px;
-  font-size: 34px;
+  font-size: calc(34px * var(--bolars-type-scale-control));
 }
 
 .bolars-success-note,
@@ -1576,7 +1630,7 @@ select:focus-visible {
 .bolars-payment-title-block h1 {
   margin: 0;
   color: var(--bolars-brand-primary);
-  font-size: 48px;
+  font-size: calc(48px * var(--bolars-type-scale-display));
   line-height: 1.05;
 }
 
@@ -1584,7 +1638,7 @@ select:focus-visible {
   display: block;
   margin-top: 8px;
   color: var(--bolars-text-secondary);
-  font-size: 26px;
+  font-size: calc(26px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
@@ -1615,13 +1669,13 @@ select:focus-visible {
 
 .bolars-payment-amount-card span {
   color: var(--bolars-text-secondary);
-  font-size: 25px;
+  font-size: calc(25px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
 .bolars-payment-amount-card strong {
   color: var(--bolars-brand-primary);
-  font-size: 72px;
+  font-size: calc(72px * var(--bolars-type-scale-display));
   line-height: 1;
 }
 
@@ -1630,7 +1684,7 @@ select:focus-visible {
 }
 
 .bolars-payment-amount-card b {
-  font-size: 28px;
+  font-size: calc(28px * var(--bolars-type-scale-body));
 }
 
 .bolars-payment-visual {
@@ -1686,7 +1740,7 @@ select:focus-visible {
   max-width: 720px;
   margin: 0;
   color: var(--bolars-logo-black);
-  font-size: 54px;
+  font-size: calc(54px * var(--bolars-type-scale-display));
   line-height: 1.08;
 }
 
@@ -1696,7 +1750,7 @@ select:focus-visible {
   gap: 14px;
   margin: 0;
   color: var(--bolars-info);
-  font-size: 34px;
+  font-size: calc(34px * var(--bolars-type-scale-body));
   font-weight: 800;
 }
 
@@ -1714,21 +1768,21 @@ select:focus-visible {
 
 .bolars-status-brand {
   color: var(--bolars-brand-primary);
-  font-size: 34px;
+  font-size: calc(34px * var(--bolars-type-scale-display));
   font-weight: 950;
   letter-spacing: 0;
 }
 
 .bolars-status-card h1 {
   margin: 0;
-  font-size: 58px;
+  font-size: calc(58px * var(--bolars-type-scale-display));
   line-height: 1.05;
 }
 
 .bolars-status-card p {
   margin: 0;
   color: var(--bolars-text-secondary);
-  font-size: 28px;
+  font-size: calc(28px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
@@ -1760,13 +1814,13 @@ select:focus-visible {
 
 .bolars-compact-order-head strong {
   color: var(--bolars-text-primary);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
 }
 
 .bolars-compact-order-head span,
 .bolars-compact-order-items em {
   color: var(--bolars-text-secondary);
-  font-size: 17px;
+  font-size: calc(17px * var(--bolars-type-scale-body));
   font-style: normal;
   font-weight: 750;
 }
@@ -1797,7 +1851,7 @@ select:focus-visible {
 
 .bolars-compact-order-items b {
   color: var(--bolars-logo-black);
-  font-size: 16px;
+  font-size: calc(16px * var(--bolars-type-scale-body));
   line-height: 1.15;
 }
 
@@ -1831,14 +1885,14 @@ select:focus-visible {
 .bolars-final-body h1 {
   margin: 0;
   color: var(--bolars-logo-black);
-  font-size: 72px;
+  font-size: calc(72px * var(--bolars-type-scale-display));
   line-height: 1.05;
 }
 
 .bolars-final-body > p {
   margin: 0;
   color: var(--bolars-text-secondary);
-  font-size: 30px;
+  font-size: calc(30px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
@@ -1857,7 +1911,7 @@ select:focus-visible {
 .bolars-receipt-logo {
   color: var(--bolars-brand-primary);
   text-align: center;
-  font-size: 38px;
+  font-size: calc(38px * var(--bolars-type-scale-display));
   font-weight: 950;
 }
 
@@ -1885,12 +1939,12 @@ select:focus-visible {
 .bolars-receipt-lines span,
 .bolars-receipt-meta span {
   color: var(--bolars-text-primary);
-  font-size: 18px;
+  font-size: calc(18px * var(--bolars-type-scale-body));
 }
 
 .bolars-receipt-lines b,
 .bolars-receipt-lines strong {
-  font-size: 18px;
+  font-size: calc(18px * var(--bolars-type-scale-body));
 }
 
 .bolars-receipt-total {
@@ -1900,14 +1954,14 @@ select:focus-visible {
 
 .bolars-receipt-total span {
   color: var(--bolars-logo-black);
-  font-size: 28px;
+  font-size: calc(28px * var(--bolars-type-scale-body));
   font-weight: 950;
 }
 
 .bolars-receipt-total strong {
   grid-column: 3;
   color: var(--bolars-brand-primary);
-  font-size: 38px;
+  font-size: calc(38px * var(--bolars-type-scale-display));
 }
 
 .bolars-countdown-card {
@@ -1941,7 +1995,7 @@ select:focus-visible {
 }
 
 .bolars-countdown-ring strong {
-  font-size: 40px;
+  font-size: calc(40px * var(--bolars-type-scale-display));
 }
 
 .bolars-countdown-ring span {
@@ -1950,13 +2004,13 @@ select:focus-visible {
 
 .bolars-countdown-card > div:last-child > strong {
   color: var(--bolars-logo-black);
-  font-size: 28px;
+  font-size: calc(28px * var(--bolars-type-scale-body));
 }
 
 .bolars-countdown-card p {
   margin: 12px 0 0;
   color: var(--bolars-text-secondary);
-  font-size: 20px;
+  font-size: calc(20px * var(--bolars-type-scale-body));
   font-weight: 760;
 }
 
@@ -2000,12 +2054,12 @@ select:focus-visible {
 
 .bolars-modal h2 {
   margin: 0;
-  font-size: 38px;
+  font-size: calc(38px * var(--bolars-type-scale-display));
 }
 
 .bolars-modal p {
   color: var(--bolars-text-secondary);
-  font-size: 22px;
+  font-size: calc(22px * var(--bolars-type-scale-body));
   font-weight: 700;
 }
 
@@ -2018,7 +2072,7 @@ select:focus-visible {
   border: 2px solid var(--bolars-info);
   border-radius: 8px;
   padding: 18px;
-  font-size: 42px;
+  font-size: calc(42px * var(--bolars-type-scale-display));
   font-weight: 950;
 }
 
@@ -2030,7 +2084,7 @@ select:focus-visible {
 
 .bolars-numpad-grid button {
   min-height: 74px;
-  font-size: 30px;
+  font-size: calc(30px * var(--bolars-type-scale-control));
 }
 
 .bolars-preview-panel,
@@ -2112,18 +2166,6 @@ select:focus-visible {
   white-space: pre-wrap;
 }
 
-.bolars-scale-large .bolars-line-name strong,
-.bolars-scale-large .bolars-review-line,
-.bolars-scale-large .bolars-discount-panel p {
-  font-size: 1.14em;
-}
-
-.bolars-scale-extraLarge .bolars-line-name strong,
-.bolars-scale-extraLarge .bolars-review-line,
-.bolars-scale-extraLarge .bolars-discount-panel p {
-  font-size: 1.28em;
-}
-
 @media (orientation: landscape) and (max-height: 1100px) {
   .bolars-root {
     --bolars-stage-max: 1366px;
@@ -2156,6 +2198,22 @@ select:focus-visible {
     --bolars-countdown-ring-size: clamp(72px, 12dvh, 98px);
   }
 
+  .bolars-scale-large {
+    --bolars-type-scale-body: 1.08;
+    --bolars-type-scale-display: 1.07;
+    --bolars-type-scale-control: 1.06;
+    --bolars-hero-font: clamp(37px, 5.8dvh, 54px);
+    --bolars-summary-total-font: clamp(39px, 6.6dvh, 52px);
+  }
+
+  .bolars-scale-extraLarge {
+    --bolars-type-scale-body: 1.16;
+    --bolars-type-scale-display: 1.12;
+    --bolars-type-scale-control: 1.11;
+    --bolars-hero-font: clamp(40px, 6.2dvh, 58px);
+    --bolars-summary-total-font: clamp(42px, 7dvh, 56px);
+  }
+
   .bolars-root,
   .bolars-stage,
   .bolars-start-screen,
@@ -2176,7 +2234,7 @@ select:focus-visible {
   }
 
   .bolars-brand-lockup span {
-    font-size: clamp(13px, 2.2dvh, 18px);
+    font-size: calc(clamp(13px, 2.2dvh, 18px) * var(--bolars-type-scale-body));
     letter-spacing: 0.18em;
   }
 
@@ -2185,23 +2243,27 @@ select:focus-visible {
     padding-left: 24px;
   }
 
+  .bolars-brand-tools {
+    gap: clamp(10px, 1.6dvw, 18px);
+  }
+
   .bolars-clock-block svg {
     width: clamp(32px, 5dvh, 46px);
     height: clamp(32px, 5dvh, 46px);
   }
 
   .bolars-clock-block strong {
-    font-size: clamp(22px, 4dvh, 30px);
+    font-size: calc(clamp(22px, 4dvh, 30px) * var(--bolars-type-scale-body));
   }
 
   .bolars-clock-block span {
     margin-top: 4px;
-    font-size: clamp(14px, 2.4dvh, 18px);
+    font-size: calc(clamp(14px, 2.4dvh, 18px) * var(--bolars-type-scale-body));
   }
 
   .bolars-start-body {
     height: calc(100dvh - var(--bolars-brand-header-min));
-    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-rows: minmax(0, 1fr) auto;
     padding: var(--bolars-body-pad-y) var(--bolars-body-pad-x);
     overflow: hidden;
   }
@@ -2229,7 +2291,6 @@ select:focus-visible {
 
   .bolars-welcome {
     margin-bottom: 6px;
-    font-size: clamp(20px, 3.2dvh, 27px);
   }
 
   .bolars-scan-hero h1 {
@@ -2238,7 +2299,7 @@ select:focus-visible {
 
   .bolars-scan-hero p,
   .bolars-help-strip {
-    font-size: clamp(17px, 2.6dvh, 22px);
+    font-size: calc(clamp(17px, 2.6dvh, 22px) * var(--bolars-type-scale-body));
   }
 
   .bolars-scanner-visual {
@@ -2289,15 +2350,14 @@ select:focus-visible {
 
   .bolars-start-card strong {
     margin-top: 0;
-    font-size: clamp(20px, 3.2dvh, 27px);
+    font-size: calc(clamp(20px, 3.2dvh, 27px) * var(--bolars-type-scale-body));
   }
 
   .bolars-start-card span {
     margin-top: 2px;
-    font-size: clamp(14px, 2.2dvh, 18px);
+    font-size: calc(clamp(14px, 2.2dvh, 18px) * var(--bolars-type-scale-body));
   }
 
-  .bolars-start-scale-card,
   .bolars-help-card {
     min-height: clamp(54px, 8.4dvh, 72px);
     gap: 12px;
@@ -2305,12 +2365,10 @@ select:focus-visible {
     padding: clamp(10px, 1.6dvh, 14px) clamp(14px, 2dvw, 22px);
   }
 
-  .bolars-start-scale-card strong,
   .bolars-help-card strong {
-    font-size: clamp(19px, 3dvh, 24px);
+    font-size: calc(clamp(19px, 3dvh, 24px) * var(--bolars-type-scale-body));
   }
 
-  .bolars-start-scale-card span,
   .bolars-help-card span {
     display: none;
   }
@@ -2327,11 +2385,11 @@ select:focus-visible {
   }
 
   .bolars-logo {
-    font-size: clamp(22px, 3.6dvh, 30px);
+    font-size: calc(clamp(22px, 3.6dvh, 30px) * var(--bolars-type-scale-body));
   }
 
   .bolars-work-header h1 {
-    font-size: clamp(30px, 5.4dvh, 42px);
+    font-size: calc(clamp(30px, 5.4dvh, 42px) * var(--bolars-type-scale-display));
   }
 
   .bolars-header-actions {
@@ -2341,7 +2399,7 @@ select:focus-visible {
   .bolars-secondary-action {
     min-height: 50px;
     padding-inline: 18px;
-    font-size: 18px;
+    font-size: calc(18px * var(--bolars-type-scale-control));
   }
 
   .bolars-scale-control,
@@ -2351,8 +2409,20 @@ select:focus-visible {
   }
 
   .bolars-scale-control button {
-    min-width: 40px;
-    min-height: 36px;
+    min-width: 44px;
+    min-height: 38px;
+  }
+
+  .bolars-scale-option-normal {
+    font-size: 15px;
+  }
+
+  .bolars-scale-option-large {
+    font-size: 22px;
+  }
+
+  .bolars-scale-option-extraLarge {
+    font-size: 32px;
   }
 
   .bolars-cart-layout,
@@ -2373,7 +2443,7 @@ select:focus-visible {
 
   .bolars-search-box input,
   .bolars-phone-row input {
-    font-size: clamp(18px, 3dvh, 23px);
+    font-size: calc(clamp(18px, 3dvh, 23px) * var(--bolars-type-scale-body));
   }
 
   .bolars-scan-action-card {
@@ -2388,11 +2458,11 @@ select:focus-visible {
   }
 
   .bolars-scan-action-card strong {
-    font-size: clamp(19px, 3.1dvh, 24px);
+    font-size: calc(clamp(19px, 3.1dvh, 24px) * var(--bolars-type-scale-body));
   }
 
   .bolars-scan-action-card small {
-    font-size: clamp(13px, 2.2dvh, 17px);
+    font-size: calc(clamp(13px, 2.2dvh, 17px) * var(--bolars-type-scale-body));
   }
 
   .bolars-cart-list {
@@ -2410,16 +2480,16 @@ select:focus-visible {
   .bolars-product-thumb {
     width: clamp(82px, 9dvw, 104px);
     height: clamp(64px, 10dvh, 82px);
-    font-size: clamp(24px, 4dvh, 30px);
+    font-size: calc(clamp(24px, 4dvh, 30px) * var(--bolars-type-scale-body));
   }
 
   .bolars-line-name strong {
-    font-size: clamp(21px, 3.5dvh, 25px);
+    font-size: calc(clamp(21px, 3.5dvh, 25px) * var(--bolars-type-scale-body));
   }
 
   .bolars-line-name span {
     margin-top: 3px;
-    font-size: clamp(13px, 2dvh, 16px);
+    font-size: calc(clamp(13px, 2dvh, 16px) * var(--bolars-type-scale-body));
   }
 
   .bolars-quantity-control {
@@ -2434,7 +2504,7 @@ select:focus-visible {
   }
 
   .bolars-line-total {
-    font-size: clamp(21px, 3.4dvh, 25px);
+    font-size: calc(clamp(21px, 3.4dvh, 25px) * var(--bolars-type-scale-body));
   }
 
   .bolars-cart-summary-band {
@@ -2450,7 +2520,7 @@ select:focus-visible {
   }
 
   .bolars-summary-count strong {
-    font-size: clamp(24px, 4dvh, 30px);
+    font-size: calc(clamp(24px, 4dvh, 30px) * var(--bolars-type-scale-body));
   }
 
   .bolars-summary-divider {
@@ -2462,7 +2532,7 @@ select:focus-visible {
   .bolars-danger-action {
     min-height: clamp(54px, 8.6dvh, 68px);
     padding-inline: 20px;
-    font-size: clamp(18px, 3dvh, 23px);
+    font-size: calc(clamp(18px, 3dvh, 23px) * var(--bolars-type-scale-control));
   }
 
   .bolars-payment-layout .bolars-main-column {
@@ -2512,17 +2582,17 @@ select:focus-visible {
   }
 
   .bolars-section-heading h2 {
-    font-size: clamp(22px, 3.5dvh, 28px);
+    font-size: calc(clamp(22px, 3.5dvh, 28px) * var(--bolars-type-scale-body));
   }
 
   .bolars-section-heading span {
-    font-size: clamp(14px, 2.2dvh, 18px);
+    font-size: calc(clamp(14px, 2.2dvh, 18px) * var(--bolars-type-scale-body));
   }
 
   .bolars-review-line,
   .bolars-totals-list div {
     padding: 8px 0;
-    font-size: clamp(15px, 2.3dvh, 18px);
+    font-size: calc(clamp(15px, 2.3dvh, 18px) * var(--bolars-type-scale-body));
   }
 
   .bolars-review-line {
@@ -2542,15 +2612,15 @@ select:focus-visible {
   }
 
   .bolars-review-totals div {
-    font-size: clamp(16px, 2.5dvh, 19px);
+    font-size: calc(clamp(16px, 2.5dvh, 19px) * var(--bolars-type-scale-body));
   }
 
   .bolars-review-totals div.total {
-    font-size: clamp(20px, 3.3dvh, 26px);
+    font-size: calc(clamp(20px, 3.3dvh, 26px) * var(--bolars-type-scale-body));
   }
 
   .bolars-review-totals div.total b {
-    font-size: clamp(32px, 5.4dvh, 42px);
+    font-size: calc(clamp(32px, 5.4dvh, 42px) * var(--bolars-type-scale-display));
   }
 
   .bolars-package-grid {
@@ -2560,7 +2630,7 @@ select:focus-visible {
   .bolars-package-grid button {
     min-height: clamp(42px, 6dvh, 52px);
     padding: 8px;
-    font-size: clamp(13px, 2.2dvh, 16px);
+    font-size: calc(clamp(13px, 2.2dvh, 16px) * var(--bolars-type-scale-control));
   }
 
   .bolars-package-grid button svg {
@@ -2585,7 +2655,7 @@ select:focus-visible {
   .bolars-warning-note {
     margin-top: 6px;
     padding: 8px 10px;
-    font-size: clamp(13px, 2.1dvh, 16px);
+    font-size: calc(clamp(13px, 2.1dvh, 16px) * var(--bolars-type-scale-body));
   }
 
   .bolars-final-total-band {
@@ -2594,21 +2664,21 @@ select:focus-visible {
   }
 
   .bolars-final-total-band span {
-    font-size: clamp(18px, 3dvh, 24px);
+    font-size: calc(clamp(18px, 3dvh, 24px) * var(--bolars-type-scale-body));
   }
 
   .bolars-final-total-band strong {
-    font-size: clamp(32px, 5.2dvh, 44px);
+    font-size: calc(clamp(32px, 5.2dvh, 44px) * var(--bolars-type-scale-display));
   }
 
   .bolars-pay-bottom {
     min-height: clamp(50px, 7.4dvh, 58px);
-    font-size: clamp(20px, 3.2dvh, 26px);
+    font-size: calc(clamp(20px, 3.2dvh, 26px) * var(--bolars-type-scale-control));
   }
 
   .bolars-payment-layout .bolars-info-action.full {
     min-height: clamp(42px, 6.2dvh, 50px);
-    font-size: clamp(16px, 2.5dvh, 20px);
+    font-size: calc(clamp(16px, 2.5dvh, 20px) * var(--bolars-type-scale-control));
   }
 
   .bolars-status-screen {
@@ -2631,12 +2701,12 @@ select:focus-visible {
   }
 
   .bolars-payment-title-block h1 {
-    font-size: clamp(30px, 5dvh, 42px);
+    font-size: calc(clamp(30px, 5dvh, 42px) * var(--bolars-type-scale-display));
   }
 
   .bolars-payment-title-block span {
     margin-top: 2px;
-    font-size: clamp(16px, 2.8dvh, 22px);
+    font-size: calc(clamp(16px, 2.8dvh, 22px) * var(--bolars-type-scale-body));
   }
 
   .bolars-payment-amount-card {
@@ -2646,15 +2716,15 @@ select:focus-visible {
   }
 
   .bolars-payment-amount-card span {
-    font-size: clamp(17px, 2.8dvh, 22px);
+    font-size: calc(clamp(17px, 2.8dvh, 22px) * var(--bolars-type-scale-body));
   }
 
   .bolars-payment-amount-card strong {
-    font-size: clamp(44px, 8dvh, 64px);
+    font-size: calc(clamp(44px, 8dvh, 64px) * var(--bolars-type-scale-display));
   }
 
   .bolars-payment-amount-card b {
-    font-size: clamp(20px, 3.4dvh, 26px);
+    font-size: calc(clamp(20px, 3.4dvh, 26px) * var(--bolars-type-scale-body));
   }
 
   .bolars-payment-amount-card div:last-child {
@@ -2683,11 +2753,11 @@ select:focus-visible {
   }
 
   .bolars-status-body h2 {
-    font-size: clamp(32px, 5.2dvh, 46px);
+    font-size: calc(clamp(32px, 5.2dvh, 46px) * var(--bolars-type-scale-display));
   }
 
   .bolars-payment-waiting-line {
-    font-size: clamp(22px, 3.8dvh, 30px);
+    font-size: calc(clamp(22px, 3.8dvh, 30px) * var(--bolars-type-scale-body));
   }
 
   .bolars-spinner.compact {
@@ -2739,11 +2809,11 @@ select:focus-visible {
   }
 
   .bolars-status-card h1 {
-    font-size: clamp(36px, 6dvh, 52px);
+    font-size: calc(clamp(36px, 6dvh, 52px) * var(--bolars-type-scale-display));
   }
 
   .bolars-status-card p {
-    font-size: clamp(20px, 3.2dvh, 26px);
+    font-size: calc(clamp(20px, 3.2dvh, 26px) * var(--bolars-type-scale-body));
   }
 
   .error-card .bolars-start-actions {
@@ -2751,11 +2821,11 @@ select:focus-visible {
   }
 
   .bolars-final-body h1 {
-    font-size: clamp(42px, 7dvh, 60px);
+    font-size: calc(clamp(42px, 7dvh, 60px) * var(--bolars-type-scale-display));
   }
 
   .bolars-final-body > p {
-    font-size: clamp(20px, 3.4dvh, 28px);
+    font-size: calc(clamp(20px, 3.4dvh, 28px) * var(--bolars-type-scale-body));
   }
 
   .bolars-success-mark svg {
@@ -2771,7 +2841,7 @@ select:focus-visible {
   }
 
   .bolars-receipt-logo {
-    font-size: clamp(24px, 4dvh, 34px);
+    font-size: calc(clamp(24px, 4dvh, 34px) * var(--bolars-type-scale-display));
   }
 
   .bolars-receipt-lines {
@@ -2782,7 +2852,7 @@ select:focus-visible {
   .bolars-receipt-meta span,
   .bolars-receipt-lines b,
   .bolars-receipt-lines strong {
-    font-size: clamp(13px, 2.2dvh, 16px);
+    font-size: calc(clamp(13px, 2.2dvh, 16px) * var(--bolars-type-scale-body));
   }
 
   .bolars-receipt-total {
@@ -2790,11 +2860,11 @@ select:focus-visible {
   }
 
   .bolars-receipt-total span {
-    font-size: clamp(20px, 3.4dvh, 26px);
+    font-size: calc(clamp(20px, 3.4dvh, 26px) * var(--bolars-type-scale-body));
   }
 
   .bolars-receipt-total strong {
-    font-size: clamp(28px, 5dvh, 36px);
+    font-size: calc(clamp(28px, 5dvh, 36px) * var(--bolars-type-scale-display));
   }
 
   .bolars-countdown-card {
@@ -2809,16 +2879,16 @@ select:focus-visible {
   }
 
   .bolars-countdown-ring strong {
-    font-size: clamp(26px, 4.8dvh, 36px);
+    font-size: calc(clamp(26px, 4.8dvh, 36px) * var(--bolars-type-scale-display));
   }
 
   .bolars-countdown-card > div:last-child > strong {
-    font-size: clamp(20px, 3.2dvh, 26px);
+    font-size: calc(clamp(20px, 3.2dvh, 26px) * var(--bolars-type-scale-body));
   }
 
   .bolars-countdown-card p {
     margin-top: 6px;
-    font-size: clamp(14px, 2.2dvh, 18px);
+    font-size: calc(clamp(14px, 2.2dvh, 18px) * var(--bolars-type-scale-body));
   }
 
   .bolars-countdown-track {
