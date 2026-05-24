@@ -72,4 +72,11 @@ describe('visual contract css', () => {
     expect(css).toContain('@media (hover: hover) and (pointer: fine)');
     expect(css).toContain('@media (prefers-reduced-motion: reduce)');
   });
+
+  it('keeps the debug panel from blocking customer actions', () => {
+    expect(css).toContain('.bolars-debug-panel {');
+    expect(css).toContain('pointer-events: none');
+    expect(css).toContain('.bolars-debug-panel summary');
+    expect(css).toContain('pointer-events: auto');
+  });
 });

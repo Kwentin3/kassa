@@ -2438,6 +2438,13 @@ select:focus-visible {
   overflow: auto;
   padding: 16px;
   color: var(--bolars-text-primary);
+  pointer-events: none;
+}
+
+.bolars-debug-panel a,
+.bolars-debug-panel summary,
+.bolars-debug-panel pre {
+  pointer-events: auto;
 }
 
 .bolars-debug-panel h2 {
