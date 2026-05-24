@@ -104,6 +104,7 @@ export default defineConfig({
     target: 'es2015',
     cssCodeSplit: false,
     assetsInlineLimit: Number.MAX_SAFE_INTEGER,
+    modulePreload: false,
     rollupOptions: {
       input: resolve(projectRoot, 'bolars-self-checkout.html'),
       output: {
