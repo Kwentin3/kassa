@@ -211,6 +211,52 @@ Recommended base for `1080x1920`: gutters `32-48px`, section gap `24-32px`, card
 
 Fallback для слабого WebView: заменить heavy shadows на `border + light shadow`.
 
+### 8.1 Button Surface Tokens
+
+Кнопочные поверхности управляются отдельной централизованной token group. Компонент выбирает semantic role, а не подбирает локально фон, тень и pressed effect.
+
+Roles:
+
+- `button.primary`
+- `button.secondary`
+- `button.danger`
+- `button.icon`
+- `button.quantity`
+- `button.keypad`
+- `button.package`
+- `button.searchResult`
+- `button.help`
+- `button.headerSecondary`
+
+Для каждой роли должны быть определены semantic values:
+
+- `bg`
+- `fg`
+- `border`
+- `shadow`
+- `texture`
+- `hover.bg`
+- `hover.shadow`
+- `hover.transform`
+- `pressed.bg`
+- `pressed.shadow`
+- `pressed.transform`
+- `focus.ring`
+- `disabled.bg`
+- `disabled.fg`
+- `disabled.border`
+- `disabled.shadow`
+- `disabled.opacity`
+
+Правила:
+
+- `button.*.bg` в normal state должен быть контрастнее родительской поверхности; border-only button без отличающейся заливки не допускается для customer-facing actions.
+- `button.primary` имеет самый сильный surface signal; `button.secondary` и вспомогательные роли остаются заметными, но не спорят с primary CTA.
+- `button.headerSecondary` оптимизирован для тёмной шапки и не обязан совпадать со светлыми secondary actions.
+- `button.texture` допускается только как лёгкая фактура surface, не как носитель смысла и не вместо contrast/focus/disabled states.
+- `pressed.transform` и `hover.transform` являются state tokens; при reduced motion они отключаются, но `bg`, `shadow`, `focus` и `disabled` остаются различимыми.
+- Missing token for any customer-facing button role must fail development/test before visual acceptance.
+
 ## 9. Токены Состояний
 
 - `state.focus.ringColor`

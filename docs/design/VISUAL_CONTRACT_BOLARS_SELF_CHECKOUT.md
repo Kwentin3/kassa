@@ -236,6 +236,23 @@ Magenta активно используется для brand, amount, selected/a
 - Нажатие не должно менять layout. Допустимы короткие `translateY(1-2px)`, shadow reduction, border emphasis.
 - Disabled state должен быть визуально явным.
 
+### 10.1 Button Surface Contract
+
+- Все customer-facing кнопки БОЛАРС должны восприниматься как отдельные физические поверхности, а не как текст/иконка на общем фоне.
+- Кнопка не может полагаться только на контур: normal state обязан иметь контрастную заливку относительно родительской поверхности.
+- Для светлых экранов secondary/package/search/quantity/keypad actions должны быть темнее, плотнее или тонально отличаться от карточки/фона, на котором они лежат.
+- Для тёмной шапки cancel/help/service actions должны иметь собственную читаемую поверхность, но не конкурировать с primary customer CTA.
+- Primary CTA получает самый сильный surface signal: контрастная заливка, уверенная тень, clear text/icon contrast.
+- Secondary actions получают более спокойный surface signal: заметная заливка и тень, но меньшая визуальная масса.
+- Destructive actions используют отдельную danger surface; destructive не становится primary без confirmation modal.
+- Icon-only controls (`+`, `-`, delete, text-scale glyphs where applicable) обязаны иметь видимую интерактивную поверхность или segmented-control state, а не только цвет иконки.
+- Pressed state: кнопка визуально утапливается, тень сокращается, заливка/обводка может немного усиливаться; layout и размеры не меняются.
+- Hover/lift допускается только для pointer devices. Touch contract опирается на pressed state.
+- Disabled/busy state снимает ощущение нажимаемости: приглушает заливку/тень, сохраняет читаемость причины или контекста действия.
+- Контракт кнопочных поверхностей централизован: новые кнопки выбирают роль (`primary`, `secondary`, `danger`, `icon`, `quantity`, `keypad`, `package`, `searchResult`, `help`) и наследуют normal/pressed/disabled/focus правила из общего слоя.
+- Крупные кнопочные карточки могут использовать лёгкую фактуру или texture wash, если она подчинена читаемости и не маскирует состояние.
+- Визуальный refactor не должен добавлять component-local button backgrounds/shadows в обход централизованного contract.
+
 ## 11. Правила Читаемости
 
 - Title/header text: `32-44px`.

@@ -89,6 +89,19 @@ Secondary adaptation:
 - Touch elevation не заменяет терминальный state feedback: после нажатия всё равно должен быть виден результат действия, ошибка, busy или success.
 - Pressed-state не должен менять layout, размеры карточек, ширину панели или scroll-поведение.
 
+## Button Surface Contract
+
+- Нажимаемый элемент не должен выделяться только контуром, если его фон совпадает с родительской поверхностью.
+- Кнопочная поверхность должна быть заметно темнее, плотнее или контрастнее родительского фона в normal state.
+- Контраст кнопки создаётся комбинацией заливки, тени, border/highlight и состояния текста; один только border не считается достаточным affordance для customer flow.
+- Primary, secondary, destructive, icon-only, quantity, keypad, package, search result и help actions используют один централизованный contract кнопочных поверхностей.
+- Контракт кнопок должен жить в одном управляемом token-group/layer, чтобы новые экраны и refactor не создавали локальные стили кнопок без normal/pressed/disabled/focus states.
+- Допускается лёгкая фактура или surface noise для крупных кнопочных карточек, если она не ухудшает читаемость и не конкурирует с текстом/иконкой.
+- Сила тени и темнота заливки должны быть пропорциональны иерархии действия: primary заметнее secondary, destructive явно отделён, disabled приглушён и не выглядит нажимаемым.
+- Hover/lift используется только для pointer devices; touch-first feedback остаётся pressed depression.
+- При `prefers-reduced-motion: reduce` кнопки сохраняют контрастную заливку, тень/focus/disabled states, но не анимируют lift/depression.
+- Добавление новой интерактивной сущности требует явного выбора роли в этом контракте, а не разового подбора background/border/shadow на месте.
+
 ## Что запрещено
 
 - Глобальный `body min-width` для имитации планшета.

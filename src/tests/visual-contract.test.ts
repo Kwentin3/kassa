@@ -55,4 +55,21 @@ describe('visual contract css', () => {
     expect(css).toContain('background: var(--bolars-button-bg)');
     expect(css).toContain('background: var(--bolars-container-bg)');
   });
+
+  it('keeps BOLARS button surfaces centralized and visibly pressable', () => {
+    expect(css).toContain('Central BOLARS button-surface contract');
+    expect(css).toContain('--bolars-button-surface-fill');
+    expect(css).toContain('--bolars-button-card-fill');
+    expect(css).toContain('--bolars-button-primary-fill');
+    expect(css).toContain('--bolars-button-shadow-pressed');
+    expect(css).toContain('--bolars-button-hover-transform');
+    expect(css).toContain('--bolars-button-pressed-transform');
+    expect(css).toContain('.bolars-primary-action:active:not(:disabled)');
+    expect(css).toContain('.bolars-quantity-control button:active:not(:disabled)');
+    expect(css).toContain('.bolars-package-grid button');
+    expect(css).toContain('background-color: var(--bolars-button-card-fill)');
+    expect(css).toContain('background-color: var(--bolars-button-primary-fill)');
+    expect(css).toContain('@media (hover: hover) and (pointer: fine)');
+    expect(css).toContain('@media (prefers-reduced-motion: reduce)');
+  });
 });
