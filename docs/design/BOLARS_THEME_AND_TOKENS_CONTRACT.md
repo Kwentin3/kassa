@@ -1,7 +1,7 @@
 ﻿# BOLARS Theme and Tokens Contract
 
-Статус: draft 0.3
-Дата: 2026-05-23
+Статус: draft 0.4
+Дата: 2026-05-24
 Назначение: контракт тем, цветовых профилей и адаптивных дизайн-токенов для кассы самообслуживания БОЛАРС.
 
 ## 1. Принцип
@@ -19,6 +19,7 @@
 - `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` - визуальные инварианты.
 - `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` - active `themeProfile` и `uiConfig` в state snapshot.
 - `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md` - token/theme acceptance criteria.
+- `docs/integrations/1c-html-shell/runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md` - 1C/V8WebKit runtime constraints.
 
 ## 2. Theme Profiles
 
@@ -173,7 +174,7 @@ Semantic tokens:
 - `space.screen.sectionGap`
 - `space.card.padding`
 - `space.row.gap`
-- `space.sticky.bottom`
+- `space.actionRail.bottom`
 - `space.touch.gap`
 
 Recommended base for `1080x1920`: gutters `32-48px`, section gap `24-32px`, card padding `24-32px`.
@@ -202,7 +203,7 @@ Recommended base for `1080x1920`: gutters `32-48px`, section gap `24-32px`, card
 - `shadow.card`
 - `shadow.cardStrong`
 - `shadow.header`
-- `shadow.sticky`
+- `shadow.actionRail`
 - `shadow.modal`
 - `shadow.focus`
 - `shadow.successGlow`
@@ -452,6 +453,10 @@ Help card является отдельной zone и не конкурируе�
 - `viewport.safeArea.right`
 - `viewport.safeArea.bottom`
 - `viewport.safeArea.left`
+- `viewport.host.width`
+- `viewport.host.height`
+- `viewport.embed.mode`
+- `viewport.embed.runtime`
 - `density.profile`
 - `density.minUsableScale`
 - `density.maxUsableScale`
@@ -467,7 +472,10 @@ Help card является отдельной zone и не конкурируе�
 The implementation should express component dimensions through tokens that can be scaled per profile:
 
 - `layout.stage.maxWidth`
+- `layout.stage.embeddedMaxWidth`
+- `layout.stage.widthMode`
 - `layout.stage.minHeight`
+- `layout.stage.heightMode`
 - `layout.header.brand.height`
 - `layout.header.work.height`
 - `layout.header.compactHeight`
@@ -483,6 +491,8 @@ The implementation should express component dimensions through tokens that can b
 - `layout.start.actionCard.height`
 - `layout.cart.row.height`
 - `layout.cart.summary.height`
+- `layout.cart.summary.mode`
+- `layout.cart.row.columnProfile`
 - `layout.payment.visual.height`
 - `layout.final.successMark.size`
 - `layout.final.receipt.maxHeight`
@@ -499,6 +509,10 @@ The implementation should express component dimensions through tokens that can b
 - Secondary touch target compact minimum is `48-56px`.
 - `brandHeader` compact height should be tokenized separately; it must not keep portrait `180-210px` height in `landscapeCompact`.
 - Shadow and radius can reduce in compact profiles to preserve density and performance.
+- 1C embedded profile uses `layout.stage.widthMode = "host-fill"`; desktop centered max-width is not inherited.
+- 1C embedded profile uses `layout.stage.heightMode = "host-first"`; `100dvh` is a fallback, not the only sizing primitive.
+- 1C embedded profile must provide static token values for critical colors/shadows so the UI does not depend on `color-mix` rendering.
+- 1C embedded profile must express CTA/summary placement as a reserved layout zone (`bottomRail`, `rightRail` or `inlineSummary`), not as `position: sticky`.
 
 ### 15.4 Profile-Specific Behavior
 
@@ -508,6 +522,7 @@ The implementation should express component dimensions through tokens that can b
 | `portraitCompact` | Reduced gutters/gaps/media; primary CTA and header preserved. |
 | `landscapeKiosk` | Wide/two-column layout, moderate vertical compression. |
 | `landscapeCompact` | Strong header/media/spacing compression, two-column where useful, primary action visible without page scroll. |
+| `embeddedOneC` | Host-fill stage, V8WebKit-safe effects, no sticky dependency, critical zones visible in the 1C HTML field. |
 | `microFallback` | Critical-path tokens only; decorative/details collapse. |
 
 ### 15.5 Example Adaptive Token Shape
@@ -518,10 +533,24 @@ The implementation should express component dimensions through tokens that can b
     "base": { "width": 1080, "height": 1920 },
     "profiles": {
       "portrait1080": { "density": 1, "media": 1, "typography": 1 },
-      "landscapeCompact": { "density": 0.56, "media": 0.46, "typography": 0.82 }
+      "landscapeCompact": { "density": 0.56, "media": 0.46, "typography": 0.82 },
+      "embeddedOneC": {
+        "density": 0.58,
+        "media": 0.42,
+        "typography": 0.84,
+        "widthMode": "host-fill",
+        "heightMode": "host-first",
+        "effects": "v8webkit-light"
+      }
     }
   },
   "layout": {
+    "stage": {
+      "maxWidth": 1366,
+      "embeddedMaxWidth": "none",
+      "widthMode": "host-fill",
+      "heightMode": "host-first"
+    },
     "header": {
       "brand": { "height": 200, "compactHeight": 104 },
       "work": { "height": 144, "compactHeight": 88 }
@@ -534,6 +563,10 @@ The implementation should express component dimensions through tokens that can b
     "payment": {
       "visualHeight": 520,
       "visualCompactHeight": 220
+    },
+    "cart": {
+      "summary": { "mode": "bottomRail" },
+      "row": { "columnProfile": "v8webkit-safe" }
     }
   }
 }
@@ -632,7 +665,7 @@ Example numbers are contract guidance, not component-local constants. Real imple
     },
     "shadow": {
       "card": "0 12px 32px rgba(17,17,17,0.10)",
-      "sticky": "0 -8px 24px rgba(17,17,17,0.08)",
+      "actionRail": "0 -8px 24px rgba(17,17,17,0.08)",
       "focus": "0 0 0 4px rgba(0,166,200,0.30)"
     }
   }
@@ -651,6 +684,7 @@ Example numbers are contract guidance, not component-local constants. Real imple
 - Custom profile не может скрывать help, cancel confirmation, payment error и final success.
 - Missing reference-fidelity tokens для header/product image/summary/payment visual/receipt/countdown должны обнаруживаться visual/token tests до refactor acceptance.
 - Missing adaptive layout tokens for viewport/profile/header/media/touch sizing must fail development/test before landscape acceptance.
+- Missing 1C embedded tokens for host-fill stage, host-first height, non-sticky summary/CTA, static critical colors and light elevation must fail before 1C acceptance.
 
 ## 19. Запреты
 
@@ -658,6 +692,9 @@ Example numbers are contract guidance, not component-local constants. Real imple
 - Не использовать brand palette напрямую вместо semantic tokens.
 - Не создавать component-local color maps.
 - Не хранить portrait-only `min-height`, `height`, `padding` and `font-size` constants in components/screens when they affect customer layout.
+- Не наследовать desktop/tablet centered `stage.maxWidth` в 1C embedded profile.
+- Не строить customer-critical CTA/help/summary на `position: sticky` в 1C embedded profile.
+- Не делать `color-mix`, heavy shadows или gradient glow единственным способом различить critical surfaces в 1C embedded profile.
 - Не менять тему через inline style без token mapping layer.
 - Не давать quick branding произвольный CSS.
 - Не делать production theme editor или custom theme UI обязательной частью MVP.

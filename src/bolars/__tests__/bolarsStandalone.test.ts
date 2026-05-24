@@ -14,7 +14,18 @@ describe('BOLARS standalone HTML runtime URL', () => {
     expect(routeContext.debug).toBe(true);
     expect(routeContext.runId).toBe('onec-demo');
     expect(routeContext.themeProfileId).toBe('bolars-light-contrast');
+    expect(routeContext.presentationProfile).toBe('embeddedOneC');
     expect(routeContext.url.searchParams.get('adapter')).toBe('onec');
     expect(routeContext.url.hash).toBe('#handoff');
+  });
+
+  it('marks the published 1C html artifact as embedded while keeping the canonical runtime route', () => {
+    const runtimeUrl = createStandaloneRuntimeUrl('file:///C:/handoff/self-checkout-mvp-1c.html?debug=1&preview=1&scenario=cartOneItem');
+    const routeContext = createRouteContext(runtimeUrl);
+
+    expect(routeContext.route).toBe(BOLARS_ROUTE);
+    expect(routeContext.presentationProfile).toBe('embeddedOneC');
+    expect(routeContext.url.searchParams.get('runtimeProfile')).toBe('embeddedOneC');
+    expect(routeContext.url.searchParams.get('scenario')).toBe('cartOneItem');
   });
 });

@@ -189,6 +189,18 @@ Single-file HTML — это формат runtime-артефакта, а не о�
 - системную экранную клавиатуру;
 - автоматическое скачивание отчёта через anchor download как единственный путь.
 
+### 6.1 Практические визуальные следствия для BOLARS MVP
+
+Для покупательской витрины `/bolars/self-checkout-mvp-1c.html` этот runtime contract означает:
+
+- 1C HTML field считать host container, а не обычным desktop browser viewport.
+- Не наследовать centered desktop/tablet stage max-width, если host container шире stage и появляются белые поля.
+- Не строить critical CTA/help/summary на `position: sticky`; использовать явную grid/flex-зону или другой проверенный layout.
+- Не полагаться на `100dvh` как единственную высоту screen/body; нужен fallback через host/container height и `100vh`.
+- CSS Grid допустим, но cart/payment critical zones должны иметь простой, проверенный layout без хрупких fixed columns.
+- Heavy shadows, glow, gradients и `color-mix` считать enhancement; в 1C profile должны быть статические цвета, border и лёгкая elevation.
+- Debug overlay не должен быть частью customer acceptance и не должен перекрывать critical zones.
+
 ## 7. UX-статусы последнего прогона
 
 В последнем JSON-отчёте ручные UX-проверки не закрыты:

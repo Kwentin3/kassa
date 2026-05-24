@@ -41,7 +41,7 @@ Frontend является визуальным слоем. Он отобража
 
 - Основной форм-фактор нового BOLARS flow: portrait kiosk viewport `1080x1920`.
 - `1080x1920` является базовым design target, а не единственным допустимым размером и не поводом жёстко прибивать layout к абсолютным пикселям.
-- Реализация должна использовать stage/layout contract, tokens и responsive constraints; root viewport не должен получать horizontal scroll, а sticky CTA/help не должны пропадать в HTML-shell/WebView.
+- Реализация должна использовать stage/layout contract, tokens и responsive constraints; root viewport не должен получать horizontal scroll, а persistent CTA/help zones не должны пропадать в HTML-shell/WebView. Для 1C/V8WebKit эти зоны не должны зависеть от `position: sticky`.
 - Сейчас этап прототипа MVP: frontend должен демонстрировать полный пользовательский flow и быть готовым к runtime/adapter boundary.
 - Внешние контуры продукта: 1С/search, scanner-router, система лояльности, эквайринг, theme config и будущие ККТ/фискальные контуры.
 - В текущем frontend prototype эти контуры могут воспроизводиться через `MockAdapter`, но mock не должен заменять product contract.

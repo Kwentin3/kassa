@@ -29,6 +29,10 @@ const checks = [
     pattern: /\bfetch\s*\(/
   },
   {
+    label: 'sticky primary CTA dependency',
+    pattern: /bolars-primary-action\s+sticky|sticky\s+bolars-primary-action/i
+  },
+  {
     label: 'hashed external asset reference',
     pattern: /\/assets\/|(?:href|src)\s*=\s*["'][^"']+\.(?:js|css)(?:["'?])/i
   }

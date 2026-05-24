@@ -12,6 +12,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "visual:cards": "node scripts/visual-product-cards-smoke.mjs",
+    "smoke:1c-layout": "node scripts/bolars-1c-layout-smoke.mjs",
     "smoke:showcase-catalog": "node scripts/showcase-catalog-api-smoke.mjs"
   },
   "dependencies": {

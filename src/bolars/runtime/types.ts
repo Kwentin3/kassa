@@ -251,7 +251,7 @@ export type AlertNotification = {
 };
 
 export type UiConfigState = {
-  viewportProfile: 'portrait1080' | 'portraitCompact' | 'landscapeFallback';
+  viewportProfile: 'portrait1080' | 'portraitCompact' | 'landscapeKiosk' | 'landscapeCompact' | 'landscapeFallback' | 'embeddedOneC' | 'microFallback';
   language: 'ru';
   showClock: boolean;
   showManagerBadge: boolean;

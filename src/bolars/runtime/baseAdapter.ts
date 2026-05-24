@@ -1,5 +1,5 @@
 import { DEFAULT_BOLARS_THEME_PROFILE_ID, isSelectableBolarsThemeProfileId, type BolarsSelectableThemeProfileId } from '../theme/bolarsTheme';
-import { BOLARS_ROUTE, createEmptySnapshot, createThemeProfile, maskCode, maskPhone } from './defaults';
+import { BOLARS_ROUTE, createEmptySnapshot, createThemeProfile, createUiConfig, maskCode, maskPhone } from './defaults';
 import type {
   AdapterKind,
   ApplyStatus,
@@ -24,6 +24,7 @@ export type RuntimeRouteContext = {
   themeProfileId: BolarsSelectableThemeProfileId;
   themeProfileSource: 'default' | 'query';
   themeProfileWarning?: string;
+  presentationProfile: 'web' | 'embeddedOneC';
 };
 
 const createInitialApplyStatus = (): ApplyStatus => ({
@@ -301,6 +302,7 @@ export class BaseRuntimeAdapter implements SelfCheckoutRuntimePort {
   protected createRuntimeSnapshot(overrides: Partial<SelfCheckoutStateSnapshot> = {}): SelfCheckoutStateSnapshot {
     return createEmptySnapshot(this.adapterKind, {
       themeProfile: createThemeProfile(this.routeContext.themeProfileId),
+      uiConfig: createUiConfig(this.routeContext.presentationProfile === 'embeddedOneC' ? 'embeddedOneC' : 'portrait1080'),
       ...overrides
     });
   }
@@ -312,17 +314,25 @@ export const createRouteContext = (inputUrl: string | URL, buildId = import.meta
   const preview = debug && url.searchParams.get('preview') === '1';
   const rawThemeProfile = url.searchParams.get('themeProfile') ?? url.searchParams.get('theme');
   const themeProfileId = isSelectableBolarsThemeProfileId(rawThemeProfile) ? rawThemeProfile : DEFAULT_BOLARS_THEME_PROFILE_ID;
+  const requestedAdapter = url.searchParams.get('adapter');
+  const requestedRuntimeProfile = url.searchParams.get('runtimeProfile');
+  const runId = url.searchParams.get('runId') ?? undefined;
+  const presentationProfile =
+    requestedRuntimeProfile === 'embeddedOneC' || url.pathname.endsWith('/self-checkout-mvp-1c.html') || (debug && (requestedAdapter === 'onec' || runId?.startsWith('onec-')))
+      ? 'embeddedOneC'
+      : 'web';
   return {
     url,
     route: url.pathname || BOLARS_ROUTE,
     debug,
     preview,
-    runId: url.searchParams.get('runId') ?? undefined,
+    runId,
     terminalLabel: url.searchParams.get('terminalLabel') ?? undefined,
     buildId: url.searchParams.get('build') ?? buildId,
     themeProfileId,
     themeProfileSource: rawThemeProfile && rawThemeProfile === themeProfileId ? 'query' : 'default',
-    themeProfileWarning: rawThemeProfile && !isSelectableBolarsThemeProfileId(rawThemeProfile) ? `theme profile "${rawThemeProfile}" is not selectable; ${DEFAULT_BOLARS_THEME_PROFILE_ID} is used.` : undefined
+    themeProfileWarning: rawThemeProfile && !isSelectableBolarsThemeProfileId(rawThemeProfile) ? `theme profile "${rawThemeProfile}" is not selectable; ${DEFAULT_BOLARS_THEME_PROFILE_ID} is used.` : undefined,
+    presentationProfile
   };
 };
 

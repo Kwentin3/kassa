@@ -181,8 +181,13 @@ export const BolarsSelfCheckoutApp = ({ runtimeUrl }: BolarsSelfCheckoutAppProps
     return () => window.clearTimeout(timer);
   }, [send, snapshot.adapterKind, snapshot.currentScreen, snapshot.uiConfig.finalAutoResetSeconds]);
 
+  const presentationClasses =
+    factory.routeContext.presentationProfile === 'embeddedOneC'
+      ? 'bolars-profile-embeddedOneC bolars-embed-onec'
+      : 'bolars-profile-web';
+
   return (
-    <main className={`bolars-root bolars-scale-${snapshot.textScale} bolars-screen-${snapshot.currentScreen} bolars-theme-${snapshot.themeProfile.id}`} style={getBolarsThemeTokens(snapshot.themeProfile.id) as CSSProperties}>
+    <main className={`bolars-root ${presentationClasses} bolars-scale-${snapshot.textScale} bolars-screen-${snapshot.currentScreen} bolars-theme-${snapshot.themeProfile.id}`} style={getBolarsThemeTokens(snapshot.themeProfile.id) as CSSProperties}>
       <div className="bolars-stage">
         {renderScreen(snapshot, { send })}
         {snapshot.modalState.type !== 'none' && <BolarsModal snapshot={snapshot} send={send} />}
@@ -285,14 +290,15 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
   useEffect(() => {
     if (!isSearchKeyboardOpen) return undefined;
 
-    const closeOnOutsideTap = (event: PointerEvent) => {
+    const closeOnOutsideTap = (event: MouseEvent | PointerEvent) => {
       const target = event.target;
       if (target instanceof Node && searchSurfaceRef.current?.contains(target)) return;
       setSearchKeyboardOpen(false);
     };
 
-    document.addEventListener('pointerdown', closeOnOutsideTap);
-    return () => document.removeEventListener('pointerdown', closeOnOutsideTap);
+    const eventName = window.PointerEvent ? 'pointerdown' : 'mousedown';
+    document.addEventListener(eventName, closeOnOutsideTap);
+    return () => document.removeEventListener(eventName, closeOnOutsideTap);
   }, [isSearchKeyboardOpen]);
 
   return (
@@ -359,7 +365,7 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
               <span>{copy(snapshot, 'totalToPay')}</span>
               <strong>{snapshot.totals.payableTotal.formatted}</strong>
             </div>
-            <button className="bolars-primary-action sticky" type="button" disabled={!snapshot.cart.canGoToPayment} onClick={() => send('goToPaymentSetup', undefined)}>
+            <button className="bolars-primary-action bolars-action-rail-primary" type="button" disabled={!snapshot.cart.canGoToPayment} onClick={() => send('goToPaymentSetup', undefined)}>
               {copy(snapshot, 'goToPayment')} <ArrowRight size={30} />
             </button>
           </div>

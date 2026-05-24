@@ -1,7 +1,7 @@
 ﻿# Screen Composition Spec: BOLARS Self-Checkout
 
-Статус: draft 0.3
-Дата: 2026-05-23
+Статус: draft 0.4
+Дата: 2026-05-24
 Назначение: подробная композиционная спецификация MVP-экранов по эскизам БОЛАРС и адаптивным viewport profiles.
 
 Базовый reference viewport: `1080x1920`, portrait. Обязательный рабочий fallback: landscape tablet/WebView.
@@ -16,6 +16,7 @@
 - `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md`
 - `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`
 - `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md`
+- `docs/integrations/1c-html-shell/runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md`
 
 ## 1. Общие Правила Экранов
 
@@ -41,7 +42,7 @@
 | Выходные сценарии | `startPurchase()` -> empty cart; `scanCode(code)` -> cart/payment-relevant state; manual search action -> cart with search active; help. |
 | Обязательные зоны | `brandHeader`, hero instruction, scanner visual, scan action card, manual search card, text scale card, help card. |
 | Optional зоны | Product/promotional images, date/time. |
-| Sticky зоны | Help может быть bottom-sticky на compact viewport. |
+| Постоянные зоны | Help может жить в bottom action rail на compact viewport. |
 | Главная CTA | Scan instruction, не обычная кнопка. Scan card визуально первая. |
 | Вторичные действия | Manual search, text scale, help. |
 | Runtime state | `currentScreen`, `scannerState`, `textScale`, `themeProfile`, `uiConfig.showClock`. |
@@ -73,7 +74,7 @@ Acceptance criteria:
 | Выходные сценарии | goToPaymentSetup; cancelPurchaseRequest; help; payment setup. |
 | Обязательные зоны | `workHeader`, search bar, scan continuation hint, cart list, summary card, payment CTA, help. |
 | Optional зоны | Manager badge, recent alert chip, image fallback. |
-| Sticky зоны | Summary/payment CTA; help may sit below summary or sticky bottom. |
+| Постоянные зоны | Summary/payment CTA; help may sit below summary or in bottom action rail. |
 | Главная CTA | `Перейти к оплате`, green, disabled only when runtime says `canGoToPayment=false`. |
 | Вторичные действия | Search, plus/minus, quantity numpad, delete, cancel purchase, help. |
 | Runtime state | `cart`, `cartLines`, `totals`, `searchState`, `scannerState`, `manager`, `alerts`, `modalState`. |
@@ -110,7 +111,7 @@ Acceptance criteria:
 | Выходные сценарии | selectSearchCandidate; clear search; return to cart; help. |
 | Обязательные зоны | Search input, on-screen search keyboard, min length hint, candidates area, current cart summary still visible or recoverable. |
 | Optional зоны | Loading indicator, not-found fallback. |
-| Sticky зоны | Cart summary/payment CTA remains available if cart has items. |
+| Постоянные зоны | Cart summary/payment CTA remains available if cart has items. |
 | Главная CTA | Candidate row/card action: tap candidate to add. |
 | Вторичные действия | Clear query, close search, help. |
 | Runtime state | `searchState.status`, `searchState.query`, `searchState.candidates`, `cart`, `totals`. |
@@ -149,7 +150,7 @@ Acceptance criteria:
 | Выходные сценарии | `confirmQuantityInput(lineId, quantity)`, close/cancel through runtime modal state. |
 | Обязательные зоны | Dim overlay, modal/card, product short label, draft quantity, numeric keys, confirm, cancel/backspace. |
 | Optional зоны | Unit label, max/min hints if runtime supplies. |
-| Sticky зоны | None; overlay owns focus. |
+| Постоянные зоны | None; overlay owns focus. |
 | Главная CTA | Confirm quantity. |
 | Вторичные действия | Backspace, clear, cancel. |
 | Runtime state | `modalState.type='quantityNumpad'`, `cartLine.quantityControls`. |
@@ -179,7 +180,7 @@ Acceptance criteria:
 | Выходные сценарии | `confirmCancelPurchase()` or `returnToPurchase()`. |
 | Обязательные зоны | Modal title `Отменить покупку и очистить корзину?`, explanation, destructive confirm `Да, отменить`, safe return `Вернуться к покупке`. |
 | Optional зоны | Summary: item count/total. |
-| Sticky зоны | None; modal owns focus. |
+| Постоянные зоны | None; modal owns focus. |
 | Главная CTA | Safe action `Вернуться к покупке`; destructive action visually secondary but clear. |
 | Вторичные действия | Confirm cancel. |
 | Runtime state | `modalState.type='cancelPurchaseConfirm'`, `cart.isEmpty=false`. |
@@ -208,7 +209,7 @@ Acceptance criteria:
 | Выходные сценарии | `startPayment()`, `returnToPurchase()`, `cancelPurchaseRequest()`, help. |
 | Обязательные зоны | Header, order review card, packages card, discount/phone card, final total band, payment CTA, help. |
 | Optional зоны | Manager badge, applied discount badge, package selected state. |
-| Sticky зоны | Bottom `Оплатить` CTA. |
+| Постоянные зоны | Bottom `Оплатить` CTA. |
 | Главная CTA | `Оплатить`, full-width green. |
 | Вторичные действия | Add package, apply discount phone, scan discount, bind manager, return/cancel/help. |
 | Runtime state | `cartLines`, `totals`, `discount`, `manager`, `paymentState.status='idle|preparing'`, `featureFlags`. |
@@ -241,7 +242,7 @@ Acceptance criteria:
 | Выходные сценарии | `applyDiscountByPhone(phone)`, clear/return. |
 | Обязательные зоны | Phone input/display, central numeric numpad modal, status area. |
 | Optional зоны | Masked phone, validation message. |
-| Sticky зоны | Payment CTA remains below. |
+| Постоянные зоны | Payment CTA remains below. |
 | Главная CTA | Apply/confirm phone if separate button exists; otherwise input submit. |
 | Вторичные действия | Clear phone, scan card hint. |
 | Runtime state | `discount.status`, `discount.phoneMasked`, `alerts`, `totals`. |
@@ -275,7 +276,7 @@ Acceptance criteria:
 | Выходные сценарии | payment success -> final; failed/timeout -> error screen; cancel/return if runtime allows. |
 | Обязательные зоны | Brand header, title/order number, amount card, central payment visual, status line, compact order preview. |
 | Optional зоны | Provider label, secondary details, collapsed item count. |
-| Sticky зоны | Secondary actions area only if runtime exposes actions. |
+| Постоянные зоны | Secondary actions area only if runtime exposes actions. |
 | Главная CTA | Нет customer CTA в чистом waiting state; основной action физически на payment terminal. |
 | Вторичные действия | Retry/return only for failed/timeout or explicit runtime availability. |
 | Runtime state | `paymentState`, `totals`, `cartLines`, `uiConfig.paymentProviderLabel`. |
@@ -306,7 +307,7 @@ Acceptance criteria:
 | Выходные сценарии | `retryPayment()`, `returnToPaymentSetup()`, help, cancel request if allowed. |
 | Обязательные зоны | Error title/message, amount/order context, retry action, return action, help. |
 | Optional зоны | Provider-readable reason, order preview. |
-| Sticky зоны | Recovery actions. |
+| Постоянные зоны | Recovery actions. |
 | Главная CTA | `Попробовать ещё раз` when `canRetry=true`. |
 | Вторичные действия | `Вернуться к оплате`, help. |
 | Runtime state | `paymentState.failureReason`, `paymentState.canRetry`, `cart`, `totals`. |
@@ -338,7 +339,7 @@ Acceptance criteria:
 | Выходные сценарии | automatic reset after countdown; optional `resetToStart(reason='finalCountdown')`. |
 | Обязательные зоны | Brand header, success mark, thank-you text, receipt preview, countdown card. |
 | Optional зоны | Payment masked card, order number, small confetti. |
-| Sticky зоны | None; countdown card should remain visible. |
+| Постоянные зоны | None; countdown card should remain visible. |
 | Главная CTA | Нет обязательной CTA; automatic reset is primary outcome. |
 | Вторичные действия | Staff/help only if runtime requires receipt error handling, not on success. |
 | Runtime state | `paymentState`, `totals`, `cartLines`, `uiConfig.finalAutoResetSeconds`. |
@@ -361,7 +362,7 @@ Acceptance criteria:
 ## 12. Cross-Screen Acceptance Criteria
 
 - Все экраны помещаются в portrait `1080x1920` без horizontal scroll.
-- `1080x1920` проверяется визуальным smoke, но implementation обязан сохранять читаемость и sticky zones при `portraitCompact` или WebView fallback.
+- `1080x1920` проверяется визуальным smoke, но implementation обязан сохранять читаемость и persistent action zones при `portraitCompact` или WebView fallback.
 - Scroll зоны явные: list/content scroll не ломает header и CTA.
 - Все actionable элементы имеют visible focus/pressed/disabled/busy states.
 - `normal`, `large`, `extraLarge` не ломают layout.
@@ -547,7 +548,7 @@ For `landscapeCompact` (`1366x768`, `1280x800` class):
 - `workHeader` becomes compact; title and cancel/text-scale remain visible.
 - Search and add/scan card may sit in a single row or two compact rows.
 - Product list uses remaining height and internal scroll.
-- Summary band/CTA remains visible in the initial viewport, either bottom-sticky or right-side summary column.
+- Summary band/CTA remains visible in the initial viewport, either as a reserved bottom action rail or right-side summary column.
 - Help collapses to compact row/icon if needed; it must not push `Перейти к оплате` down.
 - At least one cart row or empty state is visible without page scroll.
 
@@ -582,3 +583,32 @@ For `landscapeCompact` (`1366x768`, `1280x800` class):
 - For `landscapeCompact`, customer-critical zones listed above must have `offBottom=0` in viewport metrics.
 - Horizontal scroll remains forbidden.
 - Page scroll may exist only when documented detail zones overflow; it must not be required for the primary next action.
+
+### 15.8 1C Embedded Composition Profile
+
+`embeddedOneC` is a stricter composition profile for `/bolars/self-checkout-mvp-1c.html` and any HTML rendered inside the 1C HTML field.
+
+General rules:
+
+- The stage fills the host HTML field width. It is not centered with decorative desktop gutters.
+- Header, body, list and action zones are sized from the measured host viewport, not from an assumed browser tab viewport.
+- The page itself must not need scroll for the next primary action. Only product/order detail zones may scroll internally.
+- Summary/CTA/help are reserved layout zones. They must not rely on `position: sticky`.
+- Grid is allowed only where the same screen remains readable with long Russian names, text-scale changes and a narrower host field.
+- Decorative shadows/glow/gradients are reduced. Borders, static fills and clear spacing carry the layout.
+
+Cart rules for 1C:
+
+- Search, scan/add product, first visible cart row or empty state, total and `Перейти к оплате` must fit into the 1C field at `1628x823`, `1366x768` and `1280x800`.
+- Cart rows may switch from five fixed columns to a safer two-zone structure: product identity/content on the left, controls/price/delete on the right.
+- Product thumbnail is reserved but may shrink or switch to a simple placeholder; it must not push text or controls out of the row.
+- Long names wrap or clamp inside the content zone; they do not expand columns or hide quantity controls.
+- Summary can be a bottom rail or right rail, but it must be part of the grid/flex layout, not sticky.
+
+Payment/final rules for 1C:
+
+- Payment setup keeps final total and `Оплатить` visible while order review scrolls internally.
+- Payment waiting keeps amount, instruction and waiting status visible; payment visual is a cue, not a fixed-height illustration.
+- Final success keeps success mark and countdown visible; receipt preview collapses before countdown.
+
+Acceptance evidence for 1C must include clean screenshots from the 1C-safe URL and viewport metrics for each customer screen. Browser-only Chrome screenshots are useful but not sufficient for 1C visual acceptance.

@@ -20,7 +20,20 @@ describe('BOLARS RuntimeAdapterFactory', () => {
   it('does not expose adapter override on customer route', () => {
     const result = createRuntimeAdapterFactory(route('?adapter=onec'));
     expect(result.adapterKind).toBe('mock');
+    expect(result.routeContext.presentationProfile).toBe('web');
     expect(result.warnings.join(' ')).toMatch(/ignored/);
+  });
+
+  it('selects embedded 1C presentation profile from the 1C artifact and debug adapter route', () => {
+    const htmlResult = createRuntimeAdapterFactory('https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1&preview=1');
+    expect(htmlResult.adapterKind).toBe('preview');
+    expect(htmlResult.routeContext.presentationProfile).toBe('embeddedOneC');
+    expect(htmlResult.runtime.getState().uiConfig.viewportProfile).toBe('embeddedOneC');
+
+    const onecDebugResult = createRuntimeAdapterFactory(route('?debug=1&adapter=onec'));
+    expect(onecDebugResult.adapterKind).toBe('onec');
+    expect(onecDebugResult.routeContext.presentationProfile).toBe('embeddedOneC');
+    expect(onecDebugResult.runtime.getState().uiConfig.viewportProfile).toBe('embeddedOneC');
   });
 
   it('resolves theme query into runtime context without changing adapter selection', () => {

@@ -296,8 +296,8 @@ export const maskPhone = (phone: string): string => {
   return `+7 *** *** ${digits.slice(-2).padStart(2, '*')} **`;
 };
 
-export const createUiConfig = (): UiConfigState => ({
-  viewportProfile: 'portrait1080',
+export const createUiConfig = (viewportProfile: UiConfigState['viewportProfile'] = 'portrait1080'): UiConfigState => ({
+  viewportProfile,
   language: 'ru',
   showClock: true,
   showManagerBadge: true,

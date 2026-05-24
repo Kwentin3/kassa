@@ -91,12 +91,22 @@ describe('BOLARS Self-Checkout App', () => {
     setRoute('/bolars/self-checkout-mvp?debug=1&adapter=onec&theme=bolars-light-contrast');
     render(<BolarsSelfCheckoutApp />);
 
+    expect(document.querySelector('.bolars-root')).toHaveClass('bolars-embed-onec');
     expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-self-checkout-mvp');
     expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-light-contrast');
     expect(screen.getByRole('link', { name: '1C handoff' })).toHaveAttribute('href', expect.stringContaining('BOLARS_1C_PROGRAMMER_HANDOFF.md'));
     fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
     expect(window.BolarsSelfCheckout?.peekOutboundStatusJson()).toContain('pendingCount');
     expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('startPurchase');
+  });
+
+  it('marks the 1C HTML artifact with embedded presentation classes in preview mode', () => {
+    setRoute('/bolars/self-checkout-mvp-1c.html?debug=1&preview=1&scenario=cartOneItem');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-embed-onec');
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-profile-embeddedOneC');
+    expect(container.querySelector('.bolars-primary-action')).not.toHaveClass('sticky');
   });
 
   it('does not enqueue external search commands before configured 4 character threshold', async () => {

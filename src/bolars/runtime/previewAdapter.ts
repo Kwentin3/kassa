@@ -66,7 +66,11 @@ export class PreviewAdapter extends BaseRuntimeAdapter {
     const snapshot = scenario.createSnapshot(this.selectedTextScale);
     this.setSnapshot({
       ...snapshot,
-      themeProfile: scenario.id === 'themeError' ? { ...themeProfile, status: 'error' } : themeProfile
+      themeProfile: scenario.id === 'themeError' ? { ...themeProfile, status: 'error' } : themeProfile,
+      uiConfig: {
+        ...snapshot.uiConfig,
+        viewportProfile: this.routeContext.presentationProfile === 'embeddedOneC' ? 'embeddedOneC' : snapshot.uiConfig.viewportProfile
+      }
     });
   }
 }

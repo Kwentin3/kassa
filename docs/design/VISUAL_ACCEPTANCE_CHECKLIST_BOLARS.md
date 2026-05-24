@@ -1,7 +1,7 @@
 ﻿# Visual Acceptance Checklist: BOLARS Self-Checkout
 
-Статус: draft 0.3
-Дата: 2026-05-23
+Статус: draft 0.4
+Дата: 2026-05-24
 Назначение: чек-лист приёмки реализации адаптивного интерфейса кассы самообслуживания БОЛАРС.
 
 Использовать вместе с:
@@ -18,6 +18,7 @@
 - `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md`
 - `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md`
 - `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md`
+- `docs/integrations/1c-html-shell/runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md`
 - `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`
 
 ## 1. Viewport и Композиция
@@ -28,7 +29,7 @@
 - [ ] Layout выбирает/вычисляет viewport profile до рендера customer-critical zones.
 - [ ] `landscapeCompact` поддержан для `1366x768` и `1280x800`.
 - [ ] Эскизы БОЛАРС использованы как visual reference, а не как случайные картинки.
-- [ ] Header, content, sticky CTA и help имеют явный layout contract.
+- [ ] Header, content, persistent CTA и help имеют явный layout contract.
 - [ ] Нет горизонтального scroll в customer flow.
 - [ ] Scroll-зона списка товаров не ломает header и нижнюю CTA-зону.
 - [ ] Стартовый экран более брендовый; рабочие экраны спокойнее и утилитарнее.
@@ -79,6 +80,22 @@
 - [ ] No customer screen relies on full-page scroll to reach the primary next action in `landscapeCompact`.
 - [ ] Horizontal scroll remains absent in all checked viewports.
 - [ ] Debug evidence includes measured `viewport`, `scrollHeight/clientHeight`, and off-bottom metrics for critical zones.
+
+## 1.3 1C/V8WebKit Embedded Gate
+
+Этот gate обязателен для `/bolars/self-checkout-mvp-1c.html`. Он строже обычного web visual smoke, потому что 1C/V8WebKit уже показал отличия в расчёте host viewport и отрисовке эффектов.
+
+- [ ] 1C-safe URL `/bolars/self-checkout-mvp-1c.html` использует host-fill stage, без белых desktop gutters от centered max-width.
+- [ ] В 1C profile stage width равен доступной ширине HTML-поля, а не `1366px` при более широком host viewport.
+- [ ] В 1C profile critical height использует host-first sizing with `100vh`/`100dvh` fallback, а не только `100dvh`.
+- [ ] Customer-critical CTA/help/summary не зависят от `position: sticky`.
+- [ ] Cart summary/CTA расположен в reserved bottom/right action zone and remains visible at `1628x823`, `1366x768` and `1280x800`.
+- [ ] Cart rows remain readable with long Russian product names, text-scale `normal/large/extraLarge`, quantity controls and delete action visible.
+- [ ] CSS Grid use in customer-critical zones has a verified fallback or a simplified safe grid for 1C.
+- [ ] `color-mix`, heavy shadows and gradient glow are not the only visual distinction for critical surfaces; static colors/borders/light elevation fallback exists.
+- [ ] Debug panel does not overlap customer-critical zones in `debug=1`, or clean customer screenshots are captured without it.
+- [ ] 1C visual acceptance includes screenshots/metrics from the 1C-safe artifact, not only modern browser SPA.
+- [ ] Console/runtime checks still confirm no `?.`, `??`, `type=module`, external JS/CSS, `/assets/` dependency or mandatory `fetch` in the 1C artifact.
 
 ## 2. Theme и Tokens
 
@@ -251,6 +268,9 @@
 - [ ] `backdrop-filter` имеет fallback на solid overlay.
 - [ ] Heavy shadows имеют fallback на border/light elevation.
 - [ ] `100dvh` имеет fallback на `100vh`.
+- [ ] 1C embedded layout имеет host/container height strategy before viewport-unit fallback.
+- [ ] `position: sticky` не используется как обязательная зависимость для customer-critical CTA/help/summary.
+- [ ] `color-mix` имеет статический fallback для critical surface colors in 1C profile.
 - [ ] Container-query-dependent layout имеет breakpoint fallback.
 - [ ] Animations короткие и функциональные: row highlight, modal appear, payment status, success feedback.
 - [ ] Нет декоративных анимаций, мешающих кассовому сценарию.
@@ -266,7 +286,9 @@
 - [ ] Visual smoke screenshots `1080x1920` для start/cart/payment setup/payment waiting/payment error/final.
 - [ ] Clean customer visual screenshots `1080x1920` for start/cart/payment setup/payment waiting/payment error/final without debug/preview overlays.
 - [ ] Clean customer visual screenshots `1366x768` and `1280x800` for start/cart/payment setup/payment waiting/payment error/final.
+- [ ] Clean customer visual screenshots for `/bolars/self-checkout-mvp-1c.html` at `1628x823`, `1366x768` and `1280x800`.
 - [ ] Viewport metrics report for `1366x768` proving critical zones have `offBottom=0`.
+- [ ] 1C metrics report proving host-fill stage, no white gutters, no critical-zone clipping and no sticky dependency.
 - [ ] Reference delta closure notes mapping implementation changes to `VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` section 18 and `SCREEN_COMPOSITION_SPEC_BOLARS.md` section 14.
 - [ ] Runtime/mock transition evidence для scan product, repeated scan, search found/not found, quantity change, remove line, discount applied/not found, manager bound, payment success/error, inactivity timeout.
 - [ ] Проверку отсутствия hardcoded HEX в components/screens.

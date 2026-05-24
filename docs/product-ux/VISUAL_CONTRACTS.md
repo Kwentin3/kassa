@@ -8,6 +8,8 @@
 - Приложение не задаёт `min-width` на `body`.
 - Корневой экран использует `100dvh` и `width: 100%`, а не жесткий `w-screen`.
 - На широком desktop viewport рабочая область ограничивается tablet-like stage width через `--tablet-stage-max`, чтобы интерфейс не расползался по всему монитору.
+- Для 1C/V8WebKit embedded runtime это desktop-ограничение не применяется: HTML-поле 1С является host container, а customer stage должен заполнять его ширину без декоративных белых gutters.
+- `100dvh` не должен быть единственным способом определить высоту customer-critical zones в embedded WebView; нужен fallback на host/container height и `100vh`.
 - Каждый экран сам определяет scroll-зону через `.screen-body` и `.scroll-y`.
 - Горизонтальный скролл не является штатным поведением customer flow.
 - Если контента больше, чем помещается в viewport, скролл должен быть вертикальным внутри рабочей зоны экрана.
@@ -85,6 +87,7 @@ Secondary adaptation:
 - Disabled state явный через opacity/cursor.
 - Disabled/busy элементы приглушены и не должны выглядеть как нажимаемые поверхности.
 - Основной CTA не должен исчезать из видимой области без доступного вертикального скролла.
+- В 1C/V8WebKit profile основной CTA/help/summary не должны зависеть от `position: sticky`; использовать reserved layout zone.
 - Help и DEMO controls должны оставаться различимыми и не смешиваться с товарными карточками.
 - Touch elevation не заменяет терминальный state feedback: после нажатия всё равно должен быть виден результат действия, ошибка, busy или success.
 - Pressed-state не должен менять layout, размеры карточек, ширину панели или scroll-поведение.
@@ -106,6 +109,8 @@ Secondary adaptation:
 
 - Глобальный `body min-width` для имитации планшета.
 - Необоснованные fixed widths для основных экранов.
+- Наследование desktop centered max-width в 1C embedded route, если оно создаёт белые поля внутри HTML-поля 1С.
+- `position: sticky` как обязательная зависимость для customer-critical CTA/help/summary в 1C runtime.
 - Горизонтальный overflow как способ “вместить” каталог.
 - Карточки товаров с шириной, зависящей от длины текста.
 - Изображения, которые растягивают карточку или меняют размер layout после загрузки.

@@ -1,7 +1,7 @@
 ﻿# Visual Contract: BOLARS Self-Checkout
 
-Статус: draft 0.3
-Дата: 2026-05-23
+Статус: draft 0.4
+Дата: 2026-05-24
 Назначение: визуальный контракт адаптивного scan-first интерфейса кассы самообслуживания в теме БОЛАРС.
 Основание: эскизы БОЛАРС, `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`, этап prototype MVP, runtime/adapter boundary и visual delta audit текущей реализации.
 
@@ -23,6 +23,7 @@ Refactor rule: перед визуальным refactor реализации с�
 - `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` - runtime boundary.
 - `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md` - экранная композиция.
 - `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md` - критерии приёмки.
+- `docs/integrations/1c-html-shell/runtime-profiles/1C_HTML_SHELL_RUNTIME_CAPABILITY_CONTRACT_V8WEBKIT.md` - ограничения 1C/V8WebKit.
 
 ## 2. Проанализированные эскизы
 
@@ -33,7 +34,7 @@ Refactor rule: перед визуальным refactor реализации с�
 | Файл | Роль в контракте |
 | --- | --- |
 | `стартовый экран 23 мая 2026 г., 10_05_21 (1).png` | Start screen: брендовая шапка, центральная scan-инструкция, scanner visual, action cards, A/A+/A++, help. |
-| `корзина  23 мая 2026 г., 10_05_21 (2).png` | Cart screen: рабочий список товаров, поиск, scan hint, quantity controls, sticky summary CTA, manager badge. |
+| `корзина  23 мая 2026 г., 10_05_21 (2).png` | Cart screen: рабочий список товаров, поиск, scan hint, quantity controls, persistent summary CTA, manager badge. |
 | `подтверждение заказа 23 мая 2026 г., 10_05_21 (3).png` | Payment setup: проверка заказа, пакеты, скидки/телефон, финальная сумма, `Оплатить`. |
 | `оплата  23 мая 2026 г., 10_05_21 (4).png` | Payment waiting/error family: сумма, инструкция приложить карту, крупный status, preview заказа, retry/return actions. |
 | `завершение  23 мая 2026 г., 10_05_21 (5).png` | Final success: green success mark, благодарность, receipt preview, countdown reset. |
@@ -44,10 +45,10 @@ Refactor rule: перед визуальным refactor реализации с�
 - Эскизы: `941x1672`, масштаб около `0.871` от целевого viewport.
 - Контракт реализации: проектировать от `1080x1920`, затем адаптировать через токены, а не через fixed screenshot dimensions.
 - `1080x1920` - design target, не единственный допустимый размер. Не прибивать layout к скриншоту абсолютными пикселями.
-- Отличающиеся HTML-shell/WebView viewport должны сохранять stage, readable hierarchy, sticky CTA/help и отсутствие horizontal scroll.
-- Root viewport должен поддерживать `100dvh` с fallback на `100vh`.
+- Отличающиеся HTML-shell/WebView viewport должны сохранять stage, readable hierarchy, постоянную доступность CTA/help и отсутствие horizontal scroll.
+- Root viewport должен поддерживать `100dvh` с fallback на `100vh`; для 1C/V8WebKit `100dvh` не является единственным источником высоты.
 - Горизонтальный scroll в customer flow запрещён.
-- Основная scroll-зона находится внутри body screen area; sticky CTA и sticky help не должны исчезать без явного scroll contract.
+- Основная scroll-зона находится внутри body screen area; persistent CTA/help zones не должны исчезать без явного scroll contract.
 
 ### 3.1 Adaptive Viewport Contract
 
@@ -87,6 +88,26 @@ Implementation должен поддерживать минимум следую
 - `page scroll` is not the adaptive strategy for customer-critical actions. Page scroll is acceptable only for secondary details or explicit internal content lists.
 - `overflow:hidden` must not silently hide interactive controls.
 - Debug/preview overlays are excluded from customer layout measurements.
+
+### 3.4 1C/V8WebKit Embedded Rendering Profile
+
+Этот профиль обязателен для `/bolars/self-checkout-mvp-1c.html` и любых будущих HTML-артефактов, которые открываются внутри `Поле HTML-документа` 1С.
+
+Ключевой принцип: 1C-вариант рендерится не как desktop preview в центре страницы, а как embedded kiosk surface внутри фактического HTML-поля 1С. Если обычный web route сохраняет tablet-like centered stage на широком desktop, 1C route должен заполнять доступную область host container.
+
+Обязательные правила:
+
+- Stage width для 1C profile: `100%` доступного HTML-поля; `max-width: 1366px` и auto-centering не допускаются как customer runtime baseline.
+- Stage height считается от host viewport/container с fallback chain: explicit host height -> `100vh` -> `100dvh`; `100dvh` не может быть единственным условием видимости primary action.
+- `position: sticky` запрещён для critical CTA/help/summary. Использовать reserved grid/flex zone, normal flow action rail или `position: fixed` только после отдельной проверки в 1C.
+- CSS Grid допустим только если critical zones имеют простой fallback или проверенный grid без хрупких fixed колонок; cart row не должен ломаться от длинных русских названий.
+- Heavy shadows, glow, `color-mix` и градиентные surfaces являются enhancement. В 1C profile должен быть fallback на статические цвета, border и лёгкую elevation.
+- Debug panel не участвует в customer measurements и не должен перекрывать customer-critical zones при `debug=1`.
+- 1C profile не должен зависеть от hover, pointer events, touch events, system virtual keyboard, external CSS/JS, CDN или `fetch`.
+
+Минимальный 1C acceptance viewport по текущему diagnostic contract: `1628x823` при `devicePixelRatio=1`. Дополнительно проверяются `1366x768`, `1280x800`, `1920x1080` и `1080x1920`.
+
+Нормальный web route может сохранять tablet-like desktop framing. 1C route не наследует это правило, если оно создаёт белые боковые поля или заставляет checkout выглядеть как вложенная карточка вместо кассовой поверхности.
 
 Minimum customer guarantees for `landscapeCompact`:
 
@@ -141,7 +162,7 @@ Header визуально чёрный, с белым текстом и magenta/
 ### 6.3 Content
 
 - Start: центральная scan-инструкция занимает верхнюю половину body.
-- Cart: search + scan hint + список товаров + sticky summary.
+- Cart: search + scan hint + список товаров + persistent summary/action rail.
 - Payment setup: order review + packages + discount + primary payment CTA.
 - Payment waiting: amount card + payment instruction visual + compact order preview.
 - Final: success confirmation + receipt visual + countdown reset.
@@ -159,7 +180,7 @@ Header визуально чёрный, с белым текстом и magenta/
 | Brand zone | На стартовом, ожидании оплаты и финале logo БОЛАРС крупный и узнаваемый. На рабочих экранах можно заменить title + compact controls. |
 | Clock/date | Допустимы в brandHeader; не должны оттягивать внимание от сценария. |
 | Text scale | Три контрастные буквы `A` разного размера живут в верхней чёрной шапке на всех customer-экранах. Состояние приходит из `state.textScale`. Видимых подписей рядом с буквами нет; доступность обеспечивается `aria-label/title`. |
-| Help | Крупная карточка/кнопка помощи внизу или sticky area. Не смешивать с CTA оплаты. |
+| Help | Крупная карточка/кнопка помощи внизу или persistent help area. Не смешивать с CTA оплаты. |
 | Manager badge | Показывать только если `state.manager.status === 'bound'`. UI не привязывает менеджера сам. |
 | Scanner hint | Cyan scanner/search/payment hints. Не использовать cyan для основной оплаты или ошибок. |
 | Summary/total | Сумма крупная, чаще magenta или cyan profile token. Итог должен читаться быстрее списка товаров. |
