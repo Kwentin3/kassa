@@ -46,5 +46,25 @@ PowerShell, workspace `d:\Users\Roman\Desktop\Проекты\Витрина`.
 
 ## Deployment
 
-Pending at report creation; final deployment smoke is recorded in sticky context after server rollout.
+- Git commit deployed: `643c8a4` (`Refine BOLARS button surface contract`).
+- Pushed to `origin/mvp/self-checkout-web-ui`.
+- Deploy target: `roman@192.168.7.64:/opt/stacks/kassa-web`.
+- Deploy method: `git archive` of checked commit, copied to `/tmp/kassa-web.tar`, extracted into deploy path, then `docker compose --env-file .env.deploy up -d --build kassa-web`.
+- Docker build completed and `kassa-web` container started with image `kassa-web:demo`.
 
+## Public Smoke
+
+- `https://kassa.speechbattle.com/`: `200`.
+- `https://kassa.speechbattle.com/bolars/self-checkout-mvp`: `200`.
+- `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1`: `200`.
+- `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&preview=1`: `200`.
+- `https://kassa.speechbattle.com/demo/smoke`: `200`.
+- `index.html` has no `http://` links.
+- First JS asset cache: `public, max-age=31536000, immutable`.
+- Public Playwright BOLARS button surface smoke: passed for start card, disabled payment CTA, search candidate, package action, discount apply action and numpad key.
+- Public `npm run visual:cards`: passed.
+- Public `npm run smoke:showcase-catalog`: passed.
+
+## Remaining Manual Check
+
+- Android Chrome physical tablet camera permission/scan was not performed in this run.
