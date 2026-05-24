@@ -74,6 +74,44 @@ describe('BOLARS Self-Checkout App', () => {
     expect(container.querySelector('.bolars-cart-line .quantity-value')?.textContent).toContain('2 шт');
   });
 
+  it('scrolls the cart list to the changed item after adding a product', async () => {
+    const originalGetBoundingClientRect = HTMLElement.prototype.getBoundingClientRect;
+    const rect = (top: number, height: number) =>
+      ({
+        x: 0,
+        y: top,
+        top,
+        left: 0,
+        width: 640,
+        height,
+        right: 640,
+        bottom: top + height,
+        toJSON: () => ({})
+      }) as DOMRect;
+
+    HTMLElement.prototype.getBoundingClientRect = function getTestRect() {
+      const element = this as HTMLElement;
+      if (element.classList.contains('bolars-cart-list')) return rect(0, 180);
+      if (element.getAttribute('data-cart-line-change') === 'true') return rect(360, 100);
+      return originalGetBoundingClientRect.call(this);
+    };
+
+    try {
+      setRoute('/bolars/self-checkout-mvp');
+      const { container } = render(<BolarsSelfCheckoutApp />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
+      const addProduct = await screen.findByRole('button', { name: /Добавить товар/i });
+      fireEvent.click(addProduct);
+
+      const cartList = await screen.findByLabelText('Список товаров');
+      await waitFor(() => expect(cartList.scrollTop).toBeGreaterThan(0));
+      expect(container.querySelector('[data-cart-line-change="true"]')).toHaveTextContent(/Клей плиточный БОЛАРС/i);
+    } finally {
+      HTMLElement.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    }
+  });
+
   it('opens preview controls only with debug preview route', () => {
     setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentError&theme=bolars-light-magenta-soft');
     const { container } = render(<BolarsSelfCheckoutApp />);
@@ -147,6 +185,21 @@ describe('BOLARS Self-Checkout App', () => {
 
     await waitFor(() => expect(container.querySelectorAll('.bolars-cart-line')).toHaveLength(1));
     expect(screen.queryByLabelText('Экранная клавиатура поиска')).not.toBeInTheDocument();
+  });
+
+  it('renders payment review lines without decorative product cards over the name', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Сканировать тестовый товар/i }));
+    await screen.findByText('Ваши покупки');
+    fireEvent.click(screen.getByRole('button', { name: /Перейти к оплате/i }));
+    await screen.findByText('Оплата');
+
+    const reviewPanel = container.querySelector('.bolars-review-panel') as HTMLElement;
+    expect(reviewPanel.querySelector('.bolars-product-thumb')).not.toBeInTheDocument();
+    expect(within(reviewPanel).getByText(/Клей плиточный БОЛАРС/i)).toBeInTheDocument();
+    expect(reviewPanel.querySelector('.bolars-review-line')).toHaveTextContent(/1 шт · 480 ₽/);
   });
 
   it('opens central phone numpad and applies discount from the numeric draft', async () => {

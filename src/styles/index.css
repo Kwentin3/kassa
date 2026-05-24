@@ -1539,21 +1539,20 @@ select:focus-visible {
 
 .bolars-review-line {
   display: grid;
-  grid-template-columns: 90px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   min-height: 96px;
 }
 
-.bolars-review-line .bolars-product-thumb {
-  width: 72px;
-  height: 64px;
-  font-size: 24px;
+.bolars-review-line span {
+  min-width: 0;
+  line-height: 1.18;
+  overflow-wrap: anywhere;
 }
 
-.bolars-review-line .bolars-product-thumb b {
-  width: 24px;
-  height: 24px;
-  font-size: 12px;
+.bolars-review-line b {
+  justify-self: end;
+  white-space: nowrap;
 }
 
 .bolars-review-totals {
@@ -2967,13 +2966,8 @@ select:focus-visible {
   }
 
   .bolars-review-line {
-    grid-template-columns: 70px minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     min-height: clamp(64px, 10dvh, 84px);
-  }
-
-  .bolars-review-line .bolars-product-thumb {
-    width: 56px;
-    height: 48px;
   }
 
   .bolars-review-totals {
@@ -3313,6 +3307,15 @@ select:focus-visible {
 
   .bolars-package-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bolars-review-line {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bolars-review-line b {
+    justify-self: start;
+    white-space: normal;
   }
 }
 

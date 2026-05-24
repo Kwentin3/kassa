@@ -270,11 +270,29 @@ const StartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; 
   </section>
 );
 
+const scrollCartLineIntoView = (cartList: HTMLElement) => {
+  const changedLine = cartList.querySelector<HTMLElement>('[data-cart-line-change="true"]');
+  if (!changedLine) return;
+
+  const listRect = cartList.getBoundingClientRect();
+  const lineRect = changedLine.getBoundingClientRect();
+  const isVisible = lineRect.top >= listRect.top && lineRect.bottom <= listRect.bottom;
+  if (isVisible) return;
+
+  const centeredOffset = Math.max(0, (listRect.height - lineRect.height) / 2);
+  cartList.scrollTop = Math.max(0, cartList.scrollTop + lineRect.top - listRect.top - centeredOffset);
+};
+
 const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
   const [query, setQuery] = useState(snapshot.searchState.query);
   const [isSearchKeyboardOpen, setSearchKeyboardOpen] = useState(false);
   const [searchKeyboardLayout, setSearchKeyboardLayout] = useState<SearchKeyboardLayout>('ru');
   const searchSurfaceRef = useRef<HTMLDivElement>(null);
+  const cartListRef = useRef<HTMLDivElement>(null);
+  const changedLineScrollKey = useMemo(() => {
+    const changedLine = snapshot.cartLines.find((line) => line.lastChange);
+    return changedLine?.lastChange ? `${changedLine.lineId}:${changedLine.quantity}:${changedLine.lastChange.occurredAt}` : undefined;
+  }, [snapshot.cartLines]);
 
   useEffect(() => {
     setQuery(snapshot.searchState.query);
@@ -300,6 +318,11 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
     document.addEventListener(eventName, closeOnOutsideTap);
     return () => document.removeEventListener(eventName, closeOnOutsideTap);
   }, [isSearchKeyboardOpen]);
+
+  useEffect(() => {
+    if (!changedLineScrollKey || !cartListRef.current) return;
+    scrollCartLineIntoView(cartListRef.current);
+  }, [changedLineScrollKey]);
 
   return (
     <section className="bolars-work-screen">
@@ -343,7 +366,7 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
             </span>
             <Plus size={28} />
           </button>
-          <div className="bolars-cart-list" aria-label="Список товаров">
+          <div className="bolars-cart-list" ref={cartListRef} aria-label="Список товаров">
             {snapshot.cartLines.length === 0 ? (
               <div className="bolars-empty-cart">
                 <ScanLine size={54} />
@@ -454,7 +477,7 @@ const SearchCandidates = ({ snapshot, query, send, onSelect }: { snapshot: SelfC
 };
 
 const CartLineRow = ({ line, send }: { line: CartLine; send: RuntimeActions['send'] }) => (
-  <article className={`bolars-cart-line ${line.lastChange ? 'changed' : ''}`}>
+  <article className={`bolars-cart-line ${line.lastChange ? 'changed' : ''}`} data-cart-line-id={line.lineId} data-cart-line-change={line.lastChange ? 'true' : undefined}>
     <ProductThumb line={line} />
     <div className="bolars-line-name">
       <strong>{line.name}</strong>
@@ -504,7 +527,6 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
             </div>
             {snapshot.cartLines.map((line) => (
               <div className="bolars-review-line" key={line.lineId}>
-                <ProductThumb line={line} />
                 <span>{line.name}</span>
                 <b>{line.quantity} {line.unitLabel} · {line.lineTotal.formatted}</b>
               </div>
