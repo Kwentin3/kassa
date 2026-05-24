@@ -5,17 +5,19 @@
 
 ## 1. Что Открывать
 
-Основной покупательский URL:
+Используйте режим по задаче. Самый важный режим для 1С-интеграции - **"1С bridge / adapter=onec"**.
 
-```text
-https://kassa.speechbattle.com/bolars/self-checkout-mvp
-```
+| Режим | Ссылка | Для чего нужен | Что будет происходить |
+| --- | --- | --- | --- |
+| Диагностика браузера 1С | [Открыть диагностику](https://kassa.speechbattle.com/diagnostics/1c-html-shell) | Проверить возможности `Поле HTML-документа` 1С: JavaScript, CSS, viewport, ввод, JSON-отчёт. | Это не касса. Страница только диагностирует среду и содержит ссылки на витрины. |
+| UI-проверка 1C HTML без 1С | [Открыть 1C HTML в mock-режиме](https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1) | Проверить, что в 1С-совместимой HTML-версии работают клики, переходы экранов, скролл и верстка. | Web сам меняет состояние через mock-runtime. 1С не нужна. |
+| 1С bridge / adapter=onec | [Открыть 1C HTML для интеграции](https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01) | Основной режим для программиста 1С: проверить обмен `Web -> 1С -> Web`. | Web **не меняет экран сам**. Кнопки кладут команды в очередь. Экран изменится только после того, как 1С заберёт команду и вернёт `snapshot`. |
+| Preview фиксированных состояний | [Открыть cartManyItems](https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1&preview=1&scenario=cartManyItems) | Быстро посмотреть конкретное состояние без кликов и без 1С. Полезно для верстки. | Runtime показывает заранее собранный snapshot. Команды покупателя не являются целью этого режима. |
+| Обычная web-демо витрина | [Открыть web demo](https://kassa.speechbattle.com/bolars/self-checkout-mvp) | Проверить браузерную demo/mock-витрину вне 1С. | Это не live 1С-bridge. Для интеграции с 1С этот URL не использовать как основной. |
 
-Важно: сейчас этот чистый URL работает как demo/mock. Для проверки обмена с 1С используйте debug URL:
+Допустимые preview-сценарии: `startIdle`, `cartEmpty`, `cartOneItem`, `cartManyItems`, `textScaleExtraLarge`, `paymentSetup`, `paymentWaiting`, `paymentError`, `finalSuccess`.
 
-```text
-https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01
-```
+Ключевое правило для `adapter=onec`: если нажали кнопку, а экран не поменялся, это нормально до тех пор, пока 1С не вернула новый `snapshot`. В debug panel при этом должна появиться команда в outbound queue.
 
 `debug=1` включает служебную панель сверху. Это не режим покупателя. Панель нужна, чтобы видеть команды, snapshots и ошибки обмена.
 
@@ -56,7 +58,8 @@ Web отдаёт в 1С typed commands. Простыми словами: это 
 
 Важно про текущий контур:
 
-- Для интеграции и smoke сейчас используйте URL с `debug=1&adapter=onec` или `debug=1&runId=onec-*`.
+- Для интеграции и smoke сейчас используйте `self-checkout-mvp-1c.html?debug=1&adapter=onec`.
+- Для ручной проверки UI без 1С используйте `self-checkout-mvp-1c.html?debug=1`.
 - Чистый customer URL без `debug=1` сейчас работает как mock/demo и не является live 1С-bridge.
 - Production-запуск без debug-панели нужно согласовать отдельным срезом, чтобы не смешивать демо, smoke и реальный режим.
 
@@ -120,6 +123,12 @@ API = ОкноHTML.BolarsSelfCheckout;
 ```
 
 Если `adapterKind` не равен `onec`, значит страница открыта не в текущем 1С-интеграционном режиме.
+
+Для сравнения:
+
+- в `self-checkout-mvp-1c.html?debug=1` без `adapter=onec` ожидается `adapterKind="mock"`;
+- в `self-checkout-mvp-1c.html?debug=1&preview=1&scenario=...` ожидается `adapterKind="preview"`;
+- в `self-checkout-mvp-1c.html?debug=1&adapter=onec` ожидается `adapterKind="onec"`.
 
 ## 4. Как Забрать События Из Web
 
@@ -315,7 +324,7 @@ uiConfig, featureFlags, adapterKind, updatedAt
 1. Открыть:
 
 ```text
-https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01
+https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01
 ```
 
 2. Получить `window.BolarsSelfCheckout`.
@@ -327,6 +336,8 @@ API.getRuntimeInfoJson()
 ```
 
 4. На экране нажать действие, например старт покупки.
+
+Важно: после нажатия в этом режиме экран может остаться на месте. Это нормально: Web только создал команду для 1С. Следующий экран появится после `receiveStateSnapshot(SnapshotJSON)`.
 
 5. Вызвать:
 
