@@ -108,8 +108,8 @@ Acceptance criteria:
 | Пользовательский контекст | Покупатель вводит название/артикул на cart screen. |
 | Входные сценарии | Tap search bar; manual search from start; barcode not found alert action. |
 | Выходные сценарии | selectSearchCandidate; clear search; return to cart; help. |
-| Обязательные зоны | Search input, min length hint, candidates area, current cart summary still visible or recoverable. |
-| Optional зоны | On-screen keyboard, loading indicator, not-found fallback. |
+| Обязательные зоны | Search input, on-screen search keyboard, min length hint, candidates area, current cart summary still visible or recoverable. |
+| Optional зоны | Loading indicator, not-found fallback. |
 | Sticky зоны | Cart summary/payment CTA remains available if cart has items. |
 | Главная CTA | Candidate row/card action: tap candidate to add. |
 | Вторичные действия | Clear query, close search, help. |
@@ -125,6 +125,8 @@ Visual states:
 - candidate row may show name, article, barcode/identifier and price if runtime supplied them.
 - not found: clear message, suggest scan again/help.
 - error: user-readable alert, query preserved.
+- keyboard open: own touch keyboard visible after tap/focus on search input.
+- keyboard dismissed: hidden after explicit close, candidate selection, or touch outside search input/keyboard.
 
 Acceptance criteria:
 
@@ -133,6 +135,9 @@ Acceptance criteria:
 - Selecting candidate dispatches `selectSearchCandidate(candidateId)` and immediately returns to cart state after snapshot.
 - Candidate card does not open product details.
 - Search results do not replace cart source of truth.
+- On-screen search keyboard is mandatory for touch flow and remains UI-owned; it must not search locally or mutate cart state directly.
+- Keyboard controls include close, clear, backspace, space and layout/digit access for name/article/barcode search.
+- Tapping a candidate or any non-search area dismisses the search keyboard.
 
 ## 5. Нумпад Количества как Overlay-Состояние
 
@@ -232,9 +237,9 @@ Acceptance criteria:
 | --- | --- |
 | Назначение | Ввести phone fallback для скидки/бонусов. |
 | Пользовательский контекст | Покупатель не сканирует карту скидки или карта не читается. |
-| Входные сценарии | Focus phone input; tap keypad icon; scan discount not available. |
+| Входные сценарии | Tap/focus phone field; tap keypad action; scan discount not available. |
 | Выходные сценарии | `applyDiscountByPhone(phone)`, clear/return. |
-| Обязательные зоны | Phone input, keypad/numeric input, status area. |
+| Обязательные зоны | Phone input/display, central numeric numpad modal, status area. |
 | Optional зоны | Masked phone, validation message. |
 | Sticky зоны | Payment CTA remains below. |
 | Главная CTA | Apply/confirm phone if separate button exists; otherwise input submit. |
@@ -255,6 +260,8 @@ Visual states:
 Acceptance criteria:
 
 - Phone entry never computes discount locally.
+- Phone entry uses a central numeric numpad modal, not the alphabetic search keyboard.
+- Phone numpad has close, clear, backspace and apply/confirm actions.
 - Not found state is understandable and recoverable.
 - Applied discount changes totals only after snapshot.
 

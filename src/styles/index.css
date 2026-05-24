@@ -1066,6 +1066,11 @@ select:focus-visible {
   overflow-y: auto;
 }
 
+.bolars-search-region {
+  display: grid;
+  gap: 10px;
+}
+
 .bolars-search-box {
   display: flex;
   align-items: center;
@@ -1076,6 +1081,64 @@ select:focus-visible {
   padding: 0 20px;
   background: var(--bolars-field-bg);
   box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
+}
+
+.bolars-search-box:focus-within {
+  border-color: var(--bolars-brand-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--bolars-info) 18%, transparent), 0 14px 34px rgba(17, 17, 17, 0.13);
+}
+
+.bolars-search-keyboard {
+  display: grid;
+  gap: 8px;
+  border: 2px solid var(--bolars-button-surface-border);
+  border-radius: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--bolars-container-bg) 88%, var(--bolars-logo-black) 12%);
+  box-shadow: 0 18px 42px color-mix(in srgb, var(--bolars-logo-black) 18%, transparent);
+}
+
+.bolars-search-keyboard-tools,
+.bolars-search-layout-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bolars-search-keyboard-tools {
+  justify-content: space-between;
+}
+
+.bolars-search-key-row {
+  display: grid;
+  gap: 7px;
+}
+
+.bolars-search-key-row.utility {
+  grid-template-columns: minmax(0, 2fr) minmax(92px, 0.65fr) minmax(120px, 0.9fr);
+}
+
+.bolars-search-keyboard button {
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid var(--bolars-button-surface-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--bolars-button-card-fill);
+  color: var(--bolars-button-fg);
+  font-size: calc(20px * var(--bolars-type-scale-control));
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.bolars-search-keyboard button.active {
+  border-color: var(--bolars-brand-primary);
+  background: color-mix(in srgb, var(--bolars-brand-primary) 16%, var(--bolars-button-card-fill));
+  color: var(--bolars-logo-black);
+}
+
+.bolars-search-keyboard .bolars-key-action {
+  min-width: 132px;
 }
 
 .bolars-scan-action-card {
@@ -1560,6 +1623,7 @@ select:focus-visible {
   border-radius: 8px;
   padding: 0 18px;
   background: var(--bolars-field-bg);
+  cursor: pointer;
 }
 
 .bolars-phone-row button {
@@ -2121,6 +2185,13 @@ select:focus-visible {
   font-size: calc(30px * var(--bolars-type-scale-control));
 }
 
+.bolars-numpad-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
 /* Central BOLARS button-surface contract. Keep role states in this block. */
 .bolars-start-card,
 .bolars-primary-action,
@@ -2133,6 +2204,7 @@ select:focus-visible {
 .bolars-quantity-control button,
 .bolars-delete,
 .bolars-phone-row button,
+.bolars-search-keyboard button,
 .bolars-numpad-grid button {
   background-image: var(--bolars-button-texture);
   box-shadow: var(--bolars-button-shadow);
@@ -2145,6 +2217,7 @@ select:focus-visible {
 .bolars-candidates button,
 .bolars-package-grid button,
 .bolars-quantity-control button,
+.bolars-search-keyboard button,
 .bolars-numpad-grid button {
   border-color: var(--bolars-button-surface-border);
   background-color: var(--bolars-button-card-fill);
@@ -2204,6 +2277,7 @@ select:focus-visible {
 .bolars-quantity-control button:active:not(:disabled),
 .bolars-delete:active:not(:disabled),
 .bolars-phone-row button:active:not(:disabled),
+.bolars-search-keyboard button:active:not(:disabled),
 .bolars-numpad-grid button:active:not(:disabled) {
   transform: var(--bolars-button-pressed-transform);
   box-shadow: var(--bolars-button-shadow-pressed);
@@ -2214,6 +2288,7 @@ select:focus-visible {
 .bolars-candidates button:active:not(:disabled),
 .bolars-package-grid button:active:not(:disabled),
 .bolars-quantity-control button:active:not(:disabled),
+.bolars-search-keyboard button:active:not(:disabled),
 .bolars-numpad-grid button:active:not(:disabled) {
   background-color: var(--bolars-button-card-fill-pressed);
 }
@@ -2249,6 +2324,7 @@ select:focus-visible {
 .bolars-quantity-control button:disabled,
 .bolars-delete:disabled,
 .bolars-phone-row button:disabled,
+.bolars-search-keyboard button:disabled,
 .bolars-numpad-grid button:disabled {
   opacity: var(--bolars-button-disabled-opacity);
   cursor: not-allowed;
@@ -2269,6 +2345,7 @@ select:focus-visible {
   .bolars-quantity-control button:hover:not(:disabled),
   .bolars-delete:hover:not(:disabled),
   .bolars-phone-row button:hover:not(:disabled),
+  .bolars-search-keyboard button:hover:not(:disabled),
   .bolars-numpad-grid button:hover:not(:disabled) {
     transform: var(--bolars-button-hover-transform);
     box-shadow: var(--bolars-button-shadow-strong);
@@ -2279,6 +2356,7 @@ select:focus-visible {
   .bolars-candidates button:hover:not(:disabled),
   .bolars-package-grid button:hover:not(:disabled),
   .bolars-quantity-control button:hover:not(:disabled),
+  .bolars-search-keyboard button:hover:not(:disabled),
   .bolars-numpad-grid button:hover:not(:disabled) {
     background-color: var(--bolars-button-card-fill-hover);
   }
@@ -2315,6 +2393,7 @@ select:focus-visible {
   .bolars-quantity-control button:hover:not(:disabled):active,
   .bolars-delete:hover:not(:disabled):active,
   .bolars-phone-row button:hover:not(:disabled):active,
+  .bolars-search-keyboard button:hover:not(:disabled):active,
   .bolars-numpad-grid button:hover:not(:disabled):active {
     transform: var(--bolars-button-pressed-transform);
     box-shadow: var(--bolars-button-shadow-pressed);
@@ -2697,6 +2776,33 @@ select:focus-visible {
   .bolars-search-box {
     padding-inline: 16px;
     box-shadow: 0 8px 20px rgba(17, 17, 17, 0.07);
+  }
+
+  .bolars-search-region {
+    gap: 8px;
+  }
+
+  .bolars-search-keyboard {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .bolars-search-key-row {
+    gap: 5px;
+  }
+
+  .bolars-search-keyboard button {
+    min-height: 40px;
+    padding-inline: 6px;
+    font-size: calc(clamp(16px, 2.45dvh, 19px) * var(--bolars-type-scale-control));
+  }
+
+  .bolars-search-keyboard .bolars-key-action {
+    min-width: 104px;
+  }
+
+  .bolars-search-key-row.utility {
+    grid-template-columns: minmax(0, 1.6fr) minmax(76px, 0.62fr) minmax(96px, 0.82fr);
   }
 
   .bolars-search-box input,
@@ -3219,6 +3325,7 @@ select:focus-visible {
   .bolars-quantity-control button,
   .bolars-delete,
   .bolars-phone-row button,
+  .bolars-search-keyboard button,
   .bolars-numpad-grid button,
   .bolars-scale-control button {
     transition: none;
@@ -3246,6 +3353,8 @@ select:focus-visible {
   .bolars-delete:active,
   .bolars-phone-row button:hover,
   .bolars-phone-row button:active,
+  .bolars-search-keyboard button:hover,
+  .bolars-search-keyboard button:active,
   .bolars-numpad-grid button:hover,
   .bolars-numpad-grid button:active,
   .bolars-scale-control button:hover,

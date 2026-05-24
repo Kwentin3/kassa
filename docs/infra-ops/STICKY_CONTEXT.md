@@ -24,7 +24,7 @@
 - Core Demo реализован: idle -> add product -> cart -> payment success -> receipt -> reset.
 - Extended Demo gap fixes реализованы: staff actions, receipt-error resolution, edge-case toggle, idle timeout, SBP mock QR, Quick Branding field edits.
 - Последняя проверка: `npm run typecheck`, `npm run test:run`, `npm run build`, local BOLARS button surface Playwright smoke, `npm run visual:cards`, `npm run smoke:showcase-catalog` прошли.
-- Тесты: 11 files / 52 tests.
+- Тесты: 11 files / 55 tests.
 - Product cards use demo HTTPS image URLs from `src/services/productImages.ts` with fallback initials if external images fail.
 - Visual layout contract lives in `docs/product-ux/VISUAL_CONTRACTS.md`; avoid new fixed-width screen layouts without an explicit scroll/overflow contract.
 - Desktop landscape uses a tablet-like centered stage via `--tablet-stage-max`; do not let customer flow stretch across the full monitor width.
@@ -39,6 +39,7 @@
 - Latest BOLARS mock scanner tweak: mock product set now has 10 base products; the cart `Добавить товар` scanner simulation picks the next missing mock barcode until the cart has 10 distinct lines, then cycles back to quantity increment for repeat-scan behavior.
 - Latest BOLARS theme tweak: URL params `theme=` / `themeProfile=` select the initial `snapshot.themeProfile` for `bolars-light-default`, `bolars-light-contrast`, `bolars-light-clean`, `bolars-light-promo`, `bolars-light-magenta-soft`; preview mode also has a route-driven theme selector, while `custom`/`bolars-dark-optional` remain reserved. `bolars-light-magenta-soft` keeps white app background and uses light magenta tint for buttons, fields and containers.
 - Latest BOLARS button surface refactor: customer-facing BOLARS buttons now use a centralized CSS button-surface contract in `src/styles/index.css` with darker/contrast normal fills, stronger shadows, pointer hover lift, touch pressed depression, explicit disabled state and reduced-motion override. Contract docs updated in `docs/product-ux/VISUAL_CONTRACTS.md`, `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md`, `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md`; implementation/deploy report is `docs/reports/2026-05-24/BOLARS_BUTTON_SURFACE_REFACTOR.report.md`.
+- Latest BOLARS search/phone input tweak: cart search input now opens a UI-owned on-screen touch keyboard with RU/EN letters, digits, space, clear, backspace and close; search command still fires only after `uiConfig.searchMinLength=4`, candidate tap/outside tap hides the keyboard. Payment phone input now opens a central UI-owned numeric numpad modal, shows a fixed `+7` prefix for local Russian digits and dispatches existing `applyDiscountByPhone(phone)`. Contract docs updated in BOLARS PRD, screen composition, visual contract, acceptance checklist and runtime port notes.
 - Latest BOLARS 1C handoff tweak: concise integration guide for 1С programmers lives at `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md`; debug panel links to the GitHub document as `1C handoff`.
 - Деплой на сервер выполнен для commit `643c8a4`, контейнер `kassa-web` running; public smoke for root, BOLARS route, BOLARS debug/preview, legacy visual cards and showcase catalog passed on `https://kassa.speechbattle.com`.
 

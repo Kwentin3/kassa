@@ -347,6 +347,8 @@ Search is a cart state, not a separate product catalog. Selecting candidate disp
 
 Product target source for search is 1C/runtime search adapter. UI must not perform product search directly.
 
+The BOLARS search on-screen keyboard is UI-owned. It updates local input draft and dispatches `searchProducts(query)` only after `uiConfig.searchMinLength`; keyboard visibility is not runtime state.
+
 ## 12. ScannerState
 
 Обязательные статусы:
@@ -459,6 +461,8 @@ type ModalState =
 ```
 
 Quantity numpad and cancel confirmation are UI overlays driven by runtime state.
+
+Phone entry for discount uses a UI-owned central numeric numpad modal and dispatches `applyDiscountByPhone(phone)`. It is not represented as `ModalState` unless a future runtime-managed phone modal is explicitly added.
 
 ## 17. Alerts / Notifications
 

@@ -19,7 +19,7 @@ import {
   UserCheck,
   X
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { createRuntimeAdapterFactory, type RuntimeAdapterFactoryResult } from './runtime/adapterFactory';
 import { createCommand, type CommandPayloadByType } from './runtime/commands';
 import { BOLARS_ROUTE, DEFAULT_TEXTS, MOCK_PRODUCTS, getNextMockScanProduct } from './runtime/defaults';
@@ -43,6 +43,42 @@ type RuntimeActions = {
 type TextKey = keyof typeof DEFAULT_TEXTS;
 
 const copy = (snapshot: SelfCheckoutStateSnapshot, key: TextKey): string => snapshot.uiConfig.texts[key] ?? DEFAULT_TEXTS[key];
+
+type SearchKeyboardLayout = 'ru' | 'en';
+
+const SEARCH_KEYBOARD_ROWS: Record<SearchKeyboardLayout, string[][]> = {
+  ru: [
+    ['й', 'ц', 'у', 'к', 'е', 'н', 'г', 'ш', 'щ', 'з', 'х', 'ъ'],
+    ['ф', 'ы', 'в', 'а', 'п', 'р', 'о', 'л', 'д', 'ж', 'э'],
+    ['я', 'ч', 'с', 'м', 'и', 'т', 'ь', 'б', 'ю']
+  ],
+  en: [
+    ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+    ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+    ['z', 'x', 'c', 'v', 'b', 'n', 'm']
+  ]
+};
+
+const SEARCH_KEYBOARD_DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+const PHONE_RAW_DIGIT_LIMIT = 11;
+const PHONE_LOCAL_DIGIT_LIMIT = 10;
+
+const normalizePhoneLocalDigits = (digits: string) => {
+  const raw = digits.replace(/\D/g, '').slice(0, PHONE_RAW_DIGIT_LIMIT);
+  if (raw.length > PHONE_LOCAL_DIGIT_LIMIT && (raw.startsWith('7') || raw.startsWith('8'))) return raw.slice(1, PHONE_RAW_DIGIT_LIMIT);
+  return raw.slice(0, PHONE_LOCAL_DIGIT_LIMIT);
+};
+
+const formatPhoneDigits = (digits: string) => {
+  const local = normalizePhoneLocalDigits(digits);
+  if (local === '') return '';
+  const parts = ['+7'];
+  if (local.length > 0) parts.push(local.slice(0, 3));
+  if (local.length > 3) parts.push(local.slice(3, 6));
+  if (local.length > 6) parts.push(local.slice(6, 8));
+  if (local.length > 8) parts.push(local.slice(8, 10));
+  return parts.join(' ');
+};
 
 const formatClock = () => {
   const now = new Date();
@@ -227,6 +263,9 @@ const StartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; 
 
 const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
   const [query, setQuery] = useState(snapshot.searchState.query);
+  const [isSearchKeyboardOpen, setSearchKeyboardOpen] = useState(false);
+  const [searchKeyboardLayout, setSearchKeyboardLayout] = useState<SearchKeyboardLayout>('ru');
+  const searchSurfaceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setQuery(snapshot.searchState.query);
@@ -239,15 +278,53 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
     }
   };
 
+  useEffect(() => {
+    if (!isSearchKeyboardOpen) return undefined;
+
+    const closeOnOutsideTap = (event: PointerEvent) => {
+      const target = event.target;
+      if (target instanceof Node && searchSurfaceRef.current?.contains(target)) return;
+      setSearchKeyboardOpen(false);
+    };
+
+    document.addEventListener('pointerdown', closeOnOutsideTap);
+    return () => document.removeEventListener('pointerdown', closeOnOutsideTap);
+  }, [isSearchKeyboardOpen]);
+
   return (
     <section className="bolars-work-screen">
       <WorkHeader title={copy(snapshot, 'cartTitle')} snapshot={snapshot} send={send} />
       <div className="bolars-cart-layout">
         <div className="bolars-main-column">
-          <label className="bolars-search-box">
-            <Search size={28} />
-            <input value={query} onChange={(event) => onSearch(event.target.value)} placeholder={copy(snapshot, 'searchPlaceholder')} aria-label="Поиск товара" />
-          </label>
+          <div className="bolars-search-region" ref={searchSurfaceRef}>
+            <label className="bolars-search-box">
+              <Search size={28} />
+              <input
+                value={query}
+                onChange={(event) => onSearch(event.target.value)}
+                onFocus={() => setSearchKeyboardOpen(true)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') setSearchKeyboardOpen(false);
+                }}
+                inputMode="none"
+                autoComplete="off"
+                enterKeyHint="search"
+                placeholder={copy(snapshot, 'searchPlaceholder')}
+                aria-label="Поиск товара"
+              />
+            </label>
+            <SearchCandidates snapshot={snapshot} query={query} send={send} onSelect={() => setSearchKeyboardOpen(false)} />
+            {isSearchKeyboardOpen && (
+              <SearchKeyboard
+                layout={searchKeyboardLayout}
+                onLayoutChange={setSearchKeyboardLayout}
+                onInput={(value) => onSearch(`${query}${value}`)}
+                onBackspace={() => onSearch(query.slice(0, -1))}
+                onClear={() => onSearch('')}
+                onClose={() => setSearchKeyboardOpen(false)}
+              />
+            )}
+          </div>
           <button className="bolars-scan-action-card" type="button" onClick={() => send('scanCode', { code: getNextMockScanProduct(snapshot.cartLines).barcode }, 'scanner')}>
             <ScanLine size={42} />
             <span>
@@ -256,7 +333,6 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
             </span>
             <Plus size={28} />
           </button>
-          <SearchCandidates snapshot={snapshot} query={query} send={send} />
           <div className="bolars-cart-list" aria-label="Список товаров">
             {snapshot.cartLines.length === 0 ? (
               <div className="bolars-empty-cart">
@@ -290,7 +366,53 @@ const CartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; s
   );
 };
 
-const SearchCandidates = ({ snapshot, query, send }: { snapshot: SelfCheckoutStateSnapshot; query: string; send: RuntimeActions['send'] }) => {
+const SearchKeyboard = ({
+  layout,
+  onLayoutChange,
+  onInput,
+  onBackspace,
+  onClear,
+  onClose
+}: {
+  layout: SearchKeyboardLayout;
+  onLayoutChange: (layout: SearchKeyboardLayout) => void;
+  onInput: (value: string) => void;
+  onBackspace: () => void;
+  onClear: () => void;
+  onClose: () => void;
+}) => (
+  <div className="bolars-search-keyboard" role="group" aria-label="Экранная клавиатура поиска">
+    <div className="bolars-search-keyboard-tools">
+      <div className="bolars-search-layout-toggle" role="group" aria-label="Раскладка клавиатуры">
+        {(['ru', 'en'] as SearchKeyboardLayout[]).map((item) => (
+          <button key={item} className={layout === item ? 'active' : ''} type="button" aria-pressed={layout === item} onClick={() => onLayoutChange(item)}>
+            {item.toUpperCase()}
+          </button>
+        ))}
+      </div>
+      <button className="bolars-key-action" type="button" onClick={onClose}>Скрыть</button>
+    </div>
+    <div className="bolars-search-key-row digits" style={{ gridTemplateColumns: `repeat(${SEARCH_KEYBOARD_DIGITS.length}, minmax(0, 1fr))` }}>
+      {SEARCH_KEYBOARD_DIGITS.map((digit) => (
+        <button key={digit} type="button" aria-label={`Ввести ${digit}`} onClick={() => onInput(digit)}>{digit}</button>
+      ))}
+    </div>
+    {SEARCH_KEYBOARD_ROWS[layout].map((row) => (
+      <div className="bolars-search-key-row" key={row.join('')} style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}>
+        {row.map((letter) => (
+          <button key={letter} type="button" aria-label={`Ввести ${letter}`} onClick={() => onInput(letter)}>{letter}</button>
+        ))}
+      </div>
+    ))}
+    <div className="bolars-search-key-row utility">
+      <button className="wide" type="button" onClick={() => onInput(' ')}>Пробел</button>
+      <button type="button" aria-label="Удалить символ" onClick={onBackspace}>⌫</button>
+      <button type="button" onClick={onClear}>Очистить</button>
+    </div>
+  </div>
+);
+
+const SearchCandidates = ({ snapshot, query, send, onSelect }: { snapshot: SelfCheckoutStateSnapshot; query: string; send: RuntimeActions['send']; onSelect?: () => void }) => {
   const normalizedQuery = query.trim();
   if (normalizedQuery.length > 0 && normalizedQuery.length < snapshot.uiConfig.searchMinLength) return <div className="bolars-inline-status">{copy(snapshot, 'searchBelowMin')}</div>;
   if (normalizedQuery === '') return null;
@@ -302,7 +424,14 @@ const SearchCandidates = ({ snapshot, query, send }: { snapshot: SelfCheckoutSta
   return (
     <div className="bolars-candidates" aria-label="Кандидаты поиска">
       {snapshot.searchState.candidates.map((candidate) => (
-        <button key={candidate.candidateId} type="button" onClick={() => send('selectSearchCandidate', { candidateId: candidate.candidateId })}>
+        <button
+          key={candidate.candidateId}
+          type="button"
+          onClick={() => {
+            onSelect?.();
+            send('selectSearchCandidate', { candidateId: candidate.candidateId });
+          }}
+        >
           <span>
             <strong>{candidate.name}</strong>
             <small>{candidate.identifierLabel}</small>
@@ -340,10 +469,18 @@ const CartLineRow = ({ line, send }: { line: CartLine; send: RuntimeActions['sen
 );
 
 const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
-  const [phone, setPhone] = useState('');
+  const [phoneDigits, setPhoneDigits] = useState('');
+  const [isPhoneNumpadOpen, setPhoneNumpadOpen] = useState(false);
+  const phoneDisplay = formatPhoneDigits(phoneDigits);
+  const applyPhone = () => {
+    if (phoneDigits.length === 0) return;
+    send('applyDiscountByPhone', { phone: phoneDisplay || phoneDigits });
+    setPhoneNumpadOpen(false);
+  };
 
   return (
-    <section className="bolars-work-screen">
+    <>
+      <section className="bolars-work-screen">
       <WorkHeader title={copy(snapshot, 'paymentTitle')} snapshot={snapshot} send={send} />
       <div className="bolars-payment-layout">
         <div className="bolars-main-column">
@@ -397,8 +534,17 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
             </div>
             <div className="bolars-phone-row">
               <Phone size={30} />
-              <input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="+7 900 000 00 00" aria-label="Телефон для скидки" />
-              <button type="button" onClick={() => send('applyDiscountByPhone', { phone }, 'keyboard')}>
+              <input
+                value={phoneDisplay}
+                readOnly
+                inputMode="none"
+                autoComplete="off"
+                onFocus={() => setPhoneNumpadOpen(true)}
+                onClick={() => setPhoneNumpadOpen(true)}
+                placeholder="+7 900 000 00 00"
+                aria-label="Телефон для скидки"
+              />
+              <button type="button" disabled={phoneDigits.length === 0} onClick={applyPhone}>
                 {copy(snapshot, 'apply')}
               </button>
             </div>
@@ -418,7 +564,65 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
           <HelpCard snapshot={snapshot} />
         </div>
       </div>
-    </section>
+      </section>
+      {isPhoneNumpadOpen && (
+        <PhoneNumpadModal
+          snapshot={snapshot}
+          phoneDigits={phoneDigits}
+          onChange={setPhoneDigits}
+          onClose={() => setPhoneNumpadOpen(false)}
+          onApply={applyPhone}
+        />
+      )}
+    </>
+  );
+};
+
+const PhoneNumpadModal = ({
+  snapshot,
+  phoneDigits,
+  onChange,
+  onClose,
+  onApply
+}: {
+  snapshot: SelfCheckoutStateSnapshot;
+  phoneDigits: string;
+  onChange: (digits: string) => void;
+  onClose: () => void;
+  onApply: () => void;
+}) => {
+  const append = (digit: string) => onChange(`${phoneDigits}${digit}`.replace(/\D/g, '').slice(0, PHONE_RAW_DIGIT_LIMIT));
+  const display = formatPhoneDigits(phoneDigits);
+
+  return (
+    <div
+      className="bolars-modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Цифровая клавиатура телефона"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="bolars-modal numpad phone-numpad">
+        <h2>Телефон для скидки</h2>
+        <div className="bolars-numpad-display" aria-live="polite">{display || '+7 ___ ___ __ __'}</div>
+        <div className="bolars-numpad-grid">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
+            <button key={digit} type="button" aria-label={`Ввести ${digit}`} onClick={() => append(digit)}>{digit}</button>
+          ))}
+          <button type="button" aria-label="Очистить телефон" onClick={() => onChange('')}>{copy(snapshot, 'clear')}</button>
+          <button type="button" aria-label="Ввести 0" onClick={() => append('0')}>0</button>
+          <button type="button" aria-label="Удалить последнюю цифру" onClick={() => onChange(phoneDigits.slice(0, -1))}>⌫</button>
+        </div>
+        <div className="bolars-numpad-actions">
+          <button className="bolars-info-action" type="button" onClick={onClose}>Скрыть</button>
+          <button className="bolars-primary-action" type="button" disabled={phoneDigits.length === 0} onClick={onApply}>
+            {copy(snapshot, 'apply')}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 

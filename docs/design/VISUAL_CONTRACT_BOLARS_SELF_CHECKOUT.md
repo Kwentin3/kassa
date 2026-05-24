@@ -180,6 +180,8 @@ Header визуально чёрный, с белым текстом и magenta/
 
 - `workHeader`: title `Ваши покупки`, cancel purchase, text scale, manager badge.
 - Search bar: крупная полоса, hint `Поиск начнется после 4+ символов`.
+- Search keyboard: tap/focus on search opens a dedicated touch keyboard below the search area; it has darker raised key surfaces, clear/backspace/space/close controls and does not hide the cart summary/payment CTA permanently.
+- Search keyboard dismissal: explicit close, candidate tap, or tap outside search input/keyboard hides the keyboard.
 - Scan continuation hint: напоминание, что можно продолжать сканировать.
 - Product rows: большие белые строки с image, name, package, article, quantity controls, line amount, delete.
 - Recently changed row: cyan border/background wash only; do not render floating or inline status labels over product content.
@@ -191,7 +193,7 @@ Header визуально чёрный, с белым текстом и magenta/
 - `workHeader`: title `Оплата`, cancel, text scale, manager badge.
 - Order review card: compact список товаров, итог, скидка, сумма к оплате.
 - Package card: три package actions, outline magenta.
-- Discounts/bonuses card: инструкция сканировать карту или ввести телефон; phone input + keypad action.
+- Discounts/bonuses card: инструкция сканировать карту или ввести телефон; phone input/display opens a central numeric numpad modal, not the search keyboard.
 - Applied discount status: green success chip/card, не перекрывает поле телефона.
 - Final total band: крупная итоговая сумма.
 - Bottom CTA: full-width green `Оплатить`.
@@ -392,6 +394,7 @@ Reference anatomy:
 - subtotal/discount/payable total block inside review card;
 - package card with three magenta-outline package actions and package prices;
 - discount/bonus card with phone input/keypad action and green applied-discount state;
+- phone entry opens central numeric numpad modal with clear/backspace/apply/close actions;
 - cyan final-total band;
 - full-width green bottom `Оплатить`;
 - help card below.

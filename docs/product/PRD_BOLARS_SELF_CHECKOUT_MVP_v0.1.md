@@ -75,6 +75,7 @@ BOLARS MVP не является старой showcase-витриной или m
 - открытие корзины по касанию стартового экрана;
 - корзина / `Ваши покупки`;
 - ручной поиск товара;
+- экранная сенсорная клавиатура для ручного поиска товара;
 - поиск после `4+` символов;
 - выбор кандидата поиска с немедленным добавлением в корзину;
 - изменение количества через `+`, `-` и нумпад;
@@ -103,6 +104,7 @@ BOLARS MVP не является старой showcase-витриной или m
 - mock scan product -> cart screen;
 - repeated mock scan -> quantity increment;
 - cart line: position number, name, quantity, plus, minus, delete, line total from snapshot;
+- search input tap -> on-screen search keyboard;
 - search after `4+` chars;
 - candidates found/not found;
 - select candidate -> add/increment cart line;
@@ -228,6 +230,8 @@ Overlay/states:
 - Ручной поиск запускается после `4+` символов.
 - Поиск выполняется через runtime/search adapter; product target для источника поиска - 1С.
 - Поиск использует наименование, артикул и цифры штрих-кода.
+- Поле поиска открывает собственную экранную сенсорную клавиатуру; системная клавиатура или физическая клавиатура не являются основным customer path.
+- Экранная клавиатура поиска закрывается явной кнопкой, при выборе кандидата поиска и при касании любой области вне поля поиска/клавиатуры.
 - Выбор search candidate вызывает `selectSearchCandidate(candidateId)`.
 - Quantity меняется через runtime commands, UI не пересчитывает line total.
 - Для MVP quantity является целым числом, если отдельно не принято решение о весовых или дробных товарах.
@@ -235,6 +239,7 @@ Overlay/states:
 - Переход к оплате выполняется через `goToPaymentSetup()`.
 - Пакет добавляется через `addPackage(packageCode)`.
 - Скидка по телефону применяется через `applyDiscountByPhone(phone)`.
+- Поле телефона открывает центральный numeric numpad modal; буквенная экранная клавиатура поиска для телефона не используется.
 - Оплата запускается через `startPayment()`.
 - Retry оплаты выполняется через `retryPayment()`.
 - Reset выполняется через `resetToStart(reason)`.

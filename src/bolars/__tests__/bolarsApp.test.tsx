@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { BolarsSelfCheckoutApp } from '../BolarsSelfCheckoutApp';
 import { createEmptySnapshot } from '../runtime/defaults';
@@ -117,5 +117,81 @@ describe('BOLARS Self-Checkout App', () => {
     fireEvent.change(input, { target: { value: 'клей' } });
     expect(JSON.parse(window.BolarsSelfCheckout?.peekOutboundStatusJson() ?? '{}').pendingCount).toBe(1);
     expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('searchProducts');
+  });
+
+  it('opens touch search keyboard and hides it after candidate selection', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
+    const input = await screen.findByLabelText('Поиск товара');
+    fireEvent.focus(input);
+
+    const keyboard = screen.getByLabelText('Экранная клавиатура поиска');
+    for (const letter of ['к', 'л', 'е', 'й']) {
+      fireEvent.click(within(keyboard).getByRole('button', { name: `Ввести ${letter}` }));
+    }
+
+    const candidate = await screen.findByRole('button', { name: /Клей плиточный БОЛАРС Стандарт/i });
+    fireEvent.click(candidate);
+
+    await waitFor(() => expect(container.querySelectorAll('.bolars-cart-line')).toHaveLength(1));
+    expect(screen.queryByLabelText('Экранная клавиатура поиска')).not.toBeInTheDocument();
+  });
+
+  it('opens central phone numpad and applies discount from the numeric draft', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Сканировать тестовый товар/i }));
+    await screen.findByText('Ваши покупки');
+    fireEvent.click(screen.getByRole('button', { name: /Перейти к оплате/i }));
+    await screen.findByText('Оплата');
+
+    const phoneInput = screen.getByLabelText('Телефон для скидки');
+    fireEvent.focus(phoneInput);
+    const dialog = screen.getByRole('dialog', { name: 'Цифровая клавиатура телефона' });
+
+    for (const digit of ['9', '0', '0', '1', '2', '3', '4', '5', '6', '7']) {
+      fireEvent.click(within(dialog).getByRole('button', { name: `Ввести ${digit}` }));
+    }
+
+    expect(phoneInput).toHaveValue('+7 900 123 45 67');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Применить' }));
+
+    await waitFor(() => expect(screen.getByText(/Скидка применена/i)).toBeInTheDocument());
+    expect(phoneInput).toHaveValue('+7 900 123 45 67');
+    expect(screen.queryByRole('dialog', { name: 'Цифровая клавиатура телефона' })).not.toBeInTheDocument();
+  });
+
+  it('sends phone discount command with fixed +7 prefix from local digits', async () => {
+    setRoute('/bolars/self-checkout-mvp?debug=1&adapter=onec');
+    render(<BolarsSelfCheckoutApp />);
+
+    act(() => {
+      window.BolarsSelfCheckout?.receiveStateSnapshot(
+        JSON.stringify(createEmptySnapshot('onec', { snapshotVersion: 2, currentScreen: 'paymentSetup', sessionId: 'session-onec-phone' }))
+      );
+    });
+
+    const phoneInput = await screen.findByLabelText('Телефон для скидки');
+    fireEvent.focus(phoneInput);
+    const dialog = screen.getByRole('dialog', { name: 'Цифровая клавиатура телефона' });
+
+    for (const digit of ['9', '0', '0', '1', '2', '3', '4', '5', '6', '7']) {
+      fireEvent.click(within(dialog).getByRole('button', { name: `Ввести ${digit}` }));
+    }
+
+    expect(phoneInput).toHaveValue('+7 900 123 45 67');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Применить' }));
+
+    const outbound = JSON.parse(window.BolarsSelfCheckout?.drainOutboundCommandsJson() ?? '{}');
+    expect(outbound.commands).toEqual([
+      expect.objectContaining({
+        type: 'applyDiscountByPhone',
+        payload: { phone: '+7 900 123 45 67' }
+      })
+    ]);
+    expect(screen.queryByRole('dialog', { name: 'Цифровая клавиатура телефона' })).not.toBeInTheDocument();
   });
 });

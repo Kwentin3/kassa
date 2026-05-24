@@ -46,6 +46,8 @@
 - [ ] Start содержит две action cards: scan first, manual search second.
 - [ ] Start содержит отдельные text-scale and help cards when enabled.
 - [ ] Cart содержит full-width search with `4+` hint.
+- [ ] Tap/focus на Cart search открывает собственную экранную клавиатуру поиска.
+- [ ] Search keyboard можно закрыть явной кнопкой, выбором кандидата и тапом вне search/keyboard зоны.
 - [ ] Cart содержит scan continuation/add-product card above product list.
 - [ ] Cart product rows reserve image/thumbnail slot, even if real media uses placeholder fallback.
 - [ ] Cart portrait composition uses bottom summary band with item count, total and green `Перейти к оплате`.
@@ -152,6 +154,8 @@
 - [ ] Корзина является главным рабочим экраном.
 - [ ] Покупатель может продолжать сканировать товары на cart screen.
 - [ ] Поиск стартует после `4+` символов.
+- [ ] Экранная клавиатура поиска не отправляет search command до `4+` символов.
+- [ ] Экранная клавиатура поиска имеет close, clear, backspace, space и доступ к буквам/цифрам для name/article/barcode search.
 - [ ] Поиск использует наименование, артикул и цифры штрих-кода через runtime/search adapter.
 - [ ] Кандидат поиска может показать артикул, штрих-код/идентификатор и цену, если runtime их вернул.
 - [ ] Поиск имеет состояния `searching`, `found`, `notFound`, `error`.
@@ -166,6 +170,7 @@
 - [ ] Нумпад открывается при нажатии на количество.
 - [ ] Количество в MVP целочисленное, если весовые/дробные товары не утверждены отдельно.
 - [ ] Нумпад имеет confirm/cancel/backspace/focus states.
+- [ ] Телефон скидки открывает центральный numeric numpad modal, а не экранную клавиатуру поиска.
 - [ ] Кнопка отмены покупки открывает подтверждение, если корзина не пустая.
 - [ ] Подтверждение отмены покупки не делает destructive action primary by default.
 
