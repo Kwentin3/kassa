@@ -131,7 +131,8 @@
       cursor: pointer;
     }
 
-    button.secondary {
+    button.secondary,
+    .button-like.secondary {
       border-color: #7a8794;
       background: #f6f8fa;
       color: #17212b;
@@ -1294,7 +1295,8 @@
         <p>Если это сообщение не исчезает, среда запуска не выполнила базовый JavaScript. Сделайте скриншот и передайте его команде проекта. JSON-отчёт в этом случае может быть недоступен.</p>
       </div>
       <div class="actions">
-        <a id="open-showcase-link" class="button-like" href="/diagnostics/1c-html-shell?mode=showcase">Открыть витрину</a>
+        <a id="open-showcase-link" class="button-like secondary" href="/diagnostics/1c-html-shell?mode=showcase">Открыть витрину 1</a>
+        <a id="open-bolars-showcase-link" class="button-like" href="/bolars/self-checkout-mvp?debug=1&amp;adapter=onec">Открыть витрину 2</a>
       </div>
     </section>
 
@@ -1303,6 +1305,7 @@
       <ul>
         <li>Открытие страницы в обычном браузере или Поле HTML-документа 1С.</li>
         <li>Отрисовку HTML, CSS и работу простого JavaScript.</li>
+        <li>Современный JavaScript-синтаксис и runtime API, которые часто требуются React/Vite bundle.</li>
         <li>Касания, нажатия, фокус поля ввода и прокрутку.</li>
         <li>Формирование диагностического JSON-отчёта.</li>
         <li>Пробную загрузку CSS/JavaScript из встроенного <code>data:</code>-ресурса. Это не доказывает загрузку отдельных файлов по URL.</li>
@@ -1533,9 +1536,9 @@
     (function () {
       var DIAGNOSTIC_VERSION = "0.1";
       var REPORT_SCHEMA_VERSION = "0.2";
-      var TEST_PACK_VERSION = "0.2";
-      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-showcase-2026-05-21-02";
-      var BUILD_TIMESTAMP = "2026-05-21T00:00:00.000Z";
+      var TEST_PACK_VERSION = "0.3";
+      var DIAGNOSTIC_BUILD_ID = "1c-html-shell-diagnostic-showcase-2026-05-24-03";
+      var BUILD_TIMESTAMP = "2026-05-24T00:00:00.000Z";
       var STATUS_TEXT = {
         supported: "Поддерживается",
         partially_supported: "Работает частично",
@@ -1549,11 +1552,12 @@
       var phaseNames = {
         boot_static: "Фаза 0. Статический HTML",
         boot_js: "Фаза 1. Безопасный запуск JavaScript",
-        environment: "Фаза 2. Профиль среды запуска",
-        css: "Фаза 3. HTML/CSS",
-        visual: "Фаза 4. SVG и визуальная производительность",
-        ux: "Фаза 5. Ввод, касания и прокрутка",
-        network: "Фаза 6. Отчёт и сеть",
+        js_compat: "Фаза 2. Современный JavaScript",
+        environment: "Фаза 3. Профиль среды запуска",
+        css: "Фаза 4. HTML/CSS",
+        visual: "Фаза 5. SVG и визуальная производительность",
+        ux: "Фаза 6. Ввод, касания и прокрутка",
+        network: "Фаза 7. Отчёт и сеть",
         bridge: "Обмен HTML ↔ 1С",
         rmk: "РМК-адаптер"
       };
@@ -2408,12 +2412,37 @@
         return base + "?" + parts.join("&");
       }
 
+      function buildBolarsShowcaseUrl() {
+        var base = "/bolars/self-checkout-mvp";
+        var keys = ["runId", "terminalLabel", "build", "v"];
+        var parts = ["debug=1", "adapter=onec"];
+        var i;
+        var key;
+        var value;
+        for (i = 0; i < keys.length; i += 1) {
+          key = keys[i];
+          value = query[key] || query[key.toLowerCase()];
+          if (value) {
+            parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+          }
+        }
+        return base + "?" + parts.join("&");
+      }
+
       function wireModeNavigation() {
         var open = byId("open-showcase-link");
+        var openBolars = byId("open-bolars-showcase-link");
         if (open) {
           open.href = buildModeUrl("showcase");
           open.onclick = function () {
             window.location.href = buildModeUrl("showcase");
+            return false;
+          };
+        }
+        if (openBolars) {
+          openBolars.href = buildBolarsShowcaseUrl();
+          openBolars.onclick = function () {
+            window.location.href = buildBolarsShowcaseUrl();
             return false;
           };
         }
@@ -2544,6 +2573,8 @@
           group = report.boot;
         } else if (phase === "environment") {
           group = report.environment;
+        } else if (phase === "js_compat") {
+          group = report.js;
         } else if (phase === "css") {
           group = report.css;
         } else if (phase === "visual") {
@@ -2639,7 +2670,7 @@
 
       function syncPhases() {
         var phases = [];
-        var names = ["boot_static", "boot_js", "environment", "css", "visual", "ux", "network", "bridge", "rmk"];
+        var names = ["boot_static", "boot_js", "js_compat", "environment", "css", "visual", "ux", "network", "bridge", "rmk"];
         var i;
         var phase;
         for (i = 0; i < names.length; i += 1) {
@@ -2827,6 +2858,10 @@
         var clipboard = getStatus("network.clipboard.exists");
         var resourceCss = getStatus("resource.loading.css");
         var resourceJs = getStatus("resource.loading.js");
+        var optionalChaining = getStatus("js.syntax.optional_chaining");
+        var nullishCoalescing = getStatus("js.syntax.nullish_coalescing");
+        var moduleScript = getStatus("js.module_script.data");
+        var vitePrerequisites = getStatus("js.vite_bundle_prerequisites");
         warnings.push("Эта страница не проверяет готовность кассы, РМК, оплату, ККТ, чек, фискализацию и маркировку.");
         warnings.push("Проверки resource.loading.css/js используют встроенный data:-ресурс. Они не доказывают загрузку отдельных CSS/JS файлов по URL, работу путей, TLS, кэша или политики WebView.");
         if (report.verdictScope === "browser_only") {
@@ -2855,6 +2890,15 @@
         }
         if (resourceJs === "failed" || resourceJs === "timeout") {
           recommendations.push("Встроенный JavaScript data:-ресурс не загрузился. Не зависеть от отдельных JS-файлов внутри 1С, пока загрузка ресурсов не подтверждена.");
+        }
+        if (optionalChaining !== "supported" || nullishCoalescing !== "supported") {
+          recommendations.push("Браузер не поддерживает современный синтаксис `?.` / `??`. React/Vite bundle может дать белый экран; нужна legacy-safe HTML-оболочка или современный WebView.");
+        }
+        if (moduleScript !== "supported") {
+          recommendations.push("ES module script не подтверждён. Не использовать `<script type=\"module\">` внутри Поля HTML-документа 1С.");
+        }
+        if (vitePrerequisites !== "supported") {
+          recommendations.push("Минимальные предпосылки React/Vite bundle не подтверждены. Для 1С/V8WebKit использовать classic JavaScript без Vite runtime.");
         }
         report.warnings = uniqueList(warnings);
         report.recommendations = uniqueList(recommendations);
@@ -3022,6 +3066,110 @@
       }
 
       function runPhase2() {
+        testModernJavaScriptSyntax();
+        testModuleScript();
+        testModernRuntimeApis();
+      }
+
+      function testModernJavaScriptSyntax() {
+        runSyntaxProbe("js.syntax.const_let", "Синтаксис const/let", "const a = 1; let b = 2; return a + b === 3;");
+        runSyntaxProbe("js.syntax.arrow_function", "Arrow functions", "var f = (a) => a + 1; return f(1) === 2;");
+        runSyntaxProbe("js.syntax.template_literal", "Template literals", "var name = 'x'; return `a${name}` === 'ax';");
+        runSyntaxProbe("js.syntax.class", "Синтаксис class", "class A { constructor(){ this.x = 1; } } return new A().x === 1;");
+        runSyntaxProbe("js.syntax.spread_rest", "Spread/rest syntax", "function sum(...items){ return Math.max(...items); } var a = [1, 2]; return sum(0, ...a) === 2;");
+        runSyntaxProbe("js.syntax.optional_chaining", "Optional chaining `?.`", "var a = { b: { c: 3 } }; return a?.b?.c === 3 && (null)?.x === undefined;");
+        runSyntaxProbe("js.syntax.nullish_coalescing", "Nullish coalescing `??`", "var a = 0; var b = null; return (a ?? 1) === 0 && (b ?? 2) === 2;");
+        runSyntaxProbe("js.syntax.async_await", "async/await", "if (typeof Promise !== 'function') { return false; } return (async function(){ return await Promise.resolve(1); })().then(function (value) { return value === 1; });");
+        runSyntaxProbe("js.syntax.dynamic_import_parse", "Dynamic import parse", "return typeof import('data:text/javascript,export default 1') === 'object';", true);
+      }
+
+      function runSyntaxProbe(id, label, source, parseOnly) {
+        runTest(id, "js_compat", label, 1200, function (finish) {
+          var fn;
+          var value;
+          try {
+            fn = new Function(source);
+          } catch (e) {
+            finish("failed", false, e && e.message ? e.message : e);
+            return;
+          }
+          if (parseOnly) {
+            finish("supported", true, null);
+            return;
+          }
+          try {
+            value = fn();
+            if (value && typeof value.then === "function") {
+              value.then(function (resolved) {
+                finish(resolved ? "supported" : "failed", !!resolved, resolved ? null : "Promise resolved with false");
+              }, function (error) {
+                finish("failed", false, error && error.message ? error.message : error);
+              });
+              return;
+            }
+            finish(value ? "supported" : "failed", !!value, value ? null : "Проверка вернула false");
+          } catch (e2) {
+            finish("failed", false, e2 && e2.message ? e2.message : e2);
+          }
+        });
+      }
+
+      function testModuleScript() {
+        runTest("js.module_script.data", "js_compat", "ES module script из data:-ресурса", 1600, function (finish) {
+          var script = document.createElement("script");
+          var marker = "__diagModuleScriptLoaded";
+          var completed = false;
+          window[marker] = false;
+          script.type = "module";
+          script.src = "data:text/javascript,window.__diagModuleScriptLoaded%3Dtrue%3B";
+          script.onload = function () {
+            if (completed) {
+              return;
+            }
+            completed = true;
+            removeNode(script);
+            finish(window[marker] ? "supported" : "partially_supported", !!window[marker], window[marker] ? null : "module script loaded without marker");
+          };
+          script.onerror = function () {
+            if (completed) {
+              return;
+            }
+            completed = true;
+            removeNode(script);
+            finish("failed", false, "Ошибка загрузки module script");
+          };
+          document.getElementsByTagName("head")[0].appendChild(script);
+          setTimeout(function () {
+            if (!completed) {
+              completed = true;
+              removeNode(script);
+              finish(window[marker] ? "supported" : "timeout", !!window[marker], window[marker] ? null : "module script не выполнился");
+            }
+          }, 900);
+        });
+      }
+
+      function testModernRuntimeApis() {
+        var missing = [];
+        addResult("js.runtime.promise", "js_compat", "Promise", typeof window.Promise === "function" ? "supported" : "failed", typeof window.Promise === "function", null, 0);
+        addResult("js.runtime.symbol", "js_compat", "Symbol", typeof window.Symbol === "function" ? "supported" : "failed", typeof window.Symbol === "function", null, 0);
+        addResult("js.runtime.object_assign", "js_compat", "Object.assign", Object.assign ? "supported" : "failed", !!Object.assign, null, 0);
+        addResult("js.runtime.mutation_observer", "js_compat", "MutationObserver", window.MutationObserver ? "supported" : "failed", !!window.MutationObserver, null, 0);
+        addResult("js.runtime.url", "js_compat", "URL API", typeof window.URL === "function" ? "supported" : "failed", typeof window.URL === "function", null, 0);
+        addResult("js.runtime.url_search_params", "js_compat", "URLSearchParams", typeof window.URLSearchParams === "function" ? "supported" : "failed", typeof window.URLSearchParams === "function", null, 0);
+        if (typeof window.Promise !== "function") { missing.push("Promise"); }
+        if (typeof window.Symbol !== "function") { missing.push("Symbol"); }
+        if (!Object.assign) { missing.push("Object.assign"); }
+        if (!window.MutationObserver) { missing.push("MutationObserver"); }
+        if (typeof window.fetch !== "function") { missing.push("fetch"); }
+        if (missing.length) {
+          addResult("js.vite_bundle_prerequisites", "js_compat", "Минимум для React/Vite bundle", "failed", { missing: missing }, "Нет обязательных API: " + missing.join(", "), 0);
+        } else {
+          addResult("js.vite_bundle_prerequisites", "js_compat", "Минимум для React/Vite bundle", "supported", { missing: [] }, null, 0);
+        }
+      }
+
+      function runPhase3() {
         var dpr = 1;
         var tz = "unknown";
         try {
@@ -3069,7 +3217,7 @@
         addResult("environment.touch_pointer", "environment", "Признаки касаний и pointer events", "supported", report.environment.touch, null, 0);
       }
 
-      function runPhase3() {
+      function runPhase4() {
         testCssFlex();
         testCssGrid();
         testCssVariables();
@@ -3264,7 +3412,7 @@
         }
       }
 
-      function runPhase4() {
+      function runPhase5() {
         testInlineSvg();
         testSvgAnimation();
         testCssAnimation();
@@ -3383,7 +3531,7 @@
         });
       }
 
-      function runPhase5() {
+      function runPhase6() {
         addResult("ux.click.manual", "ux", "Ручное нажатие кнопки", "unknown", "Ожидается действие пользователя", null, 0);
         addResult("ux.double_click.manual", "ux", "Повторное нажатие / double click", "unknown", "Ожидается действие пользователя", null, 0);
         addResult("ux.pointer_events", "ux", "Pointer events", window.PointerEvent ? "unknown" : "not_applicable", !!window.PointerEvent, null, 0);
@@ -3421,7 +3569,7 @@
         }
       }
 
-      function runPhase6() {
+      function runPhase7() {
         addResult("network.fetch.exists", "network", "Наличие fetch", typeof window.fetch === "function" ? "supported" : "failed", typeof window.fetch === "function", null, 0);
         addResult("network.xhr.exists", "network", "Наличие XMLHttpRequest", typeof window.XMLHttpRequest === "function" ? "supported" : "failed", typeof window.XMLHttpRequest === "function", null, 0);
         addResult("network.blob.exists", "network", "Поддержка Blob/download", typeof window.Blob === "function" && window.URL ? "supported" : "failed", typeof window.Blob === "function", null, 0);
@@ -4675,10 +4823,11 @@
         runPhase0();
         runPhase1();
         setTimeout(runPhase2, 30);
-        setTimeout(runPhase3, 80);
-        setTimeout(runPhase4, 150);
-        setTimeout(runPhase5, 250);
-        setTimeout(runPhase6, 320);
+        setTimeout(runPhase3, 110);
+        setTimeout(runPhase4, 170);
+        setTimeout(runPhase5, 240);
+        setTimeout(runPhase6, 340);
+        setTimeout(runPhase7, 420);
       }
 
       try {

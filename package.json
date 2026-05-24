@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:1c-html": "tsc -b && vite build --config vite.1c.config.ts",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest",

@@ -1,6 +1,7 @@
 # Dependencies / builds
 node_modules/
 dist/
+dist-1c/
 build/
 .vite/
 coverage/

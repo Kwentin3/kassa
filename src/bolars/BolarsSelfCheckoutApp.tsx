@@ -156,8 +156,12 @@ const ProductThumb = ({ line }: { line: CartLine }) => (
   </div>
 );
 
-export const BolarsSelfCheckoutApp = () => {
-  const factory = useMemo(() => createRuntimeAdapterFactory(window.location.href), []);
+type BolarsSelfCheckoutAppProps = {
+  runtimeUrl?: string | URL;
+};
+
+export const BolarsSelfCheckoutApp = ({ runtimeUrl }: BolarsSelfCheckoutAppProps = {}) => {
+  const factory = useMemo(() => createRuntimeAdapterFactory(runtimeUrl ?? window.location.href), [runtimeUrl]);
   const snapshot = useRuntimeSnapshot(factory.runtime);
 
   useEffect(() => {
