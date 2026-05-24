@@ -6,6 +6,36 @@
     <meta name="theme-color" content="#0f766e" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Касса самообслуживания</title>
+    <script>
+      (function () {
+        var path = window.location.pathname;
+        var search = window.location.search || "";
+        var hash = window.location.hash || "";
+        var query = search.length > 1 ? search.slice(1).split("&") : [];
+        var debug = false;
+        var adapter = "";
+        var runId = "";
+        var i;
+        var pair;
+        var key;
+        var value;
+
+        if (path !== "/bolars/self-checkout-mvp") return;
+
+        for (i = 0; i < query.length; i += 1) {
+          pair = query[i].split("=");
+          key = decodeURIComponent(pair[0] || "").toLowerCase();
+          value = decodeURIComponent(pair.slice(1).join("=") || "");
+          if (key === "debug" && value === "1") debug = true;
+          if (key === "adapter") adapter = value.toLowerCase();
+          if (key === "runid") runId = value;
+        }
+
+        if (debug && (adapter === "onec" || runId.indexOf("onec-") === 0)) {
+          window.location.replace("/bolars/self-checkout-mvp-1c.html" + search + hash);
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
