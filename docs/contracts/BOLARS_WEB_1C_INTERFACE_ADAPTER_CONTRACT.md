@@ -244,7 +244,9 @@ Rules:
 
 ### 7.5 `getLastApplyStatusJson()`
 
-Назначение: 1С получает статус последнего применения snapshot/config/catalog.
+Назначение: 1С получает статус последнего применения authoritative snapshot.
+
+Current first-slice note: `receiveRuntimeConfig()` and `receiveCatalog()` are reserved helpers. They return their own warning result and do not update cart/search/payment state. 1С should treat `getLastApplyStatusJson()` as the status of the last `receiveStateSnapshot()` apply attempt.
 
 Returns JSON string:
 
@@ -359,7 +361,7 @@ Optional/reserved helpers for future tighter 1С acknowledgement:
 - `ackOutboundCommandsJson(commandIdsJsonString)`
 - `failOutboundCommandsJson(resultJsonString)`
 
-These helpers are not mandatory for the first slice. If implemented, they must not replace snapshot as source of truth. They only update delivery/debug status.
+These helpers are not exposed by the current implementation. First-slice completion/failure is represented by `receiveStateSnapshot(snapshotJsonString)` with `lastProcessedCommandId` and `lastCommandResult`. If ack/fail helpers are implemented later, they must not replace snapshot as source of truth. They only update delivery/debug status.
 
 ### 7.10 Current First-Slice API Surface
 
@@ -378,6 +380,8 @@ The current BOLARS MVP implementation exposes:
 Reserved methods `receiveRuntimeConfig` and `receiveCatalog` return safe apply/status results. `receiveCatalog` remains a preload/reserved path and is not a cart/runtime path.
 
 For the documented 1C mini-smoke route, current adapter selection uses `runId` prefix `onec-*` to select `OneCInterfaceAdapter` when `debug=1`.
+
+Current production-mode boundary: customer route without `debug=1` defaults to the mock/demo adapter and ignores `adapter=`. A production 1С launch mode must be agreed separately before using the customer URL as a live 1С bridge without debug controls.
 
 ## 8. Outbound Command Queue Lifecycle, Polling and Backpressure
 
@@ -558,12 +562,12 @@ Correlation requirement:
 | --- | --- | --- | --- |
 | Покупатель коснулся стартового экрана | `startPurchase` | Создать/открыть сессию покупки | `currentScreen=cart`, `cart.isEmpty=true` |
 | Скан товара | `scanCode(code)` | Определить тип кода, найти товар, добавить/увеличить строку | `currentScreen=cart`, `cartLines` updated, `totals` updated, `lastChange` |
-| Ввод поиска `4+` | `searchProducts(query)` | Искать по `name`, `article`, `barcodeDigits` | `searchState.status=found|notFound`, `candidates` |
-| Выбор кандидата | `selectSearchCandidate(candidateId)` | Добавить/увеличить товар | `cartLines` updated, `totals` updated |
+| Ввод поиска `4+` | `searchProducts(query)` | Искать по `name`, `article`, `barcodeDigits`; вернуть тот же `searchState.query` | `searchState.status=found|notFound`, `candidates` |
+| Выбор кандидата | `selectSearchCandidate(candidateId)` | Добавить/увеличить товар по ранее выданному `candidateId` | `cartLines` updated, `totals` updated |
 | Плюс/минус | `incrementQuantity` / `decrementQuantity` | Изменить количество, пересчитать totals | updated `cartLines` / `totals` |
 | Нумпад | `confirmQuantityInput(lineId, quantity)` | Валидировать количество, применить, пересчитать | updated `cart` |
 | Отмена покупки | `cancelPurchaseRequest` / `confirmCancelPurchase` | Решить modal/reset | `modalState` или `currentScreen=start` |
-| Скидка по телефону | `applyDiscountByPhone(phone)` | Проверить loyalty | `discount` / `totals` updated |
+| Скидка по телефону | `applyDiscountByPhone(phone)` | Проверить loyalty; телефон приходит строкой в формате `+7 900 123 45 67` | `discount` / `totals` updated |
 | Скидочная карта | `scanCode(discount code)` | Классифицировать код и проверить loyalty | `discount` / `totals` updated |
 | Менеджер | `bindManager(code)` или `scanCode(manager code)` | Проверить менеджера | `manager.status=bound|rejected` |
 | Оплата | `startPayment` | Запустить эквайринг | `paymentWaiting`, `paymentError` или `finalSuccess` |
@@ -597,7 +601,7 @@ Correlation requirement:
 ## 15. vNext
 
 - Native 1С event/listener delivery if the concrete HTML shell supports it reliably.
-- Optional `ackOutboundCommandsJson` / `failOutboundCommandsJson` helpers if explicit acknowledgement is needed.
+- Optional `ackOutboundCommandsJson` / `failOutboundCommandsJson` helpers if explicit acknowledgement is needed. They are not part of the current exposed API.
 - Full production hardening of 1C/RMK rollout beyond first interface adapter handshake.
 - Real payment adapter details behind 1С/runtime.
 - Real search adapter tuning.

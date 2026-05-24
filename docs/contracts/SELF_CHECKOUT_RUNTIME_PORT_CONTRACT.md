@@ -500,7 +500,6 @@ interface UiConfigState {
   finalAutoResetSeconds: number;
   inactivityTimeoutSeconds: number;
   inactivityWarningSeconds: number;
-  inactivityActivityEvents: ActivityEventKind[];
   productImageMode: 'show' | 'fallbackInitials' | 'hide';
   motionProfile: 'normal' | 'reduced';
   paymentProviderLabel?: string;
@@ -513,30 +512,12 @@ interface UiConfigState {
 type ViewportProfile =
   | 'portrait1080'
   | 'portraitCompact'
-  | 'landscapeKiosk'
-  | 'landscapeCompact'
-  | 'landscapeFallback'
-  | 'microFallback';
+  | 'landscapeFallback';
 ```
 
-`landscapeFallback` remains accepted as a backward-compatible broad value. New implementation should prefer `landscapeKiosk` and `landscapeCompact` when the actual viewport is known. If runtime does not provide `viewportProfile`, the presentation/application layer may derive it from the visual viewport as layout-only state; this must not affect cart, price, discount, scan or payment business logic.
+`viewportProfile` in the runtime snapshot is a broad hint. The current implementation may derive detailed visual profiles such as `landscapeKiosk`, `landscapeCompact` or `microFallback` locally from the actual WebView viewport; those detailed profiles are presentation state and are not required from 1С.
 
 UI layout choices should come from config/tokens, not scattered constants.
-
-```ts
-type ActivityEventKind =
-  | 'screenTouch'
-  | 'scanProduct'
-  | 'searchInput'
-  | 'selectSearchCandidate'
-  | 'changeQuantity'
-  | 'removeCartLine'
-  | 'phoneInput'
-  | 'scanDiscountCard'
-  | 'scanManagerCard'
-  | 'screenTransition'
-  | 'addPackage';
-```
 
 Default inactivity timeout is `300` seconds unless runtime config overrides it. If acquiring transaction has already been sent and the runtime is waiting for the payment terminal, inactivity reset must not break the payment process.
 
@@ -622,7 +603,7 @@ interface RuntimeCommandError {
 ## 23. Inactivity Timeout Contract
 
 - Default inactivity timeout: `300` seconds (`5 минут`) unless configured otherwise.
-- Activity events are listed in `uiConfig.inactivityActivityEvents`.
+- In the current implementation, activity detection is frontend-owned presentation/session behavior. 1С does not need to send `uiConfig.inactivityActivityEvents`.
 - Runtime owns timeout decisions and returns a new state snapshot.
 - On active working screens with no payment in progress, timeout closes the current purchase and returns terminal to `start`.
 - If payment has already been sent to acquiring and runtime waits for the payment terminal response, timeout must not break payment processing.

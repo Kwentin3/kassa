@@ -1,41 +1,84 @@
-﻿# BOLARS MVP: 1C Programmer Handoff
+﻿# BOLARS MVP: Инструкция Для 1С-Специалиста
 
-Дата: 2026-05-23
-Статус: короткая рабочая инструкция
+Дата: 2026-05-24
+Статус: рабочая инструкция после contract audit
 
 ## 1. Что Открывать
 
-Основной URL:
+Основной покупательский URL:
 
 ```text
 https://kassa.speechbattle.com/bolars/self-checkout-mvp
 ```
 
-Для проверки интеграции включайте debug:
+Важно: сейчас этот чистый URL работает как demo/mock. Для проверки обмена с 1С используйте debug URL:
 
 ```text
 https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01
 ```
 
+`debug=1` включает служебную панель сверху. Это не режим покупателя. Панель нужна, чтобы видеть команды, snapshots и ошибки обмена.
+
+`adapter=onec` включает текущий тестовый канал Web <-> 1С. Без `debug=1` этот параметр сейчас игнорируется.
+
 В URL нельзя класть секреты, телефоны, ФИО, токены, внутренние ссылки 1С и коммерческие данные.
 
 ## 2. Главная Идея
 
-Web не вызывает 1С напрямую.
+Web-страница живёт внутри 1С как экран покупателя. 1С остаётся главным источником данных и решений.
 
-1С не лезет в React-компоненты.
+Простая схема:
 
-Обмен только через HTML API:
+```text
+Покупатель нажал кнопку / отсканировал товар
+  -> Web положил команду в очередь
+  -> 1С забрала команду
+  -> 1С пересчитала покупку у себя
+  -> 1С вернула Web полный snapshot
+  -> Web показал новый экран
+```
+
+Web не вызывает 1С напрямую. Он только складывает действия покупателя в очередь.
+
+1С не лезет в React-компоненты. React-компоненты - это внутренняя веб-реализация экрана. Для 1С они не являются API.
+
+Обмен идёт через HTML API:
 
 ```text
 window.BolarsSelfCheckout
 ```
 
-Web отдаёт в 1С typed commands: что сделал пользователь.
+HTML API - это набор JavaScript-методов внутри HTML-страницы. 1С вызывает эти методы через `Поле HTML-документа -> Документ -> window/defaultView`.
 
-1С отдаёт в Web полный authoritative state snapshot: что теперь нужно показать на экране.
+Web отдаёт в 1С typed commands. Простыми словами: это JSON-команды с типом действия, например `scanCode`, `searchProducts`, `startPayment`.
+
+1С отдаёт в Web authoritative state snapshot. Простыми словами: это полный снимок состояния покупки, которому Web доверяет и по которому рисует экран.
+
+Важно про текущий контур:
+
+- Для интеграции и smoke сейчас используйте URL с `debug=1&adapter=onec` или `debug=1&runId=onec-*`.
+- Чистый customer URL без `debug=1` сейчас работает как mock/demo и не является live 1С-bridge.
+- Production-запуск без debug-панели нужно согласовать отдельным срезом, чтобы не смешивать демо, smoke и реальный режим.
+
+## 2.1. Мини-Словарь Терминов
+
+| Термин | Простое объяснение для 1С |
+| --- | --- |
+| Web / HTML-страница | Экран покупателя, который открыт внутри 1С в `Поле HTML-документа`. |
+| `window` | Объект HTML-страницы, через который 1С получает доступ к методам страницы. |
+| HTML API | Набор методов страницы, которые можно вызвать из 1С. В нашем случае это `window.BolarsSelfCheckout.*`. |
+| command | Команда от Web в 1С: "покупатель сделал действие". |
+| payload | Данные внутри команды. Например, штрихкод, строка поиска или телефон. |
+| outbound queue | Очередь команд Web -> 1С. Простыми словами: ящик, куда Web кладёт действия покупателя, а 1С периодически забирает. |
+| drain | Забрать команды из очереди. Это значит "1С прочитала", но ещё не значит "команда успешно выполнена". |
+| snapshot | Полный снимок состояния покупки от 1С в Web: экран, корзина, итоги, поиск, оплата, ошибки. |
+| authoritative | Авторитетный, главный. Если 1С прислала snapshot, Web показывает именно его и не пересчитывает бизнес-логику сам. |
+| adapter | Режим подключения runtime. Для 1С нужен `onec`; для демо есть `mock`; для проверки состояний есть `preview`. |
+| debug panel | Служебная панель сверху. Нужна для интеграции и диагностики, покупателю не показывается. |
 
 ## 3. Как Получить API Из 1С
+
+Вызывать API нужно после загрузки HTML-документа. В разных версиях 1С это может быть событие вроде "документ сформирован/загружен".
 
 Псевдокод:
 
@@ -50,6 +93,8 @@ API = ОкноHTML.BolarsSelfCheckout;
     Возврат;
 КонецЕсли;
 ```
+
+`API = Неопределено` обычно означает одно из трёх: страница ещё грузится, открыт не BOLARS route, либо 1С не получила доступ к `window/defaultView` в вашей версии платформы.
 
 Проверка готовности:
 
@@ -74,9 +119,11 @@ API = ОкноHTML.BolarsSelfCheckout;
 }
 ```
 
+Если `adapterKind` не равен `onec`, значит страница открыта не в текущем 1С-интеграционном режиме.
+
 ## 4. Как Забрать События Из Web
 
-Web складывает команды пользователя в outbound queue.
+Web складывает команды пользователя в outbound queue. Это не файл, не textarea и не ручной обмен JSON. Это программная очередь внутри HTML-страницы.
 
 1С читает очередь по таймеру, например каждые `100-300 ms` во время активной покупки.
 
@@ -104,6 +151,8 @@ Web складывает команды пользователя в outbound que
 
 Команда считается завершённой, когда 1С вернула snapshot с тем же `commandId` в `lastProcessedCommandId` / `lastCommandResult`.
 
+Если 1С забрала команду, но не вернула snapshot, Web продолжит считать команду незавершённой. Это будет видно в debug panel.
+
 ## 5. Пример Команды Из Web
 
 ```json
@@ -117,6 +166,14 @@ Web складывает команды пользователя в outbound que
   }
 }
 ```
+
+Поля команды:
+
+- `type` - что сделал покупатель;
+- `commandId` - уникальный номер команды, по нему связываем команду и ответный snapshot;
+- `issuedAt` - время создания команды на стороне Web;
+- `source` - откуда пришло действие: сканер, клавиатура, кнопка;
+- `payload` - данные команды.
 
 Типовые команды:
 
@@ -137,6 +194,13 @@ Web складывает команды пользователя в outbound que
 
 Полный список команд: `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`.
 
+После последнего UI-среза:
+
+- Поиск вводится покупателем через экранную клавиатуру Web. 1С видит только команду `searchProducts` после `4+` символов.
+- В ответе на `searchProducts` верните `searchState.query` равным `Команда.payload.query`; иначе Web не покажет кандидатов как результат текущего ввода.
+- `candidateId` в `selectSearchCandidate` должен совпадать с `candidateId`, который 1С ранее вернула в `searchState.candidates`.
+- Телефон вводится через центральный numeric numpad Web. 1С получает `applyDiscountByPhone` с `payload.phone` в формате `+7 900 123 45 67`.
+
 ## 6. Что Делает 1С После Команды
 
 Псевдокод:
@@ -150,6 +214,14 @@ Web складывает команды пользователя в outbound que
 
     ИначеЕсли Команда.type = "searchProducts" Тогда
         Состояние = НайтиТоварыВ1С(Команда.payload.query);
+
+    ИначеЕсли Команда.type = "selectSearchCandidate" Тогда
+        // candidateId должен быть тем же, который 1С ранее отдала в searchState.candidates.
+        Состояние = ДобавитьНайденныйТоварВПокупку(Команда.payload.candidateId);
+
+    ИначеЕсли Команда.type = "applyDiscountByPhone" Тогда
+        // Телефон приходит уже с +7, например "+7 900 123 45 67".
+        Состояние = ПроверитьСкидкуПоТелефону(Команда.payload.phone);
 
     ИначеЕсли Команда.type = "startPayment" Тогда
         Состояние = НачатьОплатуЧерезЭквайринг();
@@ -195,89 +267,35 @@ Apply = ПрочитатьJSON(ApplyJSON);
 КонецЕсли;
 ```
 
-## 8. Минимальный Snapshot
+`receiveRuntimeConfig()` и `receiveCatalog()` сейчас не используйте как рабочий путь. Они есть в API как reserved helpers, но не меняют корзину, поиск или оплату.
 
-Это упрощённый пример. В реальной интеграции отдавайте полный snapshot по контракту.
+## 8. Snapshot: Что Обязательно Отдавать
 
-```json
-{
-  "snapshotVersion": 15,
-  "sessionId": "sale-001",
-  "currentScreen": "cart",
-  "lastProcessedCommandId": "cmd-001",
-  "lastCommandResult": {
-    "ok": true,
-    "commandId": "cmd-001"
-  },
-  "cart": {
-    "status": "active",
-    "lineCount": 1
-  },
-  "cartLines": [
-    {
-      "lineId": "line-001",
-      "position": 1,
-      "productId": "product-001",
-      "name": "Клей плиточный БОЛАРС",
-      "quantity": 1,
-      "lineTotal": {
-        "amount": 52000,
-        "currency": "RUB",
-        "formatted": "520 ₽"
-      }
-    }
-  ],
-  "totals": {
-    "payableTotal": {
-      "amount": 52000,
-      "currency": "RUB",
-      "formatted": "520 ₽"
-    }
-  },
-  "searchState": {
-    "status": "idle",
-    "query": "",
-    "candidates": []
-  },
-  "paymentState": {
-    "status": "idle"
-  },
-  "scannerState": {
-    "status": "productDetected"
-  },
-  "discount": {
-    "status": "none"
-  },
-  "manager": {
-    "status": "none"
-  },
-  "modalState": {
-    "kind": "none"
-  },
-  "textScale": "normal",
-  "themeProfile": {
-    "id": "bolars-light-default",
-    "status": "loaded",
-    "version": "0.1",
-    "tokenSetId": "bolars-light-default"
-  },
-  "uiConfig": {
-    "texts": {},
-    "packages": [],
-    "timeouts": {
-      "inactivityMs": 300000,
-      "finalScreenMs": 5000
-    }
-  },
-  "featureFlags": {
-    "manualSearch": true,
-    "discount": true,
-    "managerBinding": true
-  },
-  "alerts": [],
-  "updatedAt": "2026-05-23T12:00:01.000Z"
-}
+Snapshot - это полный снимок состояния покупки. Web не должен догадываться, какие цены, скидки, товары или экран теперь правильные. 1С должна прислать всё нужное для показа.
+
+Не копируйте старые укороченные JSON-примеры как готовый payload. Web принимает полный `SelfCheckoutStateSnapshot` по контракту `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`.
+
+Минимально проверьте, что в каждом snapshot есть актуальные имена полей:
+
+```text
+snapshotVersion, sessionId, terminalStatus, currentScreen,
+cart, cartLines, totals, discount, manager,
+searchState, scannerState, paymentState,
+alerts, modalState, textScale, themeProfile,
+uiConfig, featureFlags, adapterKind, updatedAt
 ```
+
+Критичные детали текущего контракта:
+
+- `modalState` использует поле `type`, например `{ "type": "none" }`, не `kind`.
+- `featureFlags` использует имена `manualSearchEnabled`, `quantityNumpadEnabled`, `packagesEnabled`, `discountByPhoneEnabled`, `managerBindingEnabled`, `paymentRetryEnabled`, `finalReceiptPreviewEnabled`.
+- `uiConfig` использует `packageButtons`, `searchMinLength`, `searchFields`, `searchMaxCandidates`, `finalAutoResetSeconds`, `inactivityTimeoutSeconds`, `inactivityWarningSeconds`; старые поля `packages` / `timeouts` не являются текущим контрактом.
+- `cart` должен содержать `id`, `status`, `lineCount`, `itemCount`, `isEmpty`, `canGoToPayment`, `updatedAt`.
+- Каждая строка `cartLines` должна содержать `positionNumber`, `sku`, `quantityMode`, `unitLabel`, `unitPrice`, `lineTotal`, `isRemovable`, `quantityControls`.
+- `searchState.candidates[].candidateId` должен быть стабильным до выбора кандидата.
+- `adapterKind` в присланном snapshot может быть передан, но Web всё равно отрисует свой текущий adapter kind.
+
+Практический смысл: если поле есть в контракте и влияет на экран, лучше отдавать его всегда. Не рассчитывайте, что Web сам подставит бизнес-значение.
 
 ## 9. Правила Snapshot
 
@@ -287,6 +305,10 @@ Apply = ПрочитатьJSON(ApplyJSON);
 - `currentScreen` должен быть известным: `start`, `cart`, `paymentSetup`, `paymentWaiting`, `paymentError`, `finalSuccess`.
 - После каждой принятой команды желательно возвращать `lastProcessedCommandId`.
 - UI не чинит бизнес-поля молча. Если snapshot invalid, он сохраняет последний валидный экран.
+
+`snapshotVersion` - это номер версии снимка. Увеличивайте его при каждом новом ответе 1С. Это защищает экран от старых ответов, которые пришли позже новых.
+
+`lastProcessedCommandId` - это связь ответа с командой. Если Web отправил `cmd-001`, то после обработки этой команды snapshot должен содержать `lastProcessedCommandId = "cmd-001"`.
 
 ## 10. Мини-Smoke Для 1С
 
@@ -334,6 +356,8 @@ API.getDebugStateJson()
 - `commandId` связан со snapshot;
 - apply status `ok`.
 
+Минимальный успешный результат: 1С забрала хотя бы одну команду Web и вернула snapshot, который Web принял без ошибки.
+
 ## 11. Что Нельзя Делать
 
 - Не использовать `window.Showcase` для BOLARS MVP.
@@ -343,4 +367,17 @@ API.getDebugStateJson()
 - Не передавать секреты в URL.
 - Не отправлять в debug сырые телефоны, карты, токены, внутренние ссылки 1С.
 - Не использовать `receiveCatalog()` как путь управления корзиной.
+- Не ждать `ackOutboundCommandsJson()` / `failOutboundCommandsJson()` - в текущем API этих методов нет.
 - Не делать Честный знак, ККТ/фискализацию и production payment internals в этом контуре без отдельной задачи.
+
+## 12. Что Считать Готовностью Интеграции
+
+Для первого интеграционного шага достаточно:
+
+- 1С открывает debug URL в `Поле HTML-документа`;
+- 1С получает `window.BolarsSelfCheckout`;
+- `getRuntimeInfoJson()` возвращает `ready=true` и `adapterKind=onec`;
+- 1С забирает команды через `drainOutboundCommandsJson()`;
+- 1С отдаёт полный snapshot через `receiveStateSnapshot(...)`;
+- `getLastApplyStatusJson()` возвращает `ok=true`;
+- debug panel показывает связь команды и snapshot по `commandId`.
