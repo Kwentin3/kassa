@@ -207,10 +207,10 @@ Acceptance criteria:
 | Пользовательский контекст | Покупатель закончил scan/cart editing. |
 | Входные сценарии | `goToPaymentSetup()`. |
 | Выходные сценарии | `startPayment()`, `returnToPurchase()`, `cancelPurchaseRequest()`, help. |
-| Обязательные зоны | Header, order review card, packages card, discount/phone card, final total band, payment CTA, help. |
+| Обязательные зоны | Header, order review card, packages card, discount/phone card, payment CTA with payable total, help. |
 | Optional зоны | Manager badge, applied discount badge, package selected state. |
 | Постоянные зоны | Bottom `Оплатить` CTA. |
-| Главная CTA | `Оплатить`, full-width green. |
+| Главная CTA | `Оплатить` with payable total, full-width green. |
 | Вторичные действия | Add package, apply discount phone, scan discount, bind manager, return/cancel/help. |
 | Runtime state | `cartLines`, `totals`, `discount`, `manager`, `paymentState.status='idle|preparing'`, `featureFlags`. |
 | Tokens | `discount.*`, `color.cta.pay.*`, `manager.badge.*`, `radius.card`, `shadow.card`. |
@@ -456,9 +456,8 @@ Required screen zones in vertical order:
 3. Subtotal/discount/payable total section inside or immediately after review card.
 4. Package card with three package actions and prices when runtime provides prices.
 5. Discount/bonus card with phone input, keypad/apply action and result state.
-6. Cyan final-total band.
-7. Full-width green `Оплатить`.
-8. Help card.
+6. Full-width green `Оплатить` CTA with payable total.
+7. Help card.
 
 Acceptance additions:
 
@@ -525,7 +524,7 @@ Critical zones:
 | --- | --- |
 | Start | brand identity, scan instruction, scanner cue, scan action, manual search fallback, visible help/text-scale access. |
 | Cart | title, search/add scan controls, product/empty state, payable total, `Перейти к оплате`. |
-| Payment setup | order summary, packages access, discount access, final total, `Оплатить`. |
+| Payment setup | order summary, packages access, discount access, payable total on `Оплатить` CTA. |
 | Payment waiting | amount, apply-card instruction, waiting status, payment visual cue. |
 | Payment error | error message, amount/order context, retry and return actions. |
 | Final success | success mark, thanks text, countdown reset. |
@@ -556,8 +555,8 @@ For `landscapeCompact` (`1366x768`, `1280x800` class):
 
 - Use two-column composition when width allows:
   - left: order review with internal scroll;
-  - right: packages, discount, final total and `Оплатить`.
-- `Оплатить` and payable total are always visible without page scroll.
+  - right: packages, discount and `Оплатить` CTA with payable total.
+- `Оплатить` with payable total is always visible without page scroll.
 - Package and discount cards may become compact rows; they must not disappear behind review details.
 - Long order details scroll inside review card, not by pushing payment CTA below the viewport.
 - Help collapses below/aside only if primary payment path remains visible.
@@ -607,7 +606,7 @@ Cart rules for 1C:
 
 Payment/final rules for 1C:
 
-- Payment setup keeps final total and `Оплатить` visible while order review scrolls internally.
+- Payment setup keeps `Оплатить` with payable total visible while order review scrolls internally.
 - Payment waiting keeps amount, instruction and waiting status visible; payment visual is a cue, not a fixed-height illustration.
 - Final success keeps success mark and countdown visible; receipt preview collapses before countdown.
 

@@ -56,7 +56,7 @@
 - [ ] Payment setup contains order-review card with product rows/thumbnails and subtotal/discount/payable total.
 - [ ] Payment setup package actions are magenta-outline cards and include price when runtime supplies it.
 - [ ] Payment setup discount block separates phone input/apply action/status and shows applied/not-found state near totals.
-- [ ] Payment setup has cyan final-total band and full-width green `Оплатить` bottom CTA.
+- [ ] Payment setup has a full-width green `Оплатить` bottom CTA with payable total inside the button.
 - [ ] Payment waiting contains top amount/order summary card, central payment terminal/card visual, instruction and compact order preview.
 - [ ] Payment error preserves order context and shows retry/return recovery cards only when runtime permits.
 - [ ] Final success contains green success mark, receipt preview and countdown card with seconds/progress.
@@ -70,7 +70,7 @@
 - [ ] Visual smoke покрывает `1080x1920`, `1920x1080`, `1366x768`, `1280x800`.
 - [ ] Для `1366x768` start показывает без page scroll: brand identity, scan instruction, scanner cue, scan action, manual search fallback and visible text-scale/help access.
 - [ ] Для `1366x768` cart показывает без page scroll: search/add scan controls, product/empty state, payable total and `Перейти к оплате`.
-- [ ] Для `1366x768` payment setup показывает без page scroll: order summary, package access, discount access, final total and `Оплатить`.
+- [ ] Для `1366x768` payment setup показывает без page scroll: order summary, package access, discount access and `Оплатить` CTA with payable total.
 - [ ] Для `1366x768` payment waiting показывает без page scroll: amount, `Приложите карту к терминалу оплаты`, waiting status and payment visual cue.
 - [ ] Для `1366x768` payment error показывает без page scroll: error message, amount/order context, retry and return actions.
 - [ ] Для `1366x768` final success показывает без page scroll: success mark, thank-you copy and countdown reset.

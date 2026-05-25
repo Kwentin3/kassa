@@ -35,7 +35,7 @@ Refactor rule: перед визуальным refactor реализации с�
 | --- | --- |
 | `стартовый экран 23 мая 2026 г., 10_05_21 (1).png` | Start screen: брендовая шапка, центральная scan-инструкция, scanner visual, action cards, A/A+/A++, help. |
 | `корзина  23 мая 2026 г., 10_05_21 (2).png` | Cart screen: рабочий список товаров, поиск, scan hint, quantity controls, persistent summary CTA, manager badge. |
-| `подтверждение заказа 23 мая 2026 г., 10_05_21 (3).png` | Payment setup: проверка заказа, пакеты, скидки/телефон, финальная сумма, `Оплатить`. |
+| `подтверждение заказа 23 мая 2026 г., 10_05_21 (3).png` | Payment setup: проверка заказа, пакеты, скидки/телефон, сумма на CTA `Оплатить`. |
 | `оплата  23 мая 2026 г., 10_05_21 (4).png` | Payment waiting/error family: сумма, инструкция приложить карту, крупный status, preview заказа, retry/return actions. |
 | `завершение  23 мая 2026 г., 10_05_21 (5).png` | Final success: green success mark, благодарность, receipt preview, countdown reset. |
 
@@ -113,7 +113,7 @@ Minimum customer guarantees for `landscapeCompact`:
 
 - Start: scan instruction, scanner cue, scan action, manual search fallback, text scale and help access are visible or collapsed into explicit visible controls without page scroll.
 - Cart: search, add/scan product, at least one product row or empty state, payable total and `Перейти к оплате` are visible without page scroll.
-- Payment setup: order review summary, package access, discount access, final total and `Оплатить` are visible without page scroll; long order details may scroll inside review.
+- Payment setup: order review summary, package access, discount access and `Оплатить` CTA with payable total are visible without page scroll; long order details may scroll inside review.
 - Payment waiting: payable amount, instruction `Приложите карту к терминалу оплаты`, waiting status and payment visual cue are visible without page scroll.
 - Payment error: error message, amount/order context, retry/return actions are visible without page scroll.
 - Final success: success mark, thank-you text and countdown reset are visible without page scroll; receipt details may become compact/collapsed.
@@ -216,8 +216,7 @@ Header визуально чёрный, с белым текстом и magenta/
 - Package card: три package actions, outline magenta.
 - Discounts/bonuses card: инструкция сканировать карту или ввести телефон; phone input/display opens a central numeric numpad modal, not the search keyboard.
 - Applied discount status: green success chip/card, не перекрывает поле телефона.
-- Final total band: крупная итоговая сумма.
-- Bottom CTA: full-width green `Оплатить`.
+- Bottom CTA: full-width green `Оплатить` with payable total.
 
 ### 8.4 Ожидание Оплаты
 
@@ -416,8 +415,7 @@ Reference anatomy:
 - package card with three magenta-outline package actions and package prices;
 - discount/bonus card with phone input/keypad action and green applied-discount state;
 - phone entry opens central numeric numpad modal with clear/backspace/apply/close actions;
-- cyan final-total band;
-- full-width green bottom `Оплатить`;
+- full-width green bottom `Оплатить` with payable total;
 - help card below.
 
 Current MVP delta to close:

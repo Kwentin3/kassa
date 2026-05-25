@@ -202,6 +202,23 @@ describe('BOLARS Self-Checkout App', () => {
     expect(reviewPanel.querySelector('.bolars-review-line')).toHaveTextContent(/1 шт · 480 ₽/);
   });
 
+  it('shows the payable amount in the payment CTA without a duplicate bottom total band', async () => {
+    setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentSetup');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    await waitFor(() => expect(container.querySelector('.bolars-pay-bottom')).toBeInTheDocument());
+    const payButton = container.querySelector('.bolars-pay-bottom') as HTMLElement;
+    const reviewTotal = container.querySelector('.bolars-review-totals .total b')?.textContent;
+    const ctaTotal = payButton.querySelector('.bolars-pay-bottom-amount')?.textContent;
+    const normalizeAmount = (value?: string | null) => value?.replace(/\s+/g, ' ').trim();
+    const normalizedReviewTotal = normalizeAmount(reviewTotal) ?? '';
+
+    expect(normalizedReviewTotal).not.toBe('');
+    expect(container.querySelector('.bolars-final-total-band')).not.toBeInTheDocument();
+    expect(normalizeAmount(ctaTotal)).toBe(normalizedReviewTotal);
+    expect(normalizeAmount(payButton.textContent)).toContain(normalizedReviewTotal);
+  });
+
   it('opens central phone numpad and applies discount from the numeric draft', async () => {
     setRoute('/bolars/self-checkout-mvp');
     render(<BolarsSelfCheckoutApp />);

@@ -583,12 +583,11 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
             {snapshot.discount.status === 'applied' && <div className="bolars-success-note">{snapshot.discount.message}</div>}
             {snapshot.discount.status === 'notFound' && <div className="bolars-warning-note">{snapshot.discount.message}</div>}
           </section>
-          <div className="bolars-final-total-band">
-            <span>{copy(snapshot, 'totalToPay')}</span>
-            <strong>{snapshot.totals.payableTotal.formatted}</strong>
-          </div>
           <button className="bolars-primary-action bolars-pay-bottom" type="button" onClick={() => send('startPayment', undefined)}>
-            <CreditCard size={34} /> {copy(snapshot, 'pay')} <ArrowRight size={34} />
+            <CreditCard size={34} />
+            <span className="bolars-pay-bottom-label">{copy(snapshot, 'pay')}</span>
+            <strong className="bolars-pay-bottom-amount">{snapshot.totals.payableTotal.formatted}</strong>
+            <ArrowRight size={34} />
           </button>
           <button className="bolars-info-action full" type="button" onClick={() => send('bindManager', { code: '900000000001' }, 'scanner')}>
             <UserCheck size={24} /> {copy(snapshot, 'managerCard')}
