@@ -217,6 +217,7 @@ describe('BOLARS Self-Checkout App', () => {
     expect(container.querySelector('.bolars-final-total-band')).not.toBeInTheDocument();
     expect(normalizeAmount(ctaTotal)).toBe(normalizedReviewTotal);
     expect(normalizeAmount(payButton.textContent)).toContain(normalizedReviewTotal);
+    expect(normalizeAmount(payButton.getAttribute('aria-label'))).toContain(normalizedReviewTotal);
   });
 
   it('opens central phone numpad and applies discount from the numeric draft', async () => {
