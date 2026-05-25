@@ -212,6 +212,15 @@ Web складывает команды пользователя в outbound que
 - `returnToPurchase` из `paymentSetup` означает обычный возврат в корзину без очистки чека. Если открыта модалка, команда только закрывает модалку. Отмена покупки остаётся отдельной командой `cancelPurchaseRequest`.
 - Телефон вводится через центральный numeric numpad Web. 1С получает `applyDiscountByPhone` с `payload.phone` в формате `+7 900 123 45 67`.
 
+Важно про кнопку назад:
+
+- Web не хранит доверенную историю экранов и не восстанавливает старую корзину из памяти браузера.
+- Кнопка назад в верхней панели отправляет команду `returnToPurchase`.
+- После этой команды 1С должна прислать новый полный snapshot.
+- Для возврата из `paymentSetup` поставьте `currentScreen="cart"` и верните тот же чек: `cartLines`, `cart`, `totals`, `discount`, `manager`, `paymentState` и остальные обязательные поля.
+- Если на экране открыта модалка, `returnToPurchase` должен только закрыть её: вернуть тот же underlying screen и `modalState={ "type": "none" }`.
+- Не очищайте чек на `returnToPurchase`. Очистка покупки относится только к `cancelPurchaseRequest` / `confirmCancelPurchase`.
+
 ## 6. Что Делает 1С После Команды
 
 Псевдокод:
@@ -233,6 +242,14 @@ Web складывает команды пользователя в outbound que
     ИначеЕсли Команда.type = "applyDiscountByPhone" Тогда
         // Телефон приходит уже с +7, например "+7 900 123 45 67".
         Состояние = ПроверитьСкидкуПоТелефону(Команда.payload.phone);
+
+    ИначеЕсли Команда.type = "returnToPurchase" Тогда
+        Если Состояние.modalState.type <> "none" Тогда
+            Состояние.modalState = НовыйModalStateNone();
+        ИначеЕсли Состояние.currentScreen = "paymentSetup" Тогда
+            Состояние.currentScreen = "cart";
+            // Чек, итоги, скидка, менеджер и paymentState остаются из текущей покупки.
+        КонецЕсли;
 
     ИначеЕсли Команда.type = "startPayment" Тогда
         Состояние = НачатьОплатуЧерезЭквайринг();

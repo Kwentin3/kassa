@@ -557,6 +557,15 @@ Correlation requirement:
 - If command was rejected before business state changed, 1С/runtime should return snapshot with `lastCommandResult.ok=false` and a user-readable alert if needed.
 - If a snapshot is periodic and not tied to a command, `lastProcessedCommandId` may be omitted.
 
+Navigation requirement:
+
+- Web does not maintain a trusted previous-screen snapshot or browser-history state for the purchase flow.
+- `returnToPurchase` is an outbound user intent, not a local UI rollback.
+- 1С/runtime must answer navigation commands with a full authoritative snapshot.
+- For `returnToPurchase` from `paymentSetup`, return `currentScreen='cart'` with the existing `cartLines`, `cart`, `totals`, `discount`, `manager`, `paymentState` and other required snapshot fields still populated.
+- If `modalState.type !== 'none'`, `returnToPurchase` should only close the modal by returning the same underlying screen with `modalState={ "type": "none" }`.
+- Clearing the receipt belongs only to the destructive cancel flow: `cancelPurchaseRequest` plus `confirmCancelPurchase`.
+
 ## 12. Workflow Mapping
 
 | User workflow | Command | 1С/runtime responsibility | Snapshot result |

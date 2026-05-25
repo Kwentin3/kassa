@@ -124,9 +124,11 @@ type SelfCheckoutCommand =
 
 Commands map to user intentions. They do not encode backend-specific procedures.
 
+Navigation commands are snapshot-driven intents, not browser history. UI must not keep a private previous-screen stack or restore an old React/UI state as source of truth. After a navigation command, runtime/1C must return the next authoritative `SelfCheckoutStateSnapshot`; UI only renders that snapshot.
+
 `removeCartLine({ lineId })` is the single removal command for any receipt line: product, package or other runtime-supplied removable line. Runtime must remove the matching `cartLines[]` entry, recalculate `cart`, `totals`, `paymentState.amount` and any receipt/order preview data in the next authoritative snapshot. When dispatched from `cart`, the next editable screen remains `cart`. When dispatched from `paymentSetup` and lines remain, the next editable screen remains `paymentSetup`; if the last line is removed, runtime returns to an empty `cart` state with `cart.canGoToPayment=false`. `removeCartLine` is not allowed once the cart is locked for payment (`paymentWaiting`, `finalSuccess`).
 
-`returnToPurchase()` is the non-destructive back/return command for editable purchase flow. If a modal is open, runtime closes the modal and keeps the underlying screen. If no modal is open and `currentScreen='paymentSetup'`, runtime returns to `cart` with the same `cartLines` and recalculated totals. It must not clear the cart. Destructive purchase cancellation stays a separate `cancelPurchaseRequest()` command.
+`returnToPurchase()` is the non-destructive back/return command for editable purchase flow. If a modal is open, runtime closes the modal and keeps the underlying screen. If no modal is open and `currentScreen='paymentSetup'`, runtime returns to `cart` with the same receipt state in `cartLines`, `totals`, `discount`, `manager` and related fields. It must not clear the cart and must not rely on Web restoring prior UI memory. Destructive purchase cancellation stays a separate `cancelPurchaseRequest()` command.
 
 ## 6. Runtime Events
 
