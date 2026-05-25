@@ -1539,7 +1539,7 @@ select:focus-visible {
 
 .bolars-review-line {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto 56px;
   align-items: center;
   min-height: 96px;
 }
@@ -1553,6 +1553,15 @@ select:focus-visible {
 .bolars-review-line b {
   justify-self: end;
   white-space: nowrap;
+}
+
+.bolars-review-delete {
+  display: grid;
+  justify-self: end;
+  place-items: center;
+  width: 56px;
+  min-height: 56px;
+  padding: 0;
 }
 
 .bolars-review-totals {
@@ -2953,8 +2962,13 @@ select:focus-visible {
   }
 
   .bolars-review-line {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) auto 48px;
     min-height: clamp(64px, 10dvh, 84px);
+  }
+
+  .bolars-review-delete {
+    width: 48px;
+    min-height: 48px;
   }
 
   .bolars-review-totals {
@@ -3256,9 +3270,9 @@ select:focus-visible {
     grid-template-columns: 110px minmax(0, 1fr);
   }
 
-  .bolars-quantity-control,
-  .bolars-line-total,
-  .bolars-delete {
+  .bolars-cart-line .bolars-quantity-control,
+  .bolars-cart-line .bolars-line-total,
+  .bolars-cart-line .bolars-delete {
     grid-column: 2;
   }
 
@@ -3290,6 +3304,10 @@ select:focus-visible {
   .bolars-review-line b {
     justify-self: start;
     white-space: normal;
+  }
+
+  .bolars-review-delete {
+    justify-self: start;
   }
 }
 

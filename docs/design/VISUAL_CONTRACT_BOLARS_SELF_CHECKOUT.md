@@ -212,7 +212,7 @@ Header визуально чёрный, с белым текстом и magenta/
 ### 8.3 Подготовка к Оплате
 
 - `workHeader`: title `Оплата`, cancel, text scale, manager badge.
-- Order review card: compact список товаров, итог, скидка, сумма к оплате.
+- Order review card: compact список товаров, delete action for removable receipt lines, итог, скидка, сумма к оплате.
 - Package card: три package actions, outline magenta.
 - Discounts/bonuses card: инструкция сканировать карту или ввести телефон; phone input/display opens a central numeric numpad modal, not the search keyboard.
 - Applied discount status: green success chip/card, не перекрывает поле телефона.
@@ -410,7 +410,7 @@ Current MVP delta to close:
 Reference anatomy:
 
 - black `workHeader` with title `Оплата`;
-- main order review card with product images, quantities and line totals;
+- main order review card with product images, quantities, line totals and delete action for removable receipt lines;
 - subtotal/discount/payable total block inside review card;
 - package card with three magenta-outline package actions and package prices;
 - discount/bonus card with phone input/keypad action and green applied-discount state;

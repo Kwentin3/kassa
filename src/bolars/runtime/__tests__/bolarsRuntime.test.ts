@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createRuntimeAdapterFactory } from '../adapterFactory';
 import { createCommand } from '../commands';
-import { MOCK_PRODUCTS, createEmptySnapshot, getNextMockScanProduct } from '../defaults';
+import { MOCK_PRODUCTS, PACKAGE_PRODUCTS, createEmptySnapshot, getNextMockScanProduct } from '../defaults';
 import { MockAdapter } from '../mockAdapter';
 import { OneCInterfaceAdapter } from '../onecInterfaceAdapter';
 import { PreviewAdapter } from '../previewAdapter';
@@ -95,6 +95,39 @@ describe('BOLARS MockAdapter', () => {
 
     await adapter.dispatch(createCommand('selectSearchCandidate', { candidateId }));
     expect(adapter.getState().cartLines).toHaveLength(1);
+  });
+
+  it('removes product and package lines through one command while preserving editable screen', async () => {
+    const adapter = new MockAdapter(createRuntimeAdapterFactory(route()).routeContext);
+
+    await adapter.dispatch(createCommand('startPurchase', undefined));
+    await adapter.dispatch(createCommand('scanCode', { code: MOCK_PRODUCTS[0].barcode }, 'scanner'));
+    await adapter.dispatch(createCommand('goToPaymentSetup', undefined));
+    await adapter.dispatch(createCommand('addPackage', { packageCode: PACKAGE_PRODUCTS[0].barcode }));
+
+    expect(adapter.getState().currentScreen).toBe('paymentSetup');
+    expect(adapter.getState().cartLines).toHaveLength(2);
+    expect(adapter.getState().totals.packageSubtotal.amount).toBeGreaterThan(0);
+
+    const packageLine = adapter.getState().cartLines.find((line) => line.productId.startsWith('package-'));
+    expect(packageLine).toBeDefined();
+    await adapter.dispatch(createCommand('removeCartLine', { lineId: packageLine!.lineId }));
+
+    expect(adapter.getState().currentScreen).toBe('paymentSetup');
+    expect(adapter.getState().cartLines).toHaveLength(1);
+    expect(adapter.getState().cartLines.some((line) => line.productId.startsWith('package-'))).toBe(false);
+    expect(adapter.getState().totals.packageSubtotal.amount).toBe(0);
+    expect(adapter.getState().totals.payableTotal.amount).toBe(adapter.getState().cartLines[0].lineTotal.amount);
+    expect(adapter.getState().cart.canGoToPayment).toBe(true);
+
+    const productLine = adapter.getState().cartLines[0];
+    await adapter.dispatch(createCommand('removeCartLine', { lineId: productLine.lineId }));
+
+    expect(adapter.getState().currentScreen).toBe('cart');
+    expect(adapter.getState().cartLines).toHaveLength(0);
+    expect(adapter.getState().cart.isEmpty).toBe(true);
+    expect(adapter.getState().cart.canGoToPayment).toBe(false);
+    expect(adapter.getState().totals.payableTotal.amount).toBe(0);
   });
 
   it('supports manager rejection and deterministic mock payment error', async () => {

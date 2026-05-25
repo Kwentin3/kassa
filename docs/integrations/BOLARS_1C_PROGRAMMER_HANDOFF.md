@@ -208,6 +208,7 @@ Web складывает команды пользователя в outbound que
 - Поиск вводится покупателем через экранную клавиатуру Web. 1С видит только команду `searchProducts` после `4+` символов.
 - В ответе на `searchProducts` верните `searchState.query` равным `Команда.payload.query`; иначе Web не покажет кандидатов как результат текущего ввода.
 - `candidateId` в `selectSearchCandidate` должен совпадать с `candidateId`, который 1С ранее вернула в `searchState.candidates`.
+- `removeCartLine` удаляет любую строку чека по `payload.lineId`: товар, пакет или другую removable строку. 1С возвращает новый snapshot с обновлёнными `cartLines`, `cart`, `totals` и суммой оплаты; отдельной команды для удаления пакета нет.
 - Телефон вводится через центральный numeric numpad Web. 1С получает `applyDiscountByPhone` с `payload.phone` в формате `+7 900 123 45 67`.
 
 ## 6. Что Делает 1С После Команды

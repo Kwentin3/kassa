@@ -202,6 +202,32 @@ describe('BOLARS Self-Checkout App', () => {
     expect(reviewPanel.querySelector('.bolars-review-line')).toHaveTextContent(/1 шт · 480 ₽/);
   });
 
+  it('removes a review line from payment setup through the shared delete action', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Сканировать тестовый товар/i }));
+    await screen.findByText('Ваши покупки');
+    fireEvent.click(screen.getByRole('button', { name: /Перейти к оплате/i }));
+    await screen.findByText('Оплата');
+
+    const packageButton = container.querySelector('.bolars-package-grid button') as HTMLButtonElement;
+    fireEvent.click(packageButton);
+    await waitFor(() => expect(container.querySelectorAll('.bolars-review-line')).toHaveLength(2));
+
+    const initialPayable = container.querySelector('.bolars-pay-bottom-amount')?.textContent;
+    const packageLine = Array.from(container.querySelectorAll<HTMLElement>('.bolars-review-line')).find((line) => line.textContent?.includes('пакет'));
+    expect(packageLine).toBeDefined();
+    fireEvent.click(within(packageLine!).getByRole('button', { name: /Удалить строку/i }));
+
+    await waitFor(() => expect(container.querySelectorAll('.bolars-review-line')).toHaveLength(1));
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-screen-paymentSetup');
+    expect(container.querySelector('.bolars-review-panel')).toHaveTextContent(/Клей плиточный БОЛАРС/i);
+    expect(Array.from(container.querySelectorAll<HTMLElement>('.bolars-review-line')).some((line) => line.textContent?.includes('пакет'))).toBe(false);
+    expect(container.querySelector('.bolars-pay-bottom')).not.toBeDisabled();
+    expect(container.querySelector('.bolars-pay-bottom-amount')?.textContent).not.toBe(initialPayable);
+  });
+
   it('shows the payable amount in the payment CTA without a duplicate bottom total band', async () => {
     setRoute('/bolars/self-checkout-mvp?debug=1&preview=1&scenario=paymentSetup');
     const { container } = render(<BolarsSelfCheckoutApp />);

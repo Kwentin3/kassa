@@ -124,6 +124,8 @@ type SelfCheckoutCommand =
 
 Commands map to user intentions. They do not encode backend-specific procedures.
 
+`removeCartLine({ lineId })` is the single removal command for any receipt line: product, package or other runtime-supplied removable line. Runtime must remove the matching `cartLines[]` entry, recalculate `cart`, `totals`, `paymentState.amount` and any receipt/order preview data in the next authoritative snapshot. When dispatched from `cart`, the next editable screen remains `cart`. When dispatched from `paymentSetup` and lines remain, the next editable screen remains `paymentSetup`; if the last line is removed, runtime returns to an empty `cart` state with `cart.canGoToPayment=false`. `removeCartLine` is not allowed once the cart is locked for payment (`paymentWaiting`, `finalSuccess`).
+
 ## 6. Runtime Events
 
 Events are optional metadata emitted with snapshot updates. UI must not depend on events instead of snapshot state, but events are useful for short visual feedback and logs.

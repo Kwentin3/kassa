@@ -211,7 +211,7 @@ Acceptance criteria:
 | Optional зоны | Manager badge, applied discount badge, package selected state. |
 | Постоянные зоны | Bottom `Оплатить` CTA. |
 | Главная CTA | `Оплатить` with payable total, full-width green. |
-| Вторичные действия | Add package, apply discount phone, scan discount, bind manager, return/cancel/help. |
+| Вторичные действия | Add package, remove receipt line, apply discount phone, scan discount, bind manager, return/cancel/help. |
 | Runtime state | `cartLines`, `totals`, `discount`, `manager`, `paymentState.status='idle|preparing'`, `featureFlags`. |
 | Tokens | `discount.*`, `color.cta.pay.*`, `manager.badge.*`, `radius.card`, `shadow.card`. |
 | uiConfig | `packagesEnabled`, `discountByPhoneEnabled`, `managerBindingEnabled`, `showHelpAction`. |
@@ -223,11 +223,13 @@ Visual states:
 - discount applied: green confirmation with amount.
 - discount not found: warning/error inline, payment remains available unless runtime disables.
 - package added: order review/totals update after snapshot.
+- receipt line removed: any removable `cartLines[]` entry can be removed with `removeCartLine(lineId)`; order review, totals and payable CTA update only from the next runtime snapshot. If the last line is removed, runtime returns to empty cart with payment disabled.
 - manager bound: badge visible in header.
 
 Acceptance criteria:
 
 - Customer can review items without returning to cart for every detail.
+- Customer can remove the same receipt line types from cart and payment setup through the same `removeCartLine(lineId)` command.
 - Package cards are clear actions, not decorative.
 - Discount status does not obscure total.
 - `Оплатить` is disabled/busy only from runtime state.
@@ -452,7 +454,7 @@ Acceptance additions:
 Required screen zones in vertical order:
 
 1. `workHeader`.
-2. Order review card with product thumbnails, quantities and line totals.
+2. Order review card with product thumbnails, quantities, line totals and delete action for removable receipt lines.
 3. Subtotal/discount/payable total section inside or immediately after review card.
 4. Package card with three package actions and prices when runtime provides prices.
 5. Discount/bonus card with phone input, keypad/apply action and result state.

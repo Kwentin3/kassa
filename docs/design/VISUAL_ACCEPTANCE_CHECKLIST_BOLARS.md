@@ -202,6 +202,9 @@
 - [ ] Экран оплаты показывает менеджера, если он привязан.
 - [ ] Manager binding не вычисляется UI-компонентом.
 - [ ] Итоговая сумма крупная и визуально доминирует над деталями.
+- [ ] Order review на payment setup показывает delete action для removable receipt lines.
+- [ ] Удаление строки на cart и payment setup отправляет один typed command `removeCartLine(lineId)`.
+- [ ] После удаления строки payment setup остаётся на payment setup, если в чеке остались строки; удаление последней строки возвращает в empty cart/payment-disabled state.
 - [ ] `Оплатить` запускает только `startPayment()`.
 
 ## 8. Payment Waiting и Error
@@ -249,7 +252,7 @@
 - [ ] Mock mode не создаёт отдельную UI-архитектуру и не подменяет product/runtime contract.
 - [ ] Mock mode поддерживает product added.
 - [ ] Mock mode поддерживает repeated scan quantity increment.
-- [ ] Mock mode поддерживает product removed.
+- [ ] Mock mode поддерживает generic receipt line removed for product/package lines.
 - [ ] Mock mode поддерживает quantity numpad.
 - [ ] Mock mode поддерживает search searching/found/notFound/error.
 - [ ] Mock mode поддерживает barcode not found.

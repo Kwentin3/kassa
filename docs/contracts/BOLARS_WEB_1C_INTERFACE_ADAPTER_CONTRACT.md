@@ -567,6 +567,7 @@ Correlation requirement:
 | Выбор кандидата | `selectSearchCandidate(candidateId)` | Добавить/увеличить товар по ранее выданному `candidateId` | `cartLines` updated, `totals` updated |
 | Плюс/минус | `incrementQuantity` / `decrementQuantity` | Изменить количество, пересчитать totals | updated `cartLines` / `totals` |
 | Нумпад | `confirmQuantityInput(lineId, quantity)` | Валидировать количество, применить, пересчитать | updated `cart` |
+| Удаление строки | `removeCartLine(lineId)` | Удалить любую removable строку чека: товар, пакет или service line; пересчитать totals | updated `cartLines`, `cart`, `totals`; `paymentSetup` remains if lines remain |
 | Отмена покупки | `cancelPurchaseRequest` / `confirmCancelPurchase` | Решить modal/reset | `modalState` или `currentScreen=start` |
 | Скидка по телефону | `applyDiscountByPhone(phone)` | Проверить loyalty; телефон приходит строкой в формате `+7 900 123 45 67` | `discount` / `totals` updated |
 | Скидочная карта | `scanCode(discount code)` | Классифицировать код и проверить loyalty | `discount` / `totals` updated |

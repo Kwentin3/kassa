@@ -501,6 +501,18 @@ const CartLineRow = ({ line, send }: { line: CartLine; send: RuntimeActions['sen
   </article>
 );
 
+const PaymentReviewLine = ({ line, send }: { line: CartLine; send: RuntimeActions['send'] }) => (
+  <div className="bolars-review-line" data-cart-line-id={line.lineId}>
+    <span>{line.name}</span>
+    <b>{line.quantity} {line.unitLabel} · {line.lineTotal.formatted}</b>
+    {line.isRemovable && (
+      <button className="bolars-delete bolars-review-delete" type="button" aria-label={`Удалить строку ${line.name}`} onClick={() => send('removeCartLine', { lineId: line.lineId })}>
+        <Trash2 size={24} />
+      </button>
+    )}
+  </div>
+);
+
 const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
   const [phoneDigits, setPhoneDigits] = useState('');
   const [isPhoneNumpadOpen, setPhoneNumpadOpen] = useState(false);
@@ -526,10 +538,7 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
               </div>
             </div>
             {snapshot.cartLines.map((line) => (
-              <div className="bolars-review-line" key={line.lineId}>
-                <span>{line.name}</span>
-                <b>{line.quantity} {line.unitLabel} · {line.lineTotal.formatted}</b>
-              </div>
+              <PaymentReviewLine line={line} send={send} key={line.lineId} />
             ))}
             <div className="bolars-review-totals">
               {snapshot.totals.lines.map((line) => (
@@ -586,6 +595,7 @@ const PaymentSetupScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSna
           <button
             className="bolars-primary-action bolars-pay-bottom"
             type="button"
+            disabled={!snapshot.cart.canGoToPayment}
             aria-label={`${copy(snapshot, 'pay')} ${snapshot.totals.payableTotal.formatted}`}
             onClick={() => send('startPayment', undefined)}
           >

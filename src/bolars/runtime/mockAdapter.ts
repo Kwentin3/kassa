@@ -60,7 +60,8 @@ export class MockAdapter extends BaseRuntimeAdapter {
   }
 
   override async dispatch(command: SelfCheckoutCommand): Promise<CommandResult> {
-    if (this.finalTimer) {
+    const preservePendingPayment = this.snapshot.currentScreen === 'paymentWaiting' && command.type !== 'resetToStart';
+    if (this.finalTimer && !preservePendingPayment) {
       window.clearTimeout(this.finalTimer);
       this.finalTimer = undefined;
     }
@@ -235,11 +236,18 @@ export class MockAdapter extends BaseRuntimeAdapter {
       }
 
       case 'removeCartLine':
-        next = recalculateSnapshot(
-          this.snapshot,
-          this.snapshot.cartLines.filter((line) => line.lineId !== command.payload.lineId),
-          { screen: 'cart', modalState: { type: 'none' }, alerts: [{ id: `alert-${command.commandId}`, kind: 'info', title: 'Товар удалён' }] }
-        );
+        if (this.snapshot.currentScreen !== 'cart' && this.snapshot.currentScreen !== 'paymentSetup') {
+          return this.fail(command, 'notAllowedInCurrentState', 'Строки чека нельзя менять в текущем состоянии');
+        }
+        {
+          const remainingLines = this.snapshot.cartLines.filter((line) => line.lineId !== command.payload.lineId);
+          const nextScreen = this.snapshot.currentScreen === 'paymentSetup' && remainingLines.length > 0 ? 'paymentSetup' : 'cart';
+          next = recalculateSnapshot(
+            this.snapshot,
+            remainingLines,
+            { screen: nextScreen, modalState: { type: 'none' }, alerts: [{ id: `alert-${command.commandId}`, kind: 'info', title: 'Строка удалена' }] }
+          );
+        }
         break;
 
       case 'cancelPurchaseRequest':
