@@ -130,6 +130,30 @@ describe('BOLARS MockAdapter', () => {
     expect(adapter.getState().totals.payableTotal.amount).toBe(0);
   });
 
+  it('returns from payment setup to cart without clearing the cart and only closes active modals', async () => {
+    const adapter = new MockAdapter(createRuntimeAdapterFactory(route()).routeContext);
+
+    await adapter.dispatch(createCommand('startPurchase', undefined));
+    await adapter.dispatch(createCommand('scanCode', { code: MOCK_PRODUCTS[0].barcode }, 'scanner'));
+    await adapter.dispatch(createCommand('goToPaymentSetup', undefined));
+
+    expect(adapter.getState().currentScreen).toBe('paymentSetup');
+    await adapter.dispatch(createCommand('returnToPurchase', undefined));
+    expect(adapter.getState().currentScreen).toBe('cart');
+    expect(adapter.getState().cartLines).toHaveLength(1);
+    expect(adapter.getState().cart.canGoToPayment).toBe(true);
+
+    await adapter.dispatch(createCommand('goToPaymentSetup', undefined));
+    await adapter.dispatch(createCommand('cancelPurchaseRequest', undefined));
+    expect(adapter.getState().currentScreen).toBe('paymentSetup');
+    expect(adapter.getState().modalState.type).toBe('cancelPurchaseConfirm');
+
+    await adapter.dispatch(createCommand('returnToPurchase', undefined));
+    expect(adapter.getState().currentScreen).toBe('paymentSetup');
+    expect(adapter.getState().modalState.type).toBe('none');
+    expect(adapter.getState().cartLines).toHaveLength(1);
+  });
+
   it('supports manager rejection and deterministic mock payment error', async () => {
     vi.useFakeTimers();
     const adapter = new MockAdapter(createRuntimeAdapterFactory(route('?debug=1&mockPayment=failed')).routeContext);

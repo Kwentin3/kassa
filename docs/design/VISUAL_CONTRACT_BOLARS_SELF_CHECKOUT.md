@@ -211,7 +211,7 @@ Header визуально чёрный, с белым текстом и magenta/
 
 ### 8.3 Подготовка к Оплате
 
-- `workHeader`: title `Оплата`, cancel, text scale, manager badge.
+- `workHeader`: title `Оплата`, icon-only back, icon-only cancel, text scale, manager badge.
 - Order review card: compact список товаров, delete action for removable receipt lines, итог, скидка, сумма к оплате.
 - Package card: три package actions, outline magenta.
 - Discounts/bonuses card: инструкция сканировать карту или ввести телефон; phone input/display opens a central numeric numpad modal, not the search keyboard.

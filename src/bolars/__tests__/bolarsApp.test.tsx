@@ -202,6 +202,36 @@ describe('BOLARS Self-Checkout App', () => {
     expect(reviewPanel.querySelector('.bolars-review-line')).toHaveTextContent(/1 шт · 480 ₽/);
   });
 
+  it('uses icon-only work header actions and returns from payment setup to cart', async () => {
+    setRoute('/bolars/self-checkout-mvp');
+    const { container } = render(<BolarsSelfCheckoutApp />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Сканировать тестовый товар/i }));
+    await screen.findByText('Ваши покупки');
+    expect(screen.queryByText('Отменить покупку')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Вернуться в корзину' })).not.toBeInTheDocument();
+
+    const cartHeader = container.querySelector('.bolars-work-header') as HTMLElement;
+    const cartCancel = within(cartHeader).getByRole('button', { name: 'Отменить покупку' });
+    expect(cartCancel).toHaveClass('bolars-header-icon-action');
+    expect(cartCancel).toHaveTextContent('');
+
+    fireEvent.click(screen.getByRole('button', { name: /Перейти к оплате/i }));
+    await screen.findByText('Оплата');
+
+    const paymentHeader = container.querySelector('.bolars-work-header') as HTMLElement;
+    const backButton = within(paymentHeader).getByRole('button', { name: 'Вернуться в корзину' });
+    const paymentCancel = within(paymentHeader).getByRole('button', { name: 'Отменить покупку' });
+    expect(backButton).toHaveClass('bolars-header-icon-action');
+    expect(paymentCancel).toHaveClass('bolars-header-icon-action');
+    expect(paymentCancel).toHaveTextContent('');
+
+    fireEvent.click(backButton);
+    await screen.findByText('Ваши покупки');
+    expect(container.querySelector('.bolars-root')).toHaveClass('bolars-screen-cart');
+    expect(container.querySelectorAll('.bolars-cart-line')).toHaveLength(1);
+  });
+
   it('removes a review line from payment setup through the shared delete action', async () => {
     setRoute('/bolars/self-checkout-mvp');
     const { container } = render(<BolarsSelfCheckoutApp />);

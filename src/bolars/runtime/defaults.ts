@@ -44,6 +44,7 @@ export const DEFAULT_TEXTS = {
   manualSearchAction: 'Найти товар вручную',
   cartTitle: 'Ваши покупки',
   cancelPurchase: 'Отменить покупку',
+  returnToCart: 'Вернуться в корзину',
   searchPlaceholder: 'Поиск товара по названию, артикулу или штрих-коду',
   searchBelowMin: 'Введите минимум 4 символа',
   searchNotFound: 'Товар не найден',

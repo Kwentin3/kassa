@@ -276,7 +276,17 @@ export class MockAdapter extends BaseRuntimeAdapter {
         break;
 
       case 'returnToPurchase':
-        next = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, { screen: this.snapshot.currentScreen === 'paymentError' ? 'paymentSetup' : this.snapshot.currentScreen, modalState: { type: 'none' } });
+        next = recalculateSnapshot(this.snapshot, this.snapshot.cartLines, {
+          screen:
+            this.snapshot.modalState.type !== 'none'
+              ? this.snapshot.currentScreen
+              : this.snapshot.currentScreen === 'paymentSetup'
+                ? 'cart'
+                : this.snapshot.currentScreen === 'paymentError'
+                  ? 'paymentSetup'
+                  : this.snapshot.currentScreen,
+          modalState: { type: 'none' }
+        });
         break;
 
       case 'goToPaymentSetup':

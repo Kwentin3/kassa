@@ -41,7 +41,7 @@
 Этот gate применяется перед визуальным refactor acceptance. Он проверяет не pixel-perfect копию, а обязательную композиционную близость к пяти raster reference sketches.
 
 - [ ] Start/payment waiting/final используют black `brandHeader` с крупным БОЛАРС logo и optional clock/date.
-- [ ] Cart/payment setup используют black `workHeader` с title, cancel, text scale and manager badge zone.
+- [ ] Cart/payment setup используют black `workHeader` с title, icon-only navigation/cancel controls, text scale and manager badge zone.
 - [ ] Customer body surfaces преимущественно светлые; magenta используется как brand/accent/amount, а не как full-screen фон для всех экранов.
 - [ ] Start содержит reference-style scan hero: magenta welcome, black instruction, cyan scanner brackets, barcode/payment visual language.
 - [ ] Start содержит две action cards: scan first, manual search second.
@@ -189,6 +189,8 @@
 - [ ] Нумпад имеет confirm/cancel/backspace/focus states.
 - [ ] Телефон скидки открывает центральный numeric numpad modal, а не экранную клавиатуру поиска.
 - [ ] Кнопка отмены покупки открывает подтверждение, если корзина не пустая.
+- [ ] В `workHeader` cancel rendered as icon-only destructive action with `aria-label`, not visible text label.
+- [ ] На payment setup отдельная icon-only back action returns to cart without clearing cart.
 - [ ] Подтверждение отмены покупки не делает destructive action primary by default.
 
 ## 7. Payment Setup

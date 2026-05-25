@@ -126,6 +126,8 @@ Commands map to user intentions. They do not encode backend-specific procedures.
 
 `removeCartLine({ lineId })` is the single removal command for any receipt line: product, package or other runtime-supplied removable line. Runtime must remove the matching `cartLines[]` entry, recalculate `cart`, `totals`, `paymentState.amount` and any receipt/order preview data in the next authoritative snapshot. When dispatched from `cart`, the next editable screen remains `cart`. When dispatched from `paymentSetup` and lines remain, the next editable screen remains `paymentSetup`; if the last line is removed, runtime returns to an empty `cart` state with `cart.canGoToPayment=false`. `removeCartLine` is not allowed once the cart is locked for payment (`paymentWaiting`, `finalSuccess`).
 
+`returnToPurchase()` is the non-destructive back/return command for editable purchase flow. If a modal is open, runtime closes the modal and keeps the underlying screen. If no modal is open and `currentScreen='paymentSetup'`, runtime returns to `cart` with the same `cartLines` and recalculated totals. It must not clear the cart. Destructive purchase cancellation stays a separate `cancelPurchaseRequest()` command.
+
 ## 6. Runtime Events
 
 Events are optional metadata emitted with snapshot updates. UI must not depend on events instead of snapshot state, but events are useful for short visual feedback and logs.

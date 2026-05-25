@@ -76,7 +76,7 @@ Acceptance criteria:
 | Optional зоны | Manager badge, recent alert chip, image fallback. |
 | Постоянные зоны | Summary/payment CTA; help may sit below summary or in bottom action rail. |
 | Главная CTA | `Перейти к оплате`, green, disabled only when runtime says `canGoToPayment=false`. |
-| Вторичные действия | Search, plus/minus, quantity numpad, delete, cancel purchase, help. |
+| Вторичные действия | Search, plus/minus, quantity numpad, delete, icon-only cancel purchase, help. |
 | Runtime state | `cart`, `cartLines`, `totals`, `searchState`, `scannerState`, `manager`, `alerts`, `modalState`. |
 | Tokens | `color.cta.pay.*`, `state.highlight.*`, `color.delete.fg`, `color.scan.*`, `manager.badge.*`. |
 | uiConfig | `searchMinLength`, `productImageMode`, `showManagerBadge`, `showHelpAction`. |
@@ -211,7 +211,7 @@ Acceptance criteria:
 | Optional зоны | Manager badge, applied discount badge, package selected state. |
 | Постоянные зоны | Bottom `Оплатить` CTA. |
 | Главная CTA | `Оплатить` with payable total, full-width green. |
-| Вторичные действия | Add package, remove receipt line, apply discount phone, scan discount, bind manager, return/cancel/help. |
+| Вторичные действия | Add package, remove receipt line, apply discount phone, scan discount, bind manager, icon-only back to cart, icon-only cancel/help. |
 | Runtime state | `cartLines`, `totals`, `discount`, `manager`, `paymentState.status='idle|preparing'`, `featureFlags`. |
 | Tokens | `discount.*`, `color.cta.pay.*`, `manager.badge.*`, `radius.card`, `shadow.card`. |
 | uiConfig | `packagesEnabled`, `discountByPhoneEnabled`, `managerBindingEnabled`, `showHelpAction`. |
@@ -230,6 +230,8 @@ Acceptance criteria:
 
 - Customer can review items without returning to cart for every detail.
 - Customer can remove the same receipt line types from cart and payment setup through the same `removeCartLine(lineId)` command.
+- Customer can return from payment setup to cart with `returnToPurchase()` without clearing the cart.
+- Back and cancel in `workHeader` are separate icon-only actions: back is neutral, cancel is destructive and still opens confirmation when the cart is not empty.
 - Package cards are clear actions, not decorative.
 - Discount status does not obscure total.
 - `Оплатить` is disabled/busy only from runtime state.

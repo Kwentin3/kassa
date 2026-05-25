@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  ArrowLeft,
   ArrowRight,
   BadgePercent,
   CheckCircle2,
@@ -216,25 +217,36 @@ const renderScreen = (snapshot: SelfCheckoutStateSnapshot, actions: RuntimeActio
   }
 };
 
-const WorkHeader = ({ title, snapshot, send }: { title: string; snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
-  <header className="bolars-work-header">
-    <div>
-      <div className="bolars-logo">{copy(snapshot, 'brandName')}</div>
-      <h1>{title}</h1>
-    </div>
-    <div className="bolars-header-actions">
-      {snapshot.manager.status === 'bound' && (
-        <div className="bolars-manager-badge">
-          <UserCheck size={22} /> Менеджер: {snapshot.manager.displayName}
-        </div>
-      )}
-      <TextScaleControl snapshot={snapshot} send={send} />
-      <button className="bolars-secondary-action" type="button" onClick={() => send('cancelPurchaseRequest', undefined)}>
-        <X size={22} /> {copy(snapshot, 'cancelPurchase')}
-      </button>
-    </div>
-  </header>
-);
+const WorkHeader = ({ title, snapshot, send }: { title: string; snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => {
+  const canGoBack = snapshot.currentScreen === 'paymentSetup';
+  const backLabel = copy(snapshot, 'returnToCart');
+  const cancelLabel = copy(snapshot, 'cancelPurchase');
+
+  return (
+    <header className="bolars-work-header">
+      <div>
+        <div className="bolars-logo">{copy(snapshot, 'brandName')}</div>
+        <h1>{title}</h1>
+      </div>
+      <div className="bolars-header-actions">
+        {snapshot.manager.status === 'bound' && (
+          <div className="bolars-manager-badge">
+            <UserCheck size={22} /> Менеджер: {snapshot.manager.displayName}
+          </div>
+        )}
+        <TextScaleControl snapshot={snapshot} send={send} />
+        {canGoBack && (
+          <button className="bolars-secondary-action bolars-header-icon-action" type="button" aria-label={backLabel} title={backLabel} onClick={() => send('returnToPurchase', undefined)}>
+            <ArrowLeft size={28} />
+          </button>
+        )}
+        <button className="bolars-danger-action bolars-header-icon-action" type="button" aria-label={cancelLabel} title={cancelLabel} onClick={() => send('cancelPurchaseRequest', undefined)}>
+          <X size={28} />
+        </button>
+      </div>
+    </header>
+  );
+};
 
 const StartScreen = ({ snapshot, send }: { snapshot: SelfCheckoutStateSnapshot; send: RuntimeActions['send'] }) => (
   <section className="bolars-start-screen" aria-label="Стартовый экран">

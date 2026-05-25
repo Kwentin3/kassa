@@ -987,6 +987,18 @@ select:focus-visible {
   flex-wrap: wrap;
 }
 
+.bolars-header-actions .bolars-header-icon-action {
+  flex: 0 0 auto;
+  width: 58px;
+  min-width: 58px;
+  min-height: 58px;
+  padding: 0;
+}
+
+.bolars-header-actions .bolars-header-icon-action svg {
+  pointer-events: none;
+}
+
 .bolars-manager-badge {
   display: inline-flex;
   align-items: center;
@@ -2740,6 +2752,13 @@ select:focus-visible {
     min-height: 50px;
     padding-inline: 18px;
     font-size: calc(18px * var(--bolars-type-scale-control));
+  }
+
+  .bolars-header-actions .bolars-header-icon-action {
+    width: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    padding: 0;
   }
 
   .bolars-scale-control,
