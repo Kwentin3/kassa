@@ -41,12 +41,13 @@ https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1
 1C specialist mini-smoke route:
 
 ```text
-https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&runId=onec-smoke-001&terminalLabel=kiosk-01
+https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01
 ```
 
 Optional safe query params:
 
 - `debug=1`
+- `adapter=onec`
 - `runId=<safe id>`
 - `terminalLabel=<safe label>`
 - `build=<build id>`
@@ -379,7 +380,7 @@ The current BOLARS MVP implementation exposes:
 
 Reserved methods `receiveRuntimeConfig` and `receiveCatalog` return safe apply/status results. `receiveCatalog` remains a preload/reserved path and is not a cart/runtime path.
 
-For the documented 1C mini-smoke route, current adapter selection uses `runId` prefix `onec-*` to select `OneCInterfaceAdapter` when `debug=1`.
+For the documented 1C mini-smoke route, use the standalone 1C HTML artifact with `debug=1&adapter=onec`. The `runId` prefix `onec-*` remains a safe smoke hint, but the canonical integration URL is `/bolars/self-checkout-mvp-1c.html`.
 
 Current production-mode boundary: customer route without `debug=1` defaults to the mock/demo adapter and ignores `adapter=`. A production 1С launch mode must be agreed separately before using the customer URL as a live 1С bridge without debug controls.
 

@@ -535,7 +535,7 @@ Scenario:
 1. Open:
 
    ```text
-   https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&runId=onec-smoke-001&terminalLabel=kiosk-01
+   https://kassa.speechbattle.com/bolars/self-checkout-mvp-1c.html?debug=1&adapter=onec&runId=onec-smoke-001&terminalLabel=kiosk-01
    ```
 
 2. Access the HTML page through:

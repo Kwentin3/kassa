@@ -43,7 +43,7 @@ const scenarios = [
   },
   {
     id: 'paymentSetup',
-    critical: ['.bolars-work-header', '.bolars-review-panel', '.bolars-package-panel', '.bolars-discount-panel', '.bolars-final-total-band', '.bolars-pay-bottom']
+    critical: ['.bolars-work-header', '.bolars-review-panel', '.bolars-package-panel', '.bolars-discount-panel', '.bolars-pay-bottom', '.bolars-pay-bottom-amount']
   },
   {
     id: 'paymentWaiting',
@@ -105,7 +105,8 @@ for (const viewport of viewports) {
     await page.addStyleTag({ content: '.bolars-debug-panel,.bolars-preview-panel{display:none!important}' });
     await page.waitForTimeout(150);
 
-    const metrics = await page.evaluate((selectors) => {
+    const metrics = await page.evaluate(({ selectors, checkPaymentCta }) => {
+      const normalizeText = (value) => value?.replace(/\s+/g, ' ').trim() ?? '';
       const rectOf = (selector) => {
         const element = document.querySelector(selector);
         if (!element) return { selector, missing: true };
@@ -122,6 +123,9 @@ for (const viewport of viewports) {
       };
       const stage = document.querySelector('.bolars-stage')?.getBoundingClientRect();
       const cta = document.querySelector('.bolars-cart-summary-band .bolars-primary-action');
+      const payButton = document.querySelector('.bolars-pay-bottom');
+      const payAmount = document.querySelector('.bolars-pay-bottom-amount');
+      const reviewTotal = document.querySelector('.bolars-review-totals .total b');
       return {
         rootClass: document.querySelector('.bolars-root')?.className ?? '',
         bodyScrollWidth: document.body.scrollWidth,
@@ -140,9 +144,17 @@ for (const viewport of viewports) {
         fetchType: typeof window.fetch,
         pointerType: typeof window.PointerEvent,
         clipboardType: typeof navigator.clipboard,
+        paymentCta: checkPaymentCta
+          ? {
+              reviewTotal: normalizeText(reviewTotal?.textContent),
+              ctaAmount: normalizeText(payAmount?.textContent),
+              ariaLabel: normalizeText(payButton?.getAttribute('aria-label')),
+              hasLegacyTotalBand: Boolean(document.querySelector('.bolars-final-total-band'))
+            }
+          : null,
         critical: selectors.map(rectOf)
       };
-    }, scenario.critical);
+    }, { selectors: scenario.critical, checkPaymentCta: scenario.id === 'paymentSetup' });
 
     const label = `${viewport.name}/${scenario.id}`;
     rows.push({
@@ -164,6 +176,12 @@ for (const viewport of viewports) {
       if (item.missing) failures.push(`${label}: missing ${item.selector}`);
       if ((item.offBottom ?? 0) > 0) failures.push(`${label}: ${item.selector} offBottom=${item.offBottom}`);
       if ((item.offRight ?? 0) > 0) failures.push(`${label}: ${item.selector} offRight=${item.offRight}`);
+    }
+    if (metrics.paymentCta) {
+      if (!metrics.paymentCta.reviewTotal) failures.push(`${label}: review total is missing`);
+      if (metrics.paymentCta.ctaAmount !== metrics.paymentCta.reviewTotal) failures.push(`${label}: pay CTA amount "${metrics.paymentCta.ctaAmount}" does not match review total "${metrics.paymentCta.reviewTotal}"`);
+      if (!metrics.paymentCta.ariaLabel.includes(metrics.paymentCta.reviewTotal)) failures.push(`${label}: pay CTA aria-label does not include total "${metrics.paymentCta.reviewTotal}"`);
+      if (metrics.paymentCta.hasLegacyTotalBand) failures.push(`${label}: legacy .bolars-final-total-band is still rendered`);
     }
     if (metrics.ctaPosition === 'sticky') failures.push(`${label}: cart primary CTA is position: sticky`);
     if (metrics.fetchType !== 'function') failures.push(`${label}: fetch guard was not installed`);
