@@ -201,9 +201,9 @@ Web складывает команды пользователя в outbound que
 - `retryPayment`
 - `resetToStart`
 
-Полный список команд и JSON-формат payload: `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`.
+Полный список команд и JSON-формат payload: [BOLARS_1C_JSON_EXCHANGE_CONTRACT.md](../contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md).
 
-Готовые smoke payload JSON для быстрой проверки экранов: `docs/contracts/BOLARS_1C_SMOKE_SNAPSHOTS.md`.
+Готовые smoke payload JSON для быстрой проверки экранов: [BOLARS_1C_SMOKE_SNAPSHOTS.md](../contracts/BOLARS_1C_SMOKE_SNAPSHOTS.md).
 
 После последнего UI-среза:
 
@@ -303,9 +303,9 @@ Apply = ПрочитатьJSON(ApplyJSON);
 
 Snapshot - это полный снимок состояния покупки. Web не должен догадываться, какие цены, скидки, товары или экран теперь правильные. 1С должна прислать всё нужное для показа.
 
-Не копируйте старые укороченные JSON-примеры как готовый payload. Web принимает полный snapshot по контракту `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`.
+Не копируйте старые укороченные JSON-примеры как готовый payload. Web принимает полный snapshot по [BOLARS_1C_JSON_EXCHANGE_CONTRACT.md](../contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md).
 
-`docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` - это внутренний TypeScript/runtime-документ для frontend-команды. Для 1С используйте JSON-контракт выше.
+[SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md](../contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md) - это внутренний TypeScript/runtime-документ для frontend-команды. Для 1С используйте JSON-контракт выше.
 
 Минимально проверьте, что в каждом snapshot есть актуальные имена полей:
 
