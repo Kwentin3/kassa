@@ -1,68 +1,65 @@
-﻿# SelfCheckoutRuntimePort Contract
+﻿# BOLARS MVP: Внутренний контракт Runtime Port
 
-Статус: draft 0.2
-Дата: 2026-05-23
-Назначение: единый контракт общения frontend с backend/1C/runtime для scan-first кассы самообслуживания.
-Основание: `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md`; прототип MVP должен быть готов к runtime/adapter boundary, UI не вызывает внешние контуры напрямую.
+Статус: draft 0.3
+Дата: 2026-05-26
+Аудитория: frontend/runtime-разработчик.
 
-## 1. Зачем Нужен Runtime Port
+## 1. Важно Про Аудиторию
 
-UI-компоненты не должны напрямую обращаться к 1C, backend, scanner-router, search service, payment adapter или theme source. Внешний мир скрыт за одной логической точкой: `SelfCheckoutRuntimePort`.
+Этот документ описывает внутреннюю границу frontend runtime: `SelfCheckoutRuntimePort`, команды, adapter-слой и snapshot-driven UI.
 
-Причины:
+Для 1С-разработчика основной рабочий JSON-контракт находится здесь:
 
-- UI не владеет бизнес-решениями;
-- разные адаптеры можно заменить без переписывания экранов;
-- prototype mock mode и 1C/runtime mode имеют один frontend contract;
-- повторные scans, скидки, менеджеры, оплата и ошибки обрабатываются авторитетным runtime;
-- компоненты остаются render-only: получают snapshot и отправляют user intent.
+- `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`
 
-## Related Documents
+Для пошаговой интеграции с 1С:
 
-- `docs/product/TZ_BOLARS_SELF_CHECKOUT_v0.4.md` - каноническое upstream ТЗ.
-- `docs/product/PRD_BOLARS_SELF_CHECKOUT_MVP_v0.1.md` - продуктовая рамка MVP.
-- `docs/AGENT_START_HERE.md` - implementation handoff и первый срез.
-- `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md` - Web ↔ 1С delivery, route и `window.BolarsSelfCheckout` API.
-- `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md` - `debug=1` diagnostics.
-- `docs/contracts/BOLARS_RUNTIME_ADAPTER_FACTORY_CONTRACT.md` - adapter selection.
-- `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md` - preview adapter/scenario mode.
-- `docs/architecture/BOLARS_LAYERED_ARCHITECTURE_AND_ADAPTERS.md` - слои и dependency rules.
-- `docs/README.md` - индекс документации и порядок чтения.
-- `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md` - визуальная система и UI-инварианты.
-- `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md` - `themeProfile` и token config.
-- `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md` - screen/state usage.
-- `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md` - runtime-boundary acceptance criteria.
+- `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md`
 
-## 2. Boundary
+Этот файл можно использовать как справочник по внутренней архитектуре, но не как готовый JSON payload для `receiveStateSnapshot(...)`.
 
-UI может:
+## 2. Назначение Runtime Port
 
-- render state snapshot;
-- dispatch typed commands;
-- subscribe to state updates;
-- показывать pending/error/success состояния из snapshot.
+`SelfCheckoutRuntimePort` - единая граница между UI и источником состояния кассы.
 
-UI не может:
+UI не знает, кто сейчас отдаёт состояние:
 
-- определять тип scanned code;
-- искать товар напрямую;
-- считать цены, скидки и итоги;
-- решать, создать строку или увеличить quantity;
-- применять скидку;
-- привязывать менеджера;
-- инициировать provider-specific payment call;
-- очищать cart после успеха/ошибки;
-- ходить в 1C/backend/scanner/payment/search/theme adapters напрямую;
-- мутировать cart, totals, discount или payment state локально;
-- решать repeated scan или payment outcome без snapshot.
+- `MockAdapter`;
+- `PreviewAdapter`;
+- `OneCInterfaceAdapter`;
+- будущий production runtime.
 
-Для implementation slice `MockAdapter`, `PreviewAdapter` и `OneCInterfaceAdapter` реализуются за тем же `SelfCheckoutRuntimePort`. Отдельный mock-only или preview-only UI path запрещён.
+UI только:
 
-Delivery details between HTML and 1С are outside this RuntimePort type contract and live in `BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`.
+- отправляет typed commands;
+- получает `SelfCheckoutStateSnapshot`;
+- подписывается на изменения snapshot;
+- рисует экран по snapshot.
 
-Adapter selection lives in `RuntimeAdapterFactory`. UI components must not instantiate or import concrete adapters.
+UI не должен:
 
-## 3. Минимальный API
+- искать товар;
+- определять тип штрихкода;
+- считать цены, скидки, налоги и итоги;
+- решать, создать строку или увеличить количество;
+- запускать provider-specific оплату;
+- очищать чек после успеха или ошибки;
+- ходить напрямую в 1С, backend, payment, scanner, search, loyalty или theme source;
+- хранить корзину или оплату как source of truth в localStorage.
+
+## 3. Реальный Источник Типов
+
+Кодовый source of truth:
+
+- `src/bolars/runtime/types.ts`
+- `src/bolars/runtime/commands.ts`
+- `src/bolars/runtime/baseAdapter.ts`
+- `src/bolars/runtime/onecInterfaceAdapter.ts`
+- `src/bolars/runtime/webApi.ts`
+
+Документ ниже является читаемой спецификацией этих типов. При расхождении приоритет у кода, а документацию нужно обновить.
+
+## 4. API Runtime Port
 
 ```ts
 interface SelfCheckoutRuntimePort {
@@ -70,20 +67,14 @@ interface SelfCheckoutRuntimePort {
   getState(): SelfCheckoutStateSnapshot;
   subscribe(listener: (snapshot: SelfCheckoutStateSnapshot, event?: RuntimeEvent) => void): Unsubscribe;
 }
-
-type Unsubscribe = () => void;
-
-type CommandResult =
-  | { ok: true; commandId: string; snapshotVersion: number }
-  | { ok: false; commandId: string; error: RuntimeCommandError; snapshotVersion?: number };
 ```
 
-`dispatch` принимает только typed commands. Не использовать один generic command вида `{ type: string; payload: any }` без discriminated union.
+`dispatch` принимает только известные команды. UI не должен создавать произвольный `{ type: string; payload: any }`.
 
-## 4. Command Envelope
+## 5. Envelope Команды
 
 ```ts
-type CommandEnvelope<TType extends string, TPayload = undefined> = {
+type CommandEnvelope<TType extends CommandType, TPayload = undefined> = {
   type: TType;
   commandId: string;
   issuedAt: string;
@@ -92,100 +83,63 @@ type CommandEnvelope<TType extends string, TPayload = undefined> = {
 };
 ```
 
-`commandId` нужен для idempotency, повторов и диагностики. UI генерирует id, runtime решает side effects.
+В JSON команды без payload могут сериализоваться без поля `payload`, потому что в runtime оно равно `undefined`.
 
-## 5. Обязательные Commands
+## 6. Команды
 
-```ts
-type SelfCheckoutCommand =
-  | CommandEnvelope<'startPurchase'>
-  | CommandEnvelope<'scanCode', { code: string }>
-  | CommandEnvelope<'searchProducts', { query: string }>
-  | CommandEnvelope<'selectSearchCandidate', { candidateId: string }>
-  | CommandEnvelope<'changeQuantity', { lineId: string; quantity: number }>
-  | CommandEnvelope<'incrementQuantity', { lineId: string }>
-  | CommandEnvelope<'decrementQuantity', { lineId: string }>
-  | CommandEnvelope<'openQuantityNumpad', { lineId: string }>
-  | CommandEnvelope<'confirmQuantityInput', { lineId: string; quantity: number }>
-  | CommandEnvelope<'removeCartLine', { lineId: string }>
-  | CommandEnvelope<'cancelPurchaseRequest'>
-  | CommandEnvelope<'confirmCancelPurchase'>
-  | CommandEnvelope<'returnToPurchase'>
-  | CommandEnvelope<'goToPaymentSetup'>
-  | CommandEnvelope<'addPackage', { packageCode: string }>
-  | CommandEnvelope<'applyDiscountByPhone', { phone: string }>
-  | CommandEnvelope<'startPayment'>
-  | CommandEnvelope<'retryPayment'>
-  | CommandEnvelope<'returnToPaymentSetup'>
-  | CommandEnvelope<'bindManager', { code: string }>
-  | CommandEnvelope<'setTextScale', { scale: TextScale }>
-  | CommandEnvelope<'resetToStart', { reason: ResetReason }>;
-```
+Список соответствует `src/bolars/runtime/types.ts` и `src/bolars/runtime/commands.ts`.
 
-Commands map to user intentions. They do not encode backend-specific procedures.
+| Команда | Payload |
+| --- | --- |
+| `startPurchase` | `undefined` |
+| `scanCode` | `{ code: string }` |
+| `searchProducts` | `{ query: string }` |
+| `selectSearchCandidate` | `{ candidateId: string }` |
+| `changeQuantity` | `{ lineId: string; quantity: number }` |
+| `incrementQuantity` | `{ lineId: string }` |
+| `decrementQuantity` | `{ lineId: string }` |
+| `openQuantityNumpad` | `{ lineId: string }` |
+| `confirmQuantityInput` | `{ lineId: string; quantity: number }` |
+| `removeCartLine` | `{ lineId: string }` |
+| `cancelPurchaseRequest` | `undefined` |
+| `confirmCancelPurchase` | `undefined` |
+| `returnToPurchase` | `undefined` |
+| `goToPaymentSetup` | `undefined` |
+| `addPackage` | `{ packageCode: string }` |
+| `applyDiscountByPhone` | `{ phone: string }` |
+| `startPayment` | `undefined` |
+| `retryPayment` | `undefined` |
+| `returnToPaymentSetup` | `undefined` |
+| `bindManager` | `{ code: string }` |
+| `setTextScale` | `{ scale: 'normal' | 'large' | 'extraLarge' }` |
+| `resetToStart` | `{ reason: ResetReason }` |
 
-Navigation commands are snapshot-driven intents, not browser history. UI must not keep a private previous-screen stack or restore an old React/UI state as source of truth. After a navigation command, runtime/1C must return the next authoritative `SelfCheckoutStateSnapshot`; UI only renders that snapshot.
+Команды выражают намерение пользователя, а не backend-процедуру.
 
-`removeCartLine({ lineId })` is the single removal command for any receipt line: product, package or other runtime-supplied removable line. Runtime must remove the matching `cartLines[]` entry, recalculate `cart`, `totals`, `paymentState.amount` and any receipt/order preview data in the next authoritative snapshot. When dispatched from `cart`, the next editable screen remains `cart`. When dispatched from `paymentSetup` and lines remain, the next editable screen remains `paymentSetup`; if the last line is removed, runtime returns to an empty `cart` state with `cart.canGoToPayment=false`. `removeCartLine` is not allowed once the cart is locked for payment (`paymentWaiting`, `finalSuccess`).
+## 7. Навигационные Команды
 
-`returnToPurchase()` is the non-destructive back/return command for editable purchase flow. If a modal is open, runtime closes the modal and keeps the underlying screen. If no modal is open and `currentScreen='paymentSetup'`, runtime returns to `cart` with the same receipt state in `cartLines`, `totals`, `discount`, `manager` and related fields. It must not clear the cart and must not rely on Web restoring prior UI memory. Destructive purchase cancellation stays a separate `cancelPurchaseRequest()` command.
+Навигация внутри покупки snapshot-driven.
 
-## 6. Runtime Events
+UI не хранит доверенный стек предыдущих экранов и не восстанавливает старую корзину из памяти браузера.
 
-Events are optional metadata emitted with snapshot updates. UI must not depend on events instead of snapshot state, but events are useful for short visual feedback and logs.
+`returnToPurchase` означает:
 
-```ts
-type RuntimeEvent =
-  | { type: 'stateChanged'; snapshotVersion: number }
-  | { type: 'purchaseStarted'; source: 'startTouch' | 'scan' | 'manualSearch' }
-  | { type: 'commandAccepted'; commandId: string; commandType: SelfCheckoutCommand['type'] }
-  | { type: 'commandRejected'; commandId: string; reason: RuntimeCommandError }
-  | { type: 'scanResolved'; codeKind: ScannedCodeKind; lineId?: string; alertId?: string }
-  | { type: 'cartLineAdded'; lineId: string }
-  | { type: 'cartLineQuantityIncreased'; lineId: string; quantity: number }
-  | { type: 'cartLineRemoved'; lineId: string }
-  | { type: 'quantityChanged'; lineId: string; quantity: number }
-  | { type: 'searchStarted'; query: string }
-  | { type: 'searchCompleted'; query: string; resultCount: number }
-  | { type: 'discountApplied'; discountId: string }
-  | { type: 'discountRejected'; reason: string }
-  | { type: 'managerBound'; managerId: string }
-  | { type: 'paymentStateChanged'; status: PaymentStatus }
-  | { type: 'paymentSucceeded'; paymentId: string }
-  | { type: 'paymentFailed'; reason: PaymentFailureReason }
-  | { type: 'modalOpened'; modal: ModalState['type'] }
-  | { type: 'modalClosed' }
-  | { type: 'timeoutWarningStarted'; secondsLeft: number }
-  | { type: 'sessionReset'; reason: ResetReason };
-```
+- если открыта модалка, runtime закрывает модалку и возвращает тот же underlying screen;
+- если текущий экран `paymentSetup`, runtime возвращает `currentScreen='cart'`;
+- чек, строки, скидка, менеджер, итоги и payment state не очищаются.
 
-## 7. State Snapshot
+Очистка покупки относится только к destructive flow:
 
-Runtime returns an authoritative immutable snapshot.
+- `cancelPurchaseRequest`;
+- `confirmCancelPurchase`;
+- `resetToStart` с корректным reason.
+
+## 8. Snapshot
+
+Runtime возвращает immutable authoritative snapshot.
 
 ```ts
-type CurrentScreen =
-  | 'start'
-  | 'cart'
-  | 'paymentSetup'
-  | 'paymentWaiting'
-  | 'paymentError'
-  | 'finalSuccess';
-
-type TextScale = 'normal' | 'large' | 'extraLarge';
-
-type AdapterKind = 'mock' | 'preview' | 'onec' | 'unknown';
-
-type ResetReason =
-  | 'finalCountdown'
-  | 'cancelConfirmed'
-  | 'emptyCartCancel'
-  | 'inactivityTimeout'
-  | 'staffReset'
-  | 'runtimeRecovery'
-  | 'mockScenarioReset';
-
-interface SelfCheckoutStateSnapshot {
+type SelfCheckoutStateSnapshot = {
   snapshotVersion: number;
   sessionId: string;
   terminalStatus: TerminalStatus;
@@ -210,23 +164,20 @@ interface SelfCheckoutStateSnapshot {
   lastProcessedCommandId?: string;
   lastCommandResult?: SnapshotCommandResult;
   updatedAt: string;
-}
+};
 ```
 
-UI renders `currentScreen`, but modal/overlay states can be active on top of a screen.
+UI рендерит `currentScreen`, но modal/overlay состояния могут быть активны поверх экрана.
 
-Command/snapshot correlation metadata:
+Для 1С JSON-форма этого snapshot описана в `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`.
+
+## 9. Основные Enum-Значения
 
 ```ts
-interface SnapshotCommandResult {
-  ok: boolean;
-  commandId: string;
-  processedAt?: string;
-  error?: RuntimeCommandError;
-}
+type CurrentScreen = 'start' | 'cart' | 'paymentSetup' | 'paymentWaiting' | 'paymentError' | 'finalSuccess';
+type TextScale = 'normal' | 'large' | 'extraLarge';
+type AdapterKind = 'mock' | 'preview' | 'onec' | 'unknown';
 ```
-
-`lastProcessedCommandId` and `lastCommandResult` are optional but recommended for `OneCInterfaceAdapter`. They let Web/debug correlate an outbound command with the authoritative snapshot that resulted from it. If a snapshot is periodic and not related to a command, these fields may be omitted.
 
 ```ts
 type TerminalStatus =
@@ -238,10 +189,21 @@ type TerminalStatus =
   | 'inactivityTimedOut';
 ```
 
-## 8. Cart
+```ts
+type ResetReason =
+  | 'finalCountdown'
+  | 'cancelConfirmed'
+  | 'emptyCartCancel'
+  | 'inactivityTimeout'
+  | 'staffReset'
+  | 'runtimeRecovery'
+  | 'mockScenarioReset';
+```
+
+## 10. CartState
 
 ```ts
-interface CartState {
+type CartState = {
   id: string;
   status: 'empty' | 'active' | 'lockedForPayment' | 'completed' | 'cancelled';
   lineCount: number;
@@ -249,25 +211,23 @@ interface CartState {
   isEmpty: boolean;
   canGoToPayment: boolean;
   updatedAt: string;
-}
+};
 ```
 
-`cart.status === 'lockedForPayment'` means UI must not mutate quantity or remove lines unless runtime explicitly allows a command.
+`cart.status='lockedForPayment'` означает, что UI не должен менять количество или удалять строки, если runtime явно не разрешил команду.
 
-## 9. CartLine
+## 11. CartLine
 
 ```ts
-interface CartLine {
+type CartLine = {
   lineId: string;
   positionNumber: number;
   productId: string;
   sku: string;
   barcode?: string;
   name: string;
-  description?: string;
-  packageLabel?: string;
   article?: string;
-  imageUrl?: string;
+  packageLabel?: string;
   quantity: number;
   quantityMode: 'integer' | 'weightedOrFractionalReserved';
   unitLabel: string;
@@ -285,27 +245,26 @@ interface CartLine {
     highlightUntil?: string;
     message: string;
   };
-}
+};
 ```
 
-UI does not calculate `lineTotal` and does not infer `lastChange`.
+UI не считает `lineTotal` и не выводит `lastChange` сам. Эти данные приходят из runtime.
 
-MVP quantity is integer-only unless weighted or fractional products are approved separately. `positionNumber` is the visible line number from the authoritative ordered cart snapshot.
-
-## 10. Totals
+## 12. Money И Totals
 
 ```ts
-interface Money {
+type Money = {
   amount: number;
   currency: 'RUB';
   formatted: string;
-}
+};
+```
 
-interface TotalsState {
+```ts
+type TotalsState = {
   goodsSubtotal: Money;
   packageSubtotal: Money;
   discountTotal: Money;
-  taxTotal?: Money;
   payableTotal: Money;
   lines: Array<{
     id: string;
@@ -313,29 +272,29 @@ interface TotalsState {
     value: Money;
     kind: 'goods' | 'package' | 'discount' | 'tax' | 'total';
   }>;
-}
+};
 ```
 
-UI shows formatted values from runtime. UI must not format amounts by recalculating numbers differently from runtime.
+UI показывает `formatted` и не пересчитывает суммы.
 
-## 11. SearchState
+## 13. SearchState
 
 ```ts
-interface SearchState {
+type SearchState = {
   query: string;
   minQueryLength: 4;
   source: 'oneC' | 'runtimeAdapter' | 'mock';
-  fields: SearchField[];
+  fields: Array<'name' | 'article' | 'barcodeDigits'>;
   maxCandidates: number;
   candidateDisplayFormatId: string;
   status: 'idle' | 'belowMinLength' | 'searching' | 'found' | 'notFound' | 'error';
   candidates: SearchCandidate[];
   message?: string;
-}
+};
+```
 
-type SearchField = 'name' | 'article' | 'barcodeDigits';
-
-interface SearchCandidate {
+```ts
+type SearchCandidate = {
   candidateId: string;
   productId: string;
   name: string;
@@ -344,20 +303,15 @@ interface SearchCandidate {
   identifierLabel?: string;
   packageLabel?: string;
   price: Money;
-  imageUrl?: string;
   actionLabel: string;
-}
+};
 ```
 
-Search is a cart state, not a separate product catalog. Selecting candidate dispatches `selectSearchCandidate(candidateId)` and runtime adds/increments cart line.
+Поиск - часть состояния покупки. Выбор кандидата отправляет `selectSearchCandidate(candidateId)`, а runtime добавляет или увеличивает строку корзины.
 
-Product target source for search is 1C/runtime search adapter. UI must not perform product search directly.
+Экранная клавиатура поиска является UI-owned draft state. Runtime видит только `searchProducts(query)` после достижения `uiConfig.searchMinLength`.
 
-The BOLARS search on-screen keyboard is UI-owned. It updates local input draft and dispatches `searchProducts(query)` only after `uiConfig.searchMinLength`; keyboard visibility is not runtime state.
-
-## 12. ScannerState
-
-Обязательные статусы:
+## 14. ScannerState
 
 ```ts
 type ScannerStatus =
@@ -369,24 +323,22 @@ type ScannerStatus =
   | 'unknownCode'
   | 'markedProductPendingDecision'
   | 'error';
+```
 
-type ScannedCodeKind = 'product' | 'discount' | 'manager' | 'unknown' | 'markedProduct' | 'error';
-
-interface ScannerState {
+```ts
+type ScannerState = {
   status: ScannerStatus;
   lastCodeMasked?: string;
-  lastResolvedKind?: ScannedCodeKind;
+  lastResolvedKind?: 'product' | 'discount' | 'manager' | 'unknown' | 'markedProduct' | 'error';
   message?: string;
   canScan: boolean;
   fallbackActions: Array<'search' | 'manualCode' | 'help'>;
-}
+};
 ```
 
-UI never determines code kind. It only dispatches `scanCode(code)`.
+UI не определяет тип кода. UI только отправляет `scanCode(code)`.
 
-## 13. PaymentState
-
-Обязательные статусы:
+## 15. PaymentState
 
 ```ts
 type PaymentStatus =
@@ -399,36 +351,30 @@ type PaymentStatus =
   | 'cancelled'
   | 'timeout'
   | 'unknown';
+```
 
-type PaymentFailureReason =
-  | 'declined'
-  | 'terminalUnavailable'
-  | 'connectionError'
-  | 'timeout'
-  | 'cancelled'
-  | 'unknown';
-
-interface PaymentState {
+```ts
+type PaymentState = {
   status: PaymentStatus;
   paymentId?: string;
   orderNumber?: string;
   amount: Money;
   method: 'card' | 'sbp' | 'unknown';
   message?: string;
-  failureReason?: PaymentFailureReason;
+  failureReason?: 'declined' | 'terminalUnavailable' | 'connectionError' | 'timeout' | 'cancelled' | 'unknown';
   canRetry: boolean;
   canReturnToPaymentSetup: boolean;
   startedAt?: string;
   updatedAt?: string;
-}
+};
 ```
 
-Payment success/failure is authoritative only from runtime/payment adapter.
+Payment outcome приходит только из runtime/payment/1С-контура.
 
-## 14. DiscountState
+## 16. DiscountState И ManagerState
 
 ```ts
-interface DiscountState {
+type DiscountState = {
   status: 'none' | 'waitingForScanOrPhone' | 'checking' | 'applied' | 'notFound' | 'error';
   discountId?: string;
   phoneMasked?: string;
@@ -436,26 +382,22 @@ interface DiscountState {
   label?: string;
   amount?: Money;
   message?: string;
-}
+};
 ```
 
-UI can dispatch `applyDiscountByPhone(phone)` or `scanCode(code)`. Runtime decides whether discount exists and how it affects totals.
-
-## 15. ManagerState
-
 ```ts
-interface ManagerState {
+type ManagerState = {
   status: 'none' | 'binding' | 'bound' | 'rejected' | 'error';
   managerId?: string;
   displayName?: string;
   boundAt?: string;
   message?: string;
-}
+};
 ```
 
-Manager binding can happen through `bindManager(code)` or runtime-resolved scan. UI does not decide whether code belongs to manager.
+UI может отправить `applyDiscountByPhone(phone)`, `bindManager(code)` или `scanCode(code)`. Runtime решает, что это за код и как это влияет на чек.
 
-## 16. ModalState
+## 17. ModalState
 
 ```ts
 type ModalState =
@@ -466,41 +408,26 @@ type ModalState =
   | { type: 'alertDetails'; alertId: string };
 ```
 
-Quantity numpad and cancel confirmation are UI overlays driven by runtime state.
-
-Phone entry for discount uses a UI-owned central numeric numpad modal and dispatches `applyDiscountByPhone(phone)`. It is not represented as `ModalState` unless a future runtime-managed phone modal is explicitly added.
-
-## 17. Alerts / Notifications
-
-```ts
-interface AlertNotification {
-  id: string;
-  kind: 'success' | 'info' | 'warning' | 'error';
-  title: string;
-  message?: string;
-  relatedLineId?: string;
-  autoDismissMs?: number;
-  actions?: Array<{
-    id: string;
-    label: string;
-    command: SelfCheckoutCommand['type'];
-  }>;
-}
-```
-
-Alerts must be user-readable. Technical provider errors should be mapped by runtime.
+Телефонный numpad для скидки сейчас UI-owned и не представлен отдельным `ModalState`.
 
 ## 18. UiConfig
 
 ```ts
-interface UiConfigState {
-  viewportProfile: ViewportProfile;
+type UiConfigState = {
+  viewportProfile:
+    | 'portrait1080'
+    | 'portraitCompact'
+    | 'landscapeKiosk'
+    | 'landscapeCompact'
+    | 'landscapeFallback'
+    | 'embeddedOneC'
+    | 'microFallback';
   language: 'ru';
   showClock: boolean;
   showManagerBadge: boolean;
   showHelpAction: boolean;
   searchMinLength: 4;
-  searchFields: SearchField[];
+  searchFields: Array<'name' | 'article' | 'barcodeDigits'>;
   searchMaxCandidates: number;
   searchCandidateDisplayFormatId: string;
   finalAutoResetSeconds: number;
@@ -511,26 +438,18 @@ interface UiConfigState {
   paymentProviderLabel?: string;
   paymentResponseTimeoutSeconds?: number;
   packageButtons: Array<{ packageCode: string; label: string }>;
-}
+  texts: Record<string, string>;
+};
 ```
 
-```ts
-type ViewportProfile =
-  | 'portrait1080'
-  | 'portraitCompact'
-  | 'landscapeFallback';
-```
+Для 1С HTML shell используется `viewportProfile='embeddedOneC'`.
 
-`viewportProfile` in the runtime snapshot is a broad hint. The current implementation may derive detailed visual profiles such as `landscapeKiosk`, `landscapeCompact` or `microFallback` locally from the actual WebView viewport; those detailed profiles are presentation state and are not required from 1С.
+`texts` должен быть объектом. Если переопределений нет, допустим пустой объект.
 
-UI layout choices should come from config/tokens, not scattered constants.
-
-Default inactivity timeout is `300` seconds unless runtime config overrides it. If acquiring transaction has already been sent and the runtime is waiting for the payment terminal, inactivity reset must not break the payment process.
-
-## 19. ThemeProfile
+## 19. ThemeProfile И FeatureFlags
 
 ```ts
-interface ThemeProfileState {
+type ThemeProfileState = {
   id:
     | 'bolars-light-default'
     | 'bolars-light-contrast'
@@ -543,15 +462,11 @@ interface ThemeProfileState {
   version: string;
   tokenSetId: string;
   highContrast: boolean;
-}
+};
 ```
 
-The actual token values live in theme config. Snapshot chooses the active profile. URL params `theme` / `themeProfile` may set the initial profile for mock/preview/demo routes, but UI components still render the authoritative `snapshot.themeProfile` and do not read query params directly.
-
-## 20. FeatureFlags
-
 ```ts
-interface FeatureFlagsState {
+type FeatureFlagsState = {
   mockMode: boolean;
   manualSearchEnabled: boolean;
   quantityNumpadEnabled: boolean;
@@ -561,255 +476,115 @@ interface FeatureFlagsState {
   paymentRetryEnabled: boolean;
   finalReceiptPreviewEnabled: boolean;
   previewModeEnabled?: boolean;
-}
+};
 ```
 
-Feature flags may hide UI capabilities, but must not create business bypasses.
+Feature flags могут скрывать UI-возможности, но не должны создавать обход бизнес-правил.
 
-## 21. Idempotency and Repeated Scan Rules
+## 20. Runtime Events
 
-- Each command has `commandId`.
-- Runtime must ignore duplicate `commandId` side effects and return current snapshot/result.
-- Repeated scan of the same product in active cart increments quantity according to runtime rules.
-- Repeated scan while payment is locked is either rejected with user-readable alert or queued only if runtime explicitly supports it.
-- UI must not locally increment line quantity before receiving snapshot.
-- Highlighting added/incremented row is derived from `CartLine.lastChange`.
-
-## 22. Error Handling
-
-- Command rejection returns `RuntimeCommandError` and should also be reflected in `alerts` if user-visible.
-- Payment errors keep cart/order state.
-- Search errors do not clear search query or cart.
-- Unknown barcode offers scan again/search/help.
-- Discount not found does not block payment unless runtime says so.
-- Manager binding rejection does not block payment unless sale policy says so.
-- Cancel confirmation is required for non-empty cart.
-- Empty-cart cancel returns to start without confirmation.
-- Unknown code default text: `Код не распознан. Обратитесь к сотруднику.`
-- Discount not-found default text: `Скидка не найдена`.
-- Payment failed default text: `Оплата не прошла`; recovery hint: `Попробуйте ещё раз или обратитесь к сотруднику`.
+Текущая реализация использует ограниченный набор событий:
 
 ```ts
-interface RuntimeCommandError {
-  code:
-    | 'invalidCommand'
-    | 'notAllowedInCurrentState'
-    | 'validationError'
-    | 'runtimeBusy'
-    | 'queueOverflow'
-    | 'runtimeUnavailable'
-    | 'adapterError'
-    | 'timeout'
-    | 'unknown';
-  message: string;
-  fieldErrors?: Record<string, string>;
-}
+type RuntimeEvent =
+  | { type: 'stateChanged'; snapshotVersion: number }
+  | { type: 'commandAccepted'; commandId: string; commandType: SelfCheckoutCommand['type'] }
+  | { type: 'commandRejected'; commandId: string; reason: RuntimeCommandError }
+  | { type: 'paymentSucceeded'; paymentId: string }
+  | { type: 'paymentFailed'; reason: PaymentFailureReason }
+  | { type: 'sessionReset'; reason: ResetReason };
 ```
 
-## 23. Inactivity Timeout Contract
+UI не должен полагаться на event вместо snapshot.
 
-- Default inactivity timeout: `300` seconds (`5 минут`) unless configured otherwise.
-- In the current implementation, activity detection is frontend-owned presentation/session behavior. 1С does not need to send `uiConfig.inactivityActivityEvents`.
-- Runtime owns timeout decisions and returns a new state snapshot.
-- On active working screens with no payment in progress, timeout closes the current purchase and returns terminal to `start`.
-- If payment has already been sent to acquiring and runtime waits for the payment terminal response, timeout must not break payment processing.
-- A warning overlay may be shown only if configured; it is not a substitute for the terminal timeout outcome.
+## 21. OneCInterfaceAdapter
 
-## 24. MVP Mandatory Runtime Subset
+`OneCInterfaceAdapter` - текущая реализация runtime-port для 1С smoke/integration режима.
 
-Этот раздел задаёт минимальный обязательный runtime-объём для первого implementation slice. Он не отменяет полный контракт, но не требует реализовать все расширения сразу.
+Фактическое поведение:
 
-Implementation order: сначала runtime/mock state model и port API, затем screens/overlays, затем visual polish. UI должен рендерить snapshot уже в первом срезе.
+- команды складываются в outbound queue;
+- `drainOutboundCommandsJson()` отдаёт команды 1С и переводит их в `drainedByOneC`;
+- `receiveStateSnapshot(...)` применяет snapshot и связывает его с командой по `lastProcessedCommandId`;
+- максимум незавершённых команд - 20;
+- незавершённые команды старше 30 секунд получают `timeout`;
+- повторный `startPayment` блокируется, если предыдущая payment-команда ещё pending.
 
-### Mandatory Screens
+HTML API для 1С описан в `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`.
 
-- `start`;
-- `cart`;
-- `paymentSetup`;
-- `paymentWaiting`;
-- `paymentError`;
-- `finalSuccess`.
+## 22. Apply-Валидация Snapshot
 
-### Mandatory Commands
+Текущий `BaseRuntimeAdapter.receiveStateSnapshot(...)` проверяет:
 
-- `scanCode`;
-- `startPurchase`;
-- `searchProducts`;
-- `selectSearchCandidate`;
-- `incrementQuantity`;
-- `decrementQuantity`;
-- `openQuantityNumpad`;
-- `confirmQuantityInput`;
-- `removeCartLine`;
-- `cancelPurchaseRequest`;
-- `confirmCancelPurchase`;
-- `returnToPurchase`;
-- `goToPaymentSetup`;
-- `addPackage`;
-- `applyDiscountByPhone`;
-- `startPayment`;
-- `retryPayment`;
-- `returnToPaymentSetup`;
-- `setTextScale`;
-- `resetToStart`.
+- JSON парсится;
+- snapshot является объектом;
+- `snapshotVersion` - number;
+- `sessionId` - string;
+- `currentScreen` входит в известный список;
+- существуют `cart`, `cartLines`, `totals`, `paymentState`, `searchState`, `scannerState`, `uiConfig`, `themeProfile`;
+- `cartLines` является массивом;
+- `snapshotVersion` не меньше текущего;
+- `runId` и `terminalLabel` совпадают с route context, если они переданы в snapshot.
 
-### Optional For First Slice, Contract-Reserved
+После успешного apply Web принудительно оставляет свой текущий `adapterKind`. Snapshot от 1С не может переключить активный adapter.
 
-- `bindManager`;
-- `markedProductPendingDecision` / Честный знак branch;
-- advanced payment provider states;
-- custom profile management UI.
+Минимальная apply-валидация не означает, что неполный snapshot считается корректным бизнес-контрактом. UI ожидает полный shape.
 
-Эти возможности зарезервированы контрактом, но могут быть вынесены за первый implementation slice, если MVP delivery требует меньшего среза.
+## 23. Mock И Preview
 
-### Mandatory Mock Scenarios
+`MockAdapter`:
 
-- стартовый экран;
-- tap start screen -> cart;
-- scan product -> cart;
-- repeated scan -> quantity increment;
-- search `4+` chars -> found;
-- search -> not found;
-- select candidate -> cart line;
-- quantity numpad;
-- remove line;
-- cancel confirmation;
-- add package;
-- discount applied;
-- discount not found;
-- manager bound if snapshot has manager;
-- payment waiting;
-- payment success;
-- payment failed;
-- inactivity timeout;
-- final auto reset.
+- имитирует бизнес-runtime внутри frontend;
+- нужен для demo, тестов и разработки;
+- обязан использовать тот же runtime-port и snapshot shape.
 
-### Mandatory Preview Scenarios
+`PreviewAdapter`:
 
-For service/dev/acceptance mode, `PreviewAdapter` must provide deterministic snapshots for:
+- отдаёт детерминированные snapshot для фиксированных состояний;
+- нужен для visual/dev/acceptance проверок;
+- не вызывает 1С;
+- не пишет команды в `OneCInterfaceAdapter`;
+- не является business runtime.
 
-- start idle;
-- cart empty;
-- cart 1 item;
-- cart many items;
-- search found;
-- search not found;
-- quantity numpad open;
-- cancel confirmation;
-- payment setup;
-- payment waiting;
-- payment error;
-- final success;
-- inactivity timeout warning;
-- text scale variants;
-- theme loaded/default/error where supported.
+## 24. Inactivity Timeout
 
-## 25. Prototype Mock Mode Contract
+Текущие поля:
 
-Prototype mock mode must implement the same `SelfCheckoutRuntimePort` API.
+- `uiConfig.inactivityTimeoutSeconds`;
+- `uiConfig.inactivityWarningSeconds`;
+- `modalState.type='timeoutWarning'`;
+- `resetToStart` с reason `inactivityTimeout`.
 
-Mock mode is an adapter for reproducing external contours in prototype MVP. It does not replace the product/runtime contract and must not create a second UI API.
+Runtime владеет итоговым timeout-решением. UI может вести presentation/activity механику, но не должен ломать оплату, если acquiring/payment уже в процессе.
 
-Required mock capabilities:
+## 25. Запреты Для UI
 
-- tap start screen -> empty cart;
-- start screen -> scan product -> cart;
-- repeated scan increments quantity;
-- search after 4+ chars;
-- found/not found search;
-- select candidate adds/increments cart;
-- quantity plus/minus/numpad;
-- remove line;
-- discount applied/not found;
-- manager bound/rejected;
-- barcode product not found;
-- unknown code;
-- payment waiting/success/failed/timeout/cancelled;
-- cancel confirmation;
-- inactivity timeout reset with optional warning overlay;
-- inactivity timeout reset with payment guard;
-- final auto reset.
+В UI-компонентах запрещено:
 
-Mock data must be deterministic enough for tests and visual acceptance.
+- определять скидку по префиксу штрихкода;
+- искать товар по barcode напрямую;
+- считать `lineTotal`, `payableTotal`, скидку или налог;
+- напрямую вызывать 1С/payment/search/scanner/theme adapters;
+- мутировать cart/payment/search state вне snapshot;
+- делать отдельный preview-only render path;
+- принимать payment outcome без snapshot;
+- использовать localStorage как source of truth для корзины или оплаты.
 
-## 26. Preview Mode Contract
+Разрешено:
 
-`PreviewAdapter` is a service/dev/acceptance adapter implementation of the same `SelfCheckoutRuntimePort`.
+- хранить локальный draft ввода;
+- открывать/закрывать UI-owned клавиатуру или numpad;
+- отправлять typed commands;
+- рисовать поля snapshot;
+- использовать `formatted` строки из snapshot для отображения.
 
-Rules:
+## 26. Критерий Соответствия
 
-- returns deterministic snapshots for selected screen/scenario;
-- marks snapshots with `adapterKind='preview'` or equivalent debug/runtime metadata;
-- sets `previewMode=true` when preview route is active;
-- does not create a separate UI API;
-- does not directly render screens/components;
-- does not call 1С;
-- does not enqueue commands to `OneCInterfaceAdapter`;
-- must not be used as business runtime.
+Runtime-port считается соблюдённым, если:
 
-Preview route and scenarios are defined in `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md`.
-
-## 27. Adapter Boundary
-
-Runtime may internally use:
-
-- `OneCInterfaceAdapter`;
-- `MockAdapter`;
-- `PreviewAdapter`;
-- `PaymentAdapter`;
-- `ThemeConfigAdapter`;
-- `ScannerRouterAdapter`;
-- `SearchAdapter`;
-- `SessionTimerAdapter`.
-
-These adapters are runtime internals. UI imports only the runtime port and typed contracts.
-
-### OneCInterfaceAdapter Boundary
-
-`OneCInterfaceAdapter` is the concrete real adapter implementation for the BOLARS MVP 1С contour. It owns:
-
-- mapping scan/search/cart/payment commands to 1С-safe operations;
-- translating 1C responses to state snapshot;
-- masking sensitive codes;
-- handling 1C unavailable/timeout states;
-- preserving idempotency.
-
-It must not leak 1С-specific objects into UI components.
-
-HTML route, `window.BolarsSelfCheckout` methods, command delivery channel and `debug=1` diagnostics are defined in `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`.
-
-## 28. Business Logic Ban in UI
-
-Forbidden in UI components:
-
-- `if barcode startsWith ... then discount`;
-- direct price math for payable total;
-- direct line total, discount or tax math;
-- direct product lookup by barcode;
-- direct payment adapter call;
-- direct manager card detection;
-- direct cart mutation outside snapshot;
-- direct preview screen/component render bypassing RuntimePort;
-- repeated-scan decision outside runtime;
-- payment outcome decision outside runtime;
-- localStorage as cart/payment source of truth;
-- branch-specific behavior based on provider names.
-
-Allowed in UI components:
-
-- local input draft state;
-- focus/open/close visual details when mirrored by runtime where needed;
-- dispatching typed commands;
-- rendering snapshot fields;
-- formatting already formatted strings for layout only.
-
-## 29. Acceptance Surface
-
-Implementation is contract-compliant when:
-
-- every external action goes through `SelfCheckoutRuntimePort`;
-- UI renders all required screens/states from snapshot;
-- all mandatory commands are typed and covered in mock mode;
-- preview scenarios render through `PreviewAdapter` snapshots, not direct component bypass;
-- UI has no direct imports from 1C/payment/scanner/search/theme adapters;
-- cart/payment/search/discount/manager behavior is verified through runtime tests, not UI component hacks.
+- все действия пользователя проходят через typed commands;
+- UI рендерит все рабочие экраны из snapshot;
+- mock, preview и onec используют один shape состояния;
+- UI не импортирует конкретные adapters;
+- 1С-интеграция идёт через `window.BolarsSelfCheckout`, outbound queue и inbound snapshot;
+- бизнес-логика находится в runtime/1С, а не в React-компонентах.

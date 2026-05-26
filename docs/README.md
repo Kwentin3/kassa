@@ -47,7 +47,9 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 
 | Документ | Роль |
 | --- | --- |
-| `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` | Единая граница frontend с runtime/backend/1C/payment/scanner/search через typed commands и authoritative state snapshot. |
+| `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md` | Рабочий JSON-контракт для 1С: команды Web -> 1С, snapshot 1С -> Web, enum-значения, apply-правила. |
+| `docs/contracts/BOLARS_1C_SMOKE_SNAPSHOTS.md` | Готовые smoke payload JSON для проверки экранов через `receiveStateSnapshot(...)`. |
+| `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` | Внутренняя граница frontend runtime через typed commands и authoritative state snapshot. Не основной handoff для 1С. |
 | `docs/contracts/BOLARS_RUNTIME_ADAPTER_FACTORY_CONTRACT.md` | Контракт выбора runtime adapter: mock, preview или onec. |
 | `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md` | Контракт служебного preview mode через PreviewAdapter и snapshots. |
 | `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md` | Контракт реального Web ↔ 1С interface adapter, route, `window.BolarsSelfCheckout`, command delivery и snapshot apply. |
@@ -58,6 +60,14 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 | Документ | Роль |
 | --- | --- |
 | `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md` | Короткая инструкция для 1С-разработчика: как открыть Web, получить `window.BolarsSelfCheckout`, читать команды Web и отдавать snapshots обратно. |
+
+Рекомендуемый порядок для 1С-интегратора:
+
+1. `docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md`
+2. `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`
+3. `docs/contracts/BOLARS_1C_SMOKE_SNAPSHOTS.md`
+4. `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`
+5. `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md`
 
 ## 4. Architecture Layer
 
@@ -91,12 +101,13 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 5. `docs/contracts/BOLARS_RUNTIME_ADAPTER_FACTORY_CONTRACT.md`
 6. `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md`
 7. `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`
-8. `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md`
-9. `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`
-10. `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md`
-11. `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md`
-12. `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md`
-13. `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md`
+8. `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`
+9. `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md`
+10. `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`
+11. `docs/design/VISUAL_CONTRACT_BOLARS_SELF_CHECKOUT.md`
+12. `docs/design/BOLARS_THEME_AND_TOKENS_CONTRACT.md`
+13. `docs/design/SCREEN_COMPOSITION_SPEC_BOLARS.md`
+14. `docs/design/VISUAL_ACCEPTANCE_CHECKLIST_BOLARS.md`
 
 ## 7. Source-of-Truth Hierarchy
 
@@ -107,12 +118,13 @@ Preview route: `https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&
 | 3 | Visual Contract | Визуальная система, composition model, kiosk/scan-first визуальные правила. |
 | 4 | Theme/Tokens | Дизайн-токены, theme profiles, конфигурируемость бренда и states. |
 | 5 | Layered Architecture | Слои, dependency rules, adapter ownership, debug/preview boundaries. |
-| 6 | Runtime Port | Граница frontend/backend/1C, typed commands, authoritative snapshot, mock/preview/onec subset. |
+| 6 | 1С JSON Exchange | Внешний JSON-формат команд, snapshot и apply-правил для 1С. |
 | 7 | Adapter Factory / Preview | Adapter selection rules and preview scenario mode. |
 | 8 | Web ↔ 1C Interface Adapter | Route, `window.BolarsSelfCheckout`, command channel, snapshot apply, debug boundary. |
-| 9 | Screen Composition | Экранные спецификации, zones, CTAs, states, runtime bindings. |
-| 10 | Acceptance Checklist | Критерии приёмки implementation agent. |
-| 11 | Implementation Roadmap | Порядок delivery slices, gates и required evidence; не заменяет upstream requirements. |
+| 9 | Runtime Port | Внутренняя frontend/runtime граница: typed commands, authoritative snapshot, mock/preview/onec subset. |
+| 10 | Screen Composition | Экранные спецификации, zones, CTAs, states, runtime bindings. |
+| 11 | Acceptance Checklist | Критерии приёмки implementation agent. |
+| 12 | Implementation Roadmap | Порядок delivery slices, gates и required evidence; не заменяет upstream requirements. |
 
 ## 8. Non-Negotiable Product Invariants
 

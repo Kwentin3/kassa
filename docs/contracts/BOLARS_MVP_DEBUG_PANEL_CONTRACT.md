@@ -25,7 +25,8 @@ https://kassa.speechbattle.com/bolars/self-checkout-mvp?debug=1&preview=1
 ## 2. Related Documents
 
 - `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md` - Web ↔ 1С adapter contract.
-- `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` - runtime commands/snapshots.
+- `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md` - внешний JSON-формат commands/snapshots для 1С.
+- `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md` - внутренний runtime-port и snapshot-driven UI boundary.
 - `docs/contracts/BOLARS_RUNTIME_ADAPTER_FACTORY_CONTRACT.md` - adapter selection.
 - `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md` - preview mode.
 - `docs/AGENT_START_HERE.md` - implementation handoff.

@@ -15,6 +15,7 @@ Factory нужна, чтобы UI не знал, откуда пришёл runti
 - `docs/architecture/BOLARS_LAYERED_ARCHITECTURE_AND_ADAPTERS.md`
 - `docs/contracts/SELF_CHECKOUT_RUNTIME_PORT_CONTRACT.md`
 - `docs/contracts/BOLARS_MVP_PREVIEW_MODE_CONTRACT.md`
+- `docs/contracts/BOLARS_1C_JSON_EXCHANGE_CONTRACT.md`
 - `docs/contracts/BOLARS_WEB_1C_INTERFACE_ADAPTER_CONTRACT.md`
 - `docs/contracts/BOLARS_MVP_DEBUG_PANEL_CONTRACT.md`
 
