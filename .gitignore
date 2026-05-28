@@ -6,6 +6,14 @@ build/
 .vite/
 coverage/
 
+# .NET build outputs
+**/bin/
+**/obj/
+
+# Local generated release/smoke artifacts. Publish release zips via GitHub Releases,
+# not by committing generated output into the repository.
+artifacts/
+
 # Local environment files.
 # Keep example schemas tracked, ignore real values.
 .env
