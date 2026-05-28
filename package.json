@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && vite build --config vite.1c.config.ts && node scripts/verify-1c-html-export.mjs --publish",
     "build:1c-html": "tsc -b && vite build --config vite.1c.config.ts && node scripts/verify-1c-html-export.mjs",
+    "build:1c:bolars": "npm run build:1c-html && node scripts/prepare-1c-bolars-dist.mjs",
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest",

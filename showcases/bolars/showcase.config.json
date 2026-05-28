@@ -1,0 +1,23 @@
+{
+  "showcaseId": "bolars",
+  "title": "BOLARS Self-Checkout Showcase",
+  "buildCommand": "npm run build:1c:bolars",
+  "outputDir": "dist-1c/bolars",
+  "bundleName": "bundle.zip",
+  "bridgeContractVersion": "bolars-web-1c-v0.1",
+  "runtimeProfile": "1c-html-shell-v8webkit-mvp",
+  "minRunnerVersion": "0.3.0",
+  "requiredFiles": [
+    "index.html"
+  ],
+  "forbiddenFiles": [
+    ".env",
+    ".env.local",
+    ".env.deploy",
+    "*.pem",
+    "*.pfx",
+    "*.key",
+    "config.json",
+    "state.json"
+  ]
+}

@@ -1,0 +1,180 @@
+name: Publish BOLARS Showcase
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Immutable showcase version, for example 2026.05.28.1"
+        required: true
+        type: string
+      channel:
+        description: "Release channel"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - candidate
+      status:
+        description: "Release status"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - candidate
+      base_url:
+        description: "Public static base URL. Leave empty for https://<owner>.github.io/<repo>"
+        required: false
+        default: ""
+        type: string
+      rollback_version:
+        description: "Optional rollbackVersion field for manifest"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: pages-bolars-showcase
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Build and publish static registry
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve publication base URL
+        id: vars
+        shell: pwsh
+        run: |
+          $baseUrl = "${{ inputs.base_url }}".Trim()
+          if ([string]::IsNullOrWhiteSpace($baseUrl)) {
+            $baseUrl = "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          }
+
+          $baseUrl = $baseUrl.TrimEnd("/")
+          "base_url=$baseUrl" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Using base URL: $baseUrl"
+
+      - name: Build showcase bundle and manifest
+        shell: pwsh
+        run: |
+          $publishParams = @{
+            Showcase = "bolars"
+            Version = "${{ inputs.version }}"
+            Channel = "${{ inputs.channel }}"
+            Status = "${{ inputs.status }}"
+            BaseUrl = "${{ steps.vars.outputs.base_url }}"
+          }
+
+          $rollbackVersion = "${{ inputs.rollback_version }}".Trim()
+          if (-not [string]::IsNullOrWhiteSpace($rollbackVersion)) {
+            $publishParams.RollbackVersion = $rollbackVersion
+          }
+
+          & ./scripts/publish-showcase-bundle.ps1 @publishParams
+
+      - name: Prepare GitHub Pages static layout
+        shell: pwsh
+        run: |
+          $version = "${{ inputs.version }}"
+          $source = "artifacts/showcases/bolars/$version"
+          $productionManifest = "artifacts/showcases/bolars/production/manifest.json"
+          $pagesRoot = "artifacts/pages"
+          $versionTarget = "$pagesRoot/showcases/bolars/versions/$version"
+          $productionTarget = "$pagesRoot/showcases/bolars/production"
+
+          if (-not (Test-Path "$source/bundle.zip")) { throw "Missing bundle.zip: $source/bundle.zip" }
+          if (-not (Test-Path "$source/manifest.json")) { throw "Missing manifest.json: $source/manifest.json" }
+          if (-not (Test-Path "$source/sha256.txt")) { throw "Missing sha256.txt: $source/sha256.txt" }
+          if (-not (Test-Path $productionManifest)) { throw "Missing production manifest: $productionManifest" }
+
+          New-Item -ItemType Directory -Force -Path $versionTarget | Out-Null
+          New-Item -ItemType Directory -Force -Path $productionTarget | Out-Null
+
+          Copy-Item "$source/bundle.zip" "$versionTarget/bundle.zip" -Force
+          Copy-Item "$source/manifest.json" "$versionTarget/manifest.json" -Force
+          Copy-Item "$source/sha256.txt" "$versionTarget/sha256.txt" -Force
+          Copy-Item $productionManifest "$productionTarget/manifest.json" -Force
+
+      - name: Verify publication artifact
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+          $version = "${{ inputs.version }}"
+          $pagesRoot = "artifacts/pages"
+          $bundle = "$pagesRoot/showcases/bolars/versions/$version/bundle.zip"
+          $manifestPath = "$pagesRoot/showcases/bolars/production/manifest.json"
+          $manifest = Get-Content -Raw -Path $manifestPath | ConvertFrom-Json
+
+          if ($manifest.showcaseId -ne "bolars") { throw "Unexpected showcaseId: $($manifest.showcaseId)" }
+          if ($manifest.channel -ne "${{ inputs.channel }}") { throw "Unexpected channel: $($manifest.channel)" }
+          if ($manifest.status -ne "${{ inputs.status }}") { throw "Unexpected status: $($manifest.status)" }
+          if ($manifest.bundleUrl -match "branch|main|dist|githubusercontent") { throw "bundleUrl must not point to branch/main/dist/source repo: $($manifest.bundleUrl)" }
+
+          $sha = (Get-FileHash -Path $bundle -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($sha -ne $manifest.sha256) { throw "SHA-256 mismatch between bundle and manifest." }
+
+          $zip = [System.IO.Compression.ZipFile]::OpenRead($bundle)
+          try {
+            $rootIndex = $zip.Entries | Where-Object { $_.FullName -eq "index.html" } | Select-Object -First 1
+            if (-not $rootIndex) { throw "bundle.zip must contain index.html in archive root." }
+
+            $forbidden = $zip.Entries | Where-Object {
+              $_.Name -in @(".env", ".env.local", ".env.deploy", "config.json", "state.json") -or
+              $_.Name -like "*.pem" -or
+              $_.Name -like "*.pfx" -or
+              $_.Name -like "*.key"
+            } | Select-Object -First 1
+            if ($forbidden) { throw "Forbidden file in bundle.zip: $($forbidden.FullName)" }
+          }
+          finally {
+            $zip.Dispose()
+          }
+
+      - name: Upload showcase release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bolars-showcase-${{ inputs.version }}
+          path: |
+            artifacts/showcases/bolars/${{ inputs.version }}/bundle.zip
+            artifacts/showcases/bolars/${{ inputs.version }}/manifest.json
+            artifacts/showcases/bolars/${{ inputs.version }}/sha256.txt
+            artifacts/showcases/bolars/production/manifest.json
+          if-no-files-found: error
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: artifacts/pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
