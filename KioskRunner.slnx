@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/KioskRunner.Adapters.FileSystem/KioskRunner.Adapters.FileSystem.csproj" />
+    <Project Path="src/KioskRunner.Adapters.Http/KioskRunner.Adapters.Http.csproj" />
+    <Project Path="src/KioskRunner.Adapters.WebServer/KioskRunner.Adapters.WebServer.csproj" />
+    <Project Path="src/KioskRunner.Adapters.Zip/KioskRunner.Adapters.Zip.csproj" />
+    <Project Path="src/KioskRunner.Contracts/KioskRunner.Contracts.csproj" />
+    <Project Path="src/KioskRunner.Core/KioskRunner.Core.csproj" />
+    <Project Path="src/KioskRunner.Host.Cli/KioskRunner.Host.Cli.csproj" />
+    <Project Path="src/KioskRunner.Host.Service/KioskRunner.Host.Service.csproj" />
+    <Project Path="src/KioskRunner.Ports/KioskRunner.Ports.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/KioskRunner.Tests.Integration/KioskRunner.Tests.Integration.csproj" />
+    <Project Path="tests/KioskRunner.Tests.Unit/KioskRunner.Tests.Unit.csproj" />
+  </Folder>
+</Solution>
