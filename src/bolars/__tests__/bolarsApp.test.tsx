@@ -133,6 +133,7 @@ describe('BOLARS Self-Checkout App', () => {
     expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-self-checkout-mvp');
     expect(window.BolarsSelfCheckout?.getRuntimeInfoJson()).toContain('bolars-light-contrast');
     expect(screen.getByRole('link', { name: '1C handoff' })).toHaveAttribute('href', expect.stringContaining('BOLARS_1C_PROGRAMMER_HANDOFF.md'));
+    expect(screen.getByRole('link', { name: 'KioskRunner local launch' })).toHaveAttribute('href', expect.stringContaining('HANDOFF_KIOSK_RUNNER_SIMPLE_FOR_1C.md'));
     fireEvent.click(screen.getByRole('button', { name: /Найти товар вручную/i }));
     expect(window.BolarsSelfCheckout?.peekOutboundStatusJson()).toContain('pendingCount');
     expect(window.BolarsSelfCheckout?.drainOutboundCommandsJson()).toContain('startPurchase');

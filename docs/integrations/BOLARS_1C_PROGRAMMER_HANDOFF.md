@@ -3,6 +3,23 @@
 Дата: 2026-05-24
 Статус: рабочая инструкция после contract audit
 
+## KioskRunner: Локальный Запуск Витрины
+
+Если задача - открыть уже опубликованную HTML-витрину локально рядом с 1С, используйте KioskRunner:
+
+- запустить `manage-kioskrunner.ps1`;
+- установить и запустить службу `KioskRunner-bolars`;
+- проверить `currentVersion` и `servedVersion`;
+- открыть локальную витрину:
+
+```text
+http://127.0.0.1:8787/kiosk/bolars/
+```
+
+Короткая инструкция: [HANDOFF_KIOSK_RUNNER_SIMPLE_FOR_1C.md](1c-html-shell/kiosk-runner/HANDOFF_KIOSK_RUNNER_SIMPLE_FOR_1C.md).
+
+Ниже описан HTML ↔ 1С bridge: как 1С передаёт данные в уже открытую HTML-страницу.
+
 ## 1. Что Открывать
 
 Используйте режим по задаче. Самый важный режим для 1С-интеграции - **"1С bridge / adapter=onec"**.

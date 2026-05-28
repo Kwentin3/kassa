@@ -29,6 +29,7 @@ import type { CartLine, CommandSource, CommandType, CurrentScreen, RuntimeDebugS
 import { BOLARS_THEME_PROFILE_OPTIONS, DEFAULT_BOLARS_THEME_PROFILE_ID, getBolarsThemeTokens, isSelectableBolarsThemeProfileId } from './theme/bolarsTheme';
 
 const BOLARS_1C_HANDOFF_DOC_URL = 'https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/BOLARS_1C_PROGRAMMER_HANDOFF.md';
+const KIOSK_RUNNER_HANDOFF_DOC_URL = 'https://github.com/Kwentin3/kassa/blob/mvp/self-checkout-web-ui/docs/integrations/1c-html-shell/kiosk-runner/HANDOFF_KIOSK_RUNNER_SIMPLE_FOR_1C.md';
 
 const useRuntimeSnapshot = (runtime: SelfCheckoutRuntimePort) =>
   useSyncExternalStore(
@@ -930,6 +931,9 @@ const DebugPanel = ({ runtime, factory }: { runtime: SelfCheckoutRuntimePort; fa
         <h2>Debug</h2>
         <a href={BOLARS_1C_HANDOFF_DOC_URL} target="_blank" rel="noreferrer">
           1C handoff
+        </a>
+        <a href={KIOSK_RUNNER_HANDOFF_DOC_URL} target="_blank" rel="noreferrer">
+          KioskRunner local launch
         </a>
       </div>
       <dl>
