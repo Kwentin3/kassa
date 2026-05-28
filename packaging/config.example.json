@@ -1,0 +1,20 @@
+{
+  "runnerId": "kiosk-runner-bolars-001",
+  "showcaseId": "bolars",
+  "channel": "production",
+  "registryUrl": "https://updates.example.com/showcases/bolars/production/manifest.json",
+  "rootDir": "C:\\KioskShowcases\\bolars",
+  "checkIntervalMinutes": 15,
+  "keepVersions": 5,
+  "autoUpdate": true,
+  "webServer": {
+    "enabled": true,
+    "listenHost": "127.0.0.1",
+    "port": 8787,
+    "basePath": "/kiosk/bolars/",
+    "staticRoot": "current",
+    "enableDirectoryListing": false,
+    "healthPath": "/healthz",
+    "statusPath": "/runner/status"
+  }
+}
