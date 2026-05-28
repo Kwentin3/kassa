@@ -15,11 +15,12 @@ https://github.com/Kwentin3/kassa/releases/download/kioskrunner-v0.3.0-fieldtria
 ```
 
 1. Extract `KioskRunner-win-x64.zip` to `C:\KioskRunner`.
-2. Copy `config.example.json` to `config.json`.
+2. In `C:\KioskRunner`, copy the file `config.example.json` and rename the copy to `config.json`.
 3. Edit `registryUrl`, `showcaseId`, `rootDir`, `webServer.listenHost`, `webServer.port`, and `webServer.basePath`.
 4. Run the PowerShell Manager:
 
 ```powershell
+Set-Location -LiteralPath "C:\KioskRunner"
 .\manage-kioskrunner.ps1
 ```
 
@@ -44,8 +45,9 @@ KioskRunner MVP uses PowerShell manager scripts instead of `KioskRunner.Manager.
 Recommended operator flow:
 
 ```powershell
-Copy-Item .\config.example.json .\config.json
-notepad .\config.json
+Copy-Item -LiteralPath "C:\KioskRunner\config.example.json" -Destination "C:\KioskRunner\config.json"
+notepad "C:\KioskRunner\config.json"
+Set-Location -LiteralPath "C:\KioskRunner"
 .\manage-kioskrunner.ps1
 ```
 
@@ -64,7 +66,7 @@ The service is installed with `StartupType=Automatic`, so Windows starts it afte
 
 Use this path when the goal is simply to open the local showcase and pass the stable URL to 1C:
 
-1. Copy `config.example.json` to `config.json`.
+1. In `C:\KioskRunner`, copy the file `config.example.json` and rename the copy to `config.json`.
 2. Edit `registryUrl`, `rootDir`, `webServer.port`, and `webServer.basePath`.
 3. Run:
 

@@ -73,16 +73,25 @@ https://github.com/Kwentin3/kassa/releases/tag/kioskrunner-v0.3.0-fieldtrial
 C:\KioskRunner
 ```
 
-3. Скопировать config:
+3. Создать рабочий config-файл.
+
+Это именно копирование файла, а не копирование строки из инструкции:
+
+- откройте папку `C:\KioskRunner` в проводнике;
+- найдите файл `config.example.json`;
+- скопируйте его в этой же папке;
+- переименуйте копию в `config.json`.
+
+Если удобнее через PowerShell, команда такая:
 
 ```powershell
-Copy-Item .\config.example.json .\config.json
+Copy-Item -LiteralPath "C:\KioskRunner\config.example.json" -Destination "C:\KioskRunner\config.json"
 ```
 
 4. Открыть config:
 
 ```powershell
-notepad .\config.json
+notepad "C:\KioskRunner\config.json"
 ```
 
 5. Проверить основные поля:
@@ -100,6 +109,7 @@ autoUpdate = true
 6. Запустить PowerShell Manager:
 
 ```powershell
+Set-Location -LiteralPath "C:\KioskRunner"
 .\manage-kioskrunner.ps1
 ```
 

@@ -1,4 +1,4 @@
-# Runbook: KioskRunner PowerShell Manager MVP
+﻿# Runbook: KioskRunner PowerShell Manager MVP
 
 Дата: 2026-05-28  
 Статус: MVP ops runbook
@@ -47,16 +47,24 @@ README.md
 C:\KioskRunner
 ```
 
-2. Скопировать config:
+2. Создать рабочий config-файл.
+
+Это именно копирование файла в Windows-папке:
+
+- открыть `C:\KioskRunner` в проводнике;
+- скопировать файл `config.example.json`;
+- переименовать копию в `config.json`.
+
+PowerShell-вариант:
 
 ```powershell
-Copy-Item .\config.example.json .\config.json
+Copy-Item -LiteralPath "C:\KioskRunner\config.example.json" -Destination "C:\KioskRunner\config.json"
 ```
 
 3. Отредактировать:
 
 ```powershell
-notepad .\config.json
+notepad "C:\KioskRunner\config.json"
 ```
 
 Минимально проверить:
@@ -71,6 +79,7 @@ notepad .\config.json
 4. Запустить Manager:
 
 ```powershell
+Set-Location -LiteralPath "C:\KioskRunner"
 .\manage-kioskrunner.ps1
 ```
 
