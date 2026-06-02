@@ -2,7 +2,7 @@
   "runnerId": "kiosk-runner-bolars-001",
   "showcaseId": "bolars",
   "channel": "production",
-  "registryUrl": "https://updates.example.com/showcases/bolars/production/manifest.json",
+  "registryUrl": "https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json",
   "rootDir": "C:\\KioskShowcases\\bolars",
   "checkIntervalMinutes": 15,
   "keepVersions": 5,

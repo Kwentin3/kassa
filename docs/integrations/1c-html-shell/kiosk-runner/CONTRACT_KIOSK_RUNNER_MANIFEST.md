@@ -18,7 +18,7 @@ It is not a GitHub branch, not `main`, not `dist`, and not a source repository l
   "channel": "production",
   "version": "2026.05.28.1",
   "status": "production",
-  "bundleUrl": "https://updates.example.com/showcases/bolars/2026.05.28.1/bundle.zip",
+  "bundleUrl": "https://<public-static-host>/showcases/bolars/versions/2026.05.28.1/bundle.zip",
   "sha256": "64-char-lowercase-hex-sha256",
   "bridgeContractVersion": "bolars-web-1c-v0.1",
   "minRunnerVersion": "0.3.0",

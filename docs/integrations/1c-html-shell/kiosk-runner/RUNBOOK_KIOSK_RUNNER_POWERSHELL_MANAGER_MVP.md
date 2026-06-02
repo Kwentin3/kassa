@@ -69,12 +69,14 @@ notepad "C:\KioskRunner\config.json"
 
 Минимально проверить:
 
-- `registryUrl`;
+- `registryUrl = https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json`;
 - `showcaseId`;
 - `rootDir`;
 - `webServer.listenHost`;
 - `webServer.port`;
 - `webServer.basePath`.
+
+Если `registryUrl` указывает на `updates.example.com`, это старый placeholder. Для BOLARS field trial используйте GitHub Pages URL выше.
 
 4. Запустить Manager:
 
@@ -340,6 +342,7 @@ Registry unavailable:
 
 - выполнить `[8] Check registry`;
 - проверить интернет и `registryUrl`;
+- для BOLARS field trial проверить DNS/HTTPS-доступ к `kwentin3.github.io`;
 - старая установленная витрина должна продолжать открываться, если `current` уже есть.
 
 Showcase does not open:

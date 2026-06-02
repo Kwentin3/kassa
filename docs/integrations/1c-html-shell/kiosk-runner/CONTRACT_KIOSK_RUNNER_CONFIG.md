@@ -17,7 +17,7 @@ This document defines `config.json` and `config.example.json` for KioskRunner.
   "runnerId": "kiosk-runner-bolars-001",
   "showcaseId": "bolars",
   "channel": "production",
-  "registryUrl": "https://updates.example.com/showcases/bolars/production/manifest.json",
+  "registryUrl": "https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json",
   "rootDir": "C:\\KioskShowcases\\bolars",
   "checkIntervalMinutes": 15,
   "keepVersions": 5,
@@ -87,9 +87,9 @@ Allowed MVP sources include GitHub Pages, GitHub Release asset, raw static hosti
 `config.example.json`:
 
 - ships with runner artifact;
-- contains safe placeholders;
+- contains safe public field-trial defaults for BOLARS and no secrets;
 - must not contain tokens, passwords, client data or private URLs with credentials;
-- must not be used as production config implicitly.
+- can be copied as a field-trial starting point, but customer deployments must still verify `registryUrl`, `rootDir`, port and basePath explicitly.
 
 `config.json`:
 

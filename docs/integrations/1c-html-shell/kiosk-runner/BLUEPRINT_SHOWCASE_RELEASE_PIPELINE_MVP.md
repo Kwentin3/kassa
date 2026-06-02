@@ -194,7 +194,7 @@ Example:
   "channel": "production",
   "version": "2026.05.28.1",
   "status": "production",
-  "bundleUrl": "https://updates.example.com/showcases/bolars/versions/2026.05.28.1/bundle.zip",
+  "bundleUrl": "https://<public-static-host>/showcases/bolars/versions/2026.05.28.1/bundle.zip",
   "sha256": "64-char-lowercase-hex-sha256",
   "bridgeContractVersion": "bolars-web-1c-v0.1",
   "minRunnerVersion": "0.3.0",
@@ -249,13 +249,13 @@ showcases/bolars/
 Example runner `registryUrl`:
 
 ```text
-https://updates.example.com/showcases/bolars/production/manifest.json
+https://<public-static-host>/showcases/bolars/production/manifest.json
 ```
 
 Example immutable bundle URL inside manifest:
 
 ```text
-https://updates.example.com/showcases/bolars/versions/2026.05.28.1/bundle.zip
+https://<public-static-host>/showcases/bolars/versions/2026.05.28.1/bundle.zip
 ```
 
 Important distinction:
@@ -341,7 +341,7 @@ config.example.json -> config.json
 8. Set `registryUrl` to production manifest:
 
 ```json
-"registryUrl": "https://updates.example.com/showcases/bolars/production/manifest.json"
+"registryUrl": "https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json"
 ```
 
 9. Confirm default local serving config:

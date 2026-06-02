@@ -24,7 +24,11 @@ Download:
 KioskRunner-win-x64.zip
 ```
 
-MVP source: official KioskRunner GitHub Release or approved public release URL.
+MVP source: official KioskRunner GitHub Release or approved public release URL:
+
+```text
+https://github.com/Kwentin3/kassa/releases/download/kioskrunner-v0.3.0-fieldtrial/KioskRunner-win-x64.zip
+```
 
 ## 3. Extract
 
@@ -73,7 +77,7 @@ Example:
   "runnerId": "kiosk-runner-bolars-001",
   "showcaseId": "bolars",
   "channel": "production",
-  "registryUrl": "https://updates.example.com/showcases/bolars/production/manifest.json",
+  "registryUrl": "https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json",
   "rootDir": "C:\\KioskShowcases\\bolars",
   "checkIntervalMinutes": 15,
   "keepVersions": 5,
@@ -92,6 +96,14 @@ Example:
 ```
 
 Do not put secrets into `config.example.json`.
+
+For BOLARS field trial, `registryUrl` must be:
+
+```text
+https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json
+```
+
+`updates.example.com` is not a real registry for this package.
 
 ## 5. First Update
 
@@ -171,7 +183,8 @@ http://127.0.0.1:8787/kiosk/bolars/
 | Symptom | Check |
 | --- | --- |
 | No config | Ensure `config.json` exists, not only example. |
-| Manifest error | Verify `registryUrl` points to JSON manifest, not HTML/dist/branch. |
+| Manifest error | Verify `registryUrl` points to JSON manifest, not HTML/dist/branch. For BOLARS field trial use `https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json`. |
+| DNS/network error for manifest | Verify DNS/HTTPS access to `kwentin3.github.io`; this is a network/publication issue, not a 1С issue. |
 | Port conflict | Check process using `8787`. Do not silently change URL. |
 | No current | Run `update-once`, inspect logs. |
 | 1С cannot open URL | Verify local host, port, service running, firewall/local policy. |

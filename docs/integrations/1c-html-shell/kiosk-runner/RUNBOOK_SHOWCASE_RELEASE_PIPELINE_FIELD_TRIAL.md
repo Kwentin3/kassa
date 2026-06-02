@@ -14,7 +14,7 @@ Run from repository root:
   -Version 2026.05.28.1 `
   -Channel production `
   -Status production `
-  -BaseUrl https://updates.example.com
+  -BaseUrl https://kwentin3.github.io/kassa
 ```
 
 The script reads:
@@ -66,7 +66,7 @@ Set:
 
 ```json
 {
-  "registryUrl": "https://updates.example.com/showcases/bolars/production/manifest.json",
+  "registryUrl": "https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json",
   "webServer": {
     "listenHost": "127.0.0.1",
     "port": 8787,

@@ -267,6 +267,31 @@ function Get-KioskRunnerManagerStatus {
     $health = Invoke-KioskRunnerHttpJson -Url $healthUrl
     $runnerStatus = Invoke-KioskRunnerHttpJson -Url $statusUrl
     $statusJson = $runnerStatus.Json
+    if (-not $statusJson -and $config) {
+        $exePath = $null
+        if (-not [string]::IsNullOrWhiteSpace($service.PathName)) {
+            $exeMatch = [regex]::Match($service.PathName, '^(?:"(?<quoted>[^"]+KioskRunner\.exe)"|(?<plain>\S+KioskRunner\.exe))', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+            if ($exeMatch.Success) {
+                $exePath = if ($exeMatch.Groups["quoted"].Success) { $exeMatch.Groups["quoted"].Value } else { $exeMatch.Groups["plain"].Value }
+            }
+        }
+
+        if ([string]::IsNullOrWhiteSpace($exePath)) {
+            $exePath = Join-Path (Split-Path -Parent $resolvedConfig) "KioskRunner.exe"
+        }
+
+        if (Test-Path -LiteralPath $exePath -PathType Leaf) {
+            $cliStatus = Invoke-KioskRunnerProcess -ExePath $exePath -Arguments @("status", "--config", $resolvedConfig)
+            if ($cliStatus.ExitCode -eq 0 -and -not [string]::IsNullOrWhiteSpace($cliStatus.Output)) {
+                try {
+                    $statusJson = $cliStatus.Output | ConvertFrom-Json
+                }
+                catch {
+                    $statusJson = $null
+                }
+            }
+        }
+    }
 
     return [pscustomobject]@{
         serviceName = $resolvedServiceName

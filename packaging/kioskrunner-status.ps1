@@ -17,7 +17,7 @@ if ($Json) {
 Write-KioskRunnerStatusSummary -Status $status
 
 if (-not $status.configExists) {
-    Write-Warning "config.json was not found. Copy config.example.json to config.json and edit registryUrl/rootDir/webServer settings."
+    Write-Warning "config.json was not found. Copy config.example.json to config.json, then verify registryUrl/rootDir/webServer settings."
 }
 
 if (-not $status.serviceInstalled) {

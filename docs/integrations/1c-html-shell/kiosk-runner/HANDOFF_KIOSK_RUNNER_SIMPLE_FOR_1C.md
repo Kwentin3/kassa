@@ -97,7 +97,7 @@ notepad "C:\KioskRunner\config.json"
 5. Проверить основные поля:
 
 ```text
-registryUrl
+registryUrl = https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json
 showcaseId = bolars
 rootDir
 webServer.listenHost = 127.0.0.1
@@ -105,6 +105,8 @@ webServer.port = 8787
 webServer.basePath = /kiosk/bolars/
 autoUpdate = true
 ```
+
+Если в `registryUrl` указано `https://updates.example.com/...`, это старый placeholder. Его нужно заменить на URL выше.
 
 6. Запустить PowerShell Manager:
 
@@ -176,6 +178,8 @@ http://127.0.0.1:8787/kiosk/bolars/
 | --- | --- |
 | Страница не открывается | Служба запущена, порт `8787` свободен, `/healthz` отвечает. |
 | Обновление не пришло | `Check registry`, правильный `registryUrl`, GitHub Pages cache, `/runner/status`. |
+| Ошибка DNS для `updates.example.com` | В config остался placeholder. Поставьте `https://kwentin3.github.io/kassa/showcases/bolars/production/manifest.json`. |
+| Ошибка DNS/HTTPS для `kwentin3.github.io` | Проверить доступ к GitHub Pages, DNS, proxy, firewall или TLS-inspection. |
 | Ошибка `sha256` | Не форсировать установку. Проверить, что manifest и bundle опубликованы одной версией. |
 | Служба не стартует | Открыть logs, проверить `config.json`, запустить PowerShell от администратора. |
 | `currentVersion` пустой | Выполнить `Check registry`, затем `Update now` через меню. |

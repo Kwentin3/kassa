@@ -96,5 +96,5 @@ Future phases:
 - Path traversal is blocked.
 - Forbidden paths are blocked.
 - Public manifest/bundle contain no secrets.
-- `config.example.json` contains placeholders only.
+- `config.example.json` contains only public non-secret defaults/placeholders.
 - Runner does not implement business API.
